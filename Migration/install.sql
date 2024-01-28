@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS up_users
 (
 	id       INT         NOT NULL AUTO_INCREMENT,
 	email    VARCHAR(20) NULL,
-	password VARCHAR(40) NOT NULL,
+	password VARCHAR(40) NULL,
 	role_id  INT         NOT NULL,
 	tel      VARCHAR(45) NOT NULL,
 	name     VARCHAR(45) NULL,
