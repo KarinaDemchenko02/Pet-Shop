@@ -1,0 +1,8 @@
+{
+    "name": "team-2/marketplace",
+    "autoload": {
+        "psr-4": {
+            "User\\Marketplace\\": "src/"
+        }
+    }
+}
