@@ -2,12 +2,11 @@
 
 namespace Up\Service;
 
-class Configuration
+class Configuration extends BaseSingletonService
 {
 	private static array $config = [];
-	private static ?Configuration $instance = null;
 
-	private function __construct()
+	protected function __construct()
 	{
 		if (!file_exists(ROOT . '/config/local.config.php'))
 		{
@@ -37,17 +36,4 @@ class Configuration
 
 		throw new \RuntimeException("Configuration option {$name} not found");
 	}
-
-	public static function getInstance(): Configuration
-	{
-		if (static::$instance)
-		{
-			return static::$instance;
-		}
-
-		static::$instance = new self();
-
-		return static::$instance;
-	}
-
 }
