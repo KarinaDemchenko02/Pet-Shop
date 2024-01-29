@@ -1,8 +1,8 @@
 {
-    "name": "team-2/marketplace",
+    "name": "madagascar/marketplace",
     "autoload": {
         "psr-4": {
-            "User\\Marketplace\\": "src/"
+            "Up\\": "src/"
         }
     }
 }
