@@ -1,0 +1,8 @@
+{
+    "name": "madagascar/marketplace",
+    "autoload": {
+        "psr-4": {
+            "Up\\": "src/"
+        }
+    }
+}

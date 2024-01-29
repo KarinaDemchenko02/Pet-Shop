@@ -2,7 +2,7 @@
 
 namespace Up\Models;
 
-class Order
+class Admin
 {
 
 }

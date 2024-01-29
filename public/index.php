@@ -1,3 +1,3 @@
 <?php
 
-require_once __DIR__.'/../boot.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/../boot.php';
