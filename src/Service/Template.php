@@ -4,9 +4,6 @@ namespace Up\Service;
 class Template
 {
     private string $path;
-
-    private string $temp;
-
     private array $variables;
 
     private array $params = [
@@ -14,11 +11,10 @@ class Template
         'is_nl2br' => false
     ];
 
-    private string $includeFile;
 
-    public function __construct(array $variables, string $path = '/../View/')
+    public function __construct(string $path, array $variables)
     {
-        $this->path = __DIR__ . $path;
+        $this->path = __DIR__ . '/../View/' .$path . '.php';
 		$this->variables = $variables;
     }
 
@@ -33,35 +29,15 @@ class Template
         return false;
     }
 
-    public function setIncludeFile(string $include_file): void
+    public function display(): void
     {
-        if (!file_exists($this->path . $include_file))
+        if (!file_exists($this->path))
         {
-            throw new \Exception('Include file ' . $this->includeFile . ' not exists');
-        }
-		$this->includeFile = $this->path . $include_file;
-    }
-
-    public function display(string $temp): void
-    {
-        $this->temp = $this->path . $temp . '.php';
-
-        if (!file_exists($this->temp))
-        {
-            throw new \Exception('Template file ' . $temp . ' not exists');
+            throw new \Exception('Template file ' . $this->path . ' not exists');
         }
 
-        require_once($this->temp);
-    }
 
-    public function includeFile(): void
-    {
-        if (!file_exists($this->includeFile))
-        {
-            throw new \Exception('Include file ' . $this->includeFile . ' not found');
-        }
-
-        require_once($this->includeFile);
+        require($this->path);
     }
 
     private function xssProtection(mixed $variables): array|string
@@ -96,9 +72,11 @@ class Template
         return nl2br($variable);
     }
 
+	//TODO XSS protection
     public function getVariable(string $name): mixed
     {
-        if (isset($this->variables[$name]))
+		return $this->variables[$name];
+        /*if (isset($this->variables[$name]))
         {
             $variable = $this->variables[$name];
 
@@ -115,6 +93,6 @@ class Template
             return $variable;
         }
 
-        return null;
+        return null;*/
     }
 }

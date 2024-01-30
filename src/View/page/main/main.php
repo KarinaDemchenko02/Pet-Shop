@@ -7,5 +7,7 @@
 	main page
 </div>
 <div>
-	<?= 'main page = ' . $this->getVariable('title') . PHP_EOL ?>
+    <?php foreach ($this->getVariable('products') as $product): ?>
+        <?php $product->display() ?> <br>
+    <?php endforeach; ?>
 </div>

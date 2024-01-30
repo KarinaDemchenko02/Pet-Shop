@@ -2,5 +2,5 @@
 ?>
 
 <div>
-	Это карточка товара
+	<?= $this->getVariable('id') ?>
 </div>
