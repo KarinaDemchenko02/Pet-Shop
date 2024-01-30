@@ -2,7 +2,7 @@
 
 namespace Service;
 
-class DataBase
+class DbConnector
 {
 	function getConnection()
 	{
