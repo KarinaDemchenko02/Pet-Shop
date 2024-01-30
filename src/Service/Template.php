@@ -3,21 +3,20 @@
 namespace Up\Service;
 class Template
 {
-    private $path;
+    private string $path;
 
-    private $template;
+    private string $temp;
 
-    private $variables = [];
+    private array $variables = [];
 
-    private $params = [
-        'xss_protection' => true,
-        'exit_after_display' => true,
-        'endofline_to_br' => false
+    private array $params = [
+        'is_xss' => true,
+        'is_nl2br' => false
     ];
 
-    private $include_file;
+    private string $include_file;
 
-    public function __construct($path = '/../Views/')
+    public function __construct(string $path = '/../Views/')
     {
         $this->path = __DIR__ . $path;
     }
@@ -43,48 +42,21 @@ class Template
         }
     }
 
-    public function assign(string $name, $value): void
+    public function assign(string $name, mixed $value): void
     {
         $this->variables[$name] = $value;
     }
 
-    public function display(string $template): void
+    public function display(string $temp): void
     {
-        $this->template = $this->path . $template;
+        $this->temp = $this->path . $temp;
 
-        if (!file_exists($this->template))
+        if (!file_exists($this->temp))
         {
-            throw new \Exception('Template file ' . $template . ' not exitst');
+            throw new \Exception('Template file ' . $temp . ' not exitst');
         }
 
-        require_once($this->template);
-
-        if ($this->params['exit_after_display'])
-        {
-            exit;
-        }
-    }
-
-    private function getVariables(string $name): array|null
-    {
-        if (isset($this->variables[$name]))
-        {
-            $variable = $this->variables[$name];
-
-            if ($this->params['xss_protection'])
-            {
-                $variable = $this->xssProtection($variable);
-            }
-
-            if ($this->params['endofline_to_br'])
-            {
-                $variable = $this->endoflineToBr($variable);
-            }
-
-            return $variable;
-        }
-
-        return null;
+        require_once($this->temp);
     }
 
     private function includeFile(): void
@@ -118,7 +90,8 @@ class Template
         if (is_array($variable))
         {
             $protected = [];
-            foreach ($variable as $key => $value) {
+            foreach ($variable as $key => $value)
+            {
                 $protected[$key] = $this->endoflineToBr($value);
             }
 
@@ -126,6 +99,28 @@ class Template
         }
 
         return nl2br($variable);
+    }
+
+    private function getVariables(string $name): mixed
+    {
+        if (isset($this->variables[$name]))
+        {
+            $variable = $this->variables[$name];
+
+            if ($this->params['is_xss'])
+            {
+                $variable = $this->xssProtection($variable);
+            }
+
+            if ($this->params['is_nl2br'])
+            {
+                $variable = $this->endoflineToBr($variable);
+            }
+
+            return $variable;
+        }
+
+        return null;
     }
 }
 
