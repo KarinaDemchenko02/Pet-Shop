@@ -4,5 +4,8 @@
         "psr-4": {
             "Up\\": "src/"
         }
+    },
+    "require": {
+        "ext-mysqli": "*"
     }
 }
