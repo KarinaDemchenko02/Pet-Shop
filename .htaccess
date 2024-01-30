@@ -1,0 +1,14 @@
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # Block direct requests to the "public" subdirectory
+    RewriteCond %{ENV:REDIRECT_STATUS} ^$
+    RewriteRule ^public($|/) - [R=404]
+
+    RewriteCond %{REQUEST_FILENAME} !-d [OR]
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ public/index.php
+
+    # Rewrite all requests that are not already for the "public" subdirectory
+    RewriteRule !^public/ /public%{REQUEST_URI} [L]
+</IfModule>
