@@ -7,18 +7,19 @@ class Template
 
     private string $temp;
 
-    private array $variables = [];
+    private array $variables;
 
     private array $params = [
         'is_xss' => true,
         'is_nl2br' => false
     ];
 
-    private string $include_file;
+    private string $includeFile;
 
-    public function __construct(string $path = '/../Views/')
+    public function __construct(array $variables, string $path = '/../View/')
     {
         $this->path = __DIR__ . $path;
+		$this->variables = $variables;
     }
 
     public function setParam(string $param, bool $value): bool
@@ -34,47 +35,41 @@ class Template
 
     public function setIncludeFile(string $include_file): void
     {
-        $this->include_file = $this->path . $include_file;
-
         if (!file_exists($this->path . $include_file))
         {
-            throw new \Exception('Include file ' . $this->include_file . ' not exitst');
+            throw new \Exception('Include file ' . $this->includeFile . ' not exists');
         }
-    }
-
-    public function assign(string $name, mixed $value): void
-    {
-        $this->variables[$name] = $value;
+		$this->includeFile = $this->path . $include_file;
     }
 
     public function display(string $temp): void
     {
-        $this->temp = $this->path . $temp;
+        $this->temp = $this->path . $temp . '.php';
 
         if (!file_exists($this->temp))
         {
-            throw new \Exception('Template file ' . $temp . ' not exitst');
+            throw new \Exception('Template file ' . $temp . ' not exists');
         }
 
         require_once($this->temp);
     }
 
-    private function includeFile(): void
+    public function includeFile(): void
     {
-        if (!file_exists($this->include_file))
+        if (!file_exists($this->includeFile))
         {
-            throw new \Exception('Include file ' . $this->include_file . ' not found');
+            throw new \Exception('Include file ' . $this->includeFile . ' not found');
         }
 
-        require_once($this->include_file);
+        require_once($this->includeFile);
     }
 
-    private function xssProtection(mixed $variable): array|string
+    private function xssProtection(mixed $variables): array|string
     {
-        if (is_array($variable))
+        if (is_array($variables))
         {
             $protected = [];
-            foreach ($variable as $key => $value)
+            foreach ($variables as $key => $value)
             {
                 $protected[$key] = $this->xssProtection($value);
             }
@@ -82,17 +77,17 @@ class Template
             return $protected;
         }
 
-        return htmlspecialchars($variable);
+        return htmlspecialchars($variables);
     }
 
-    private function endoflineToBr(mixed $variable): array|string
+    private function endOfLineToBr(mixed $variable): array|string
     {
         if (is_array($variable))
         {
             $protected = [];
             foreach ($variable as $key => $value)
             {
-                $protected[$key] = $this->endoflineToBr($value);
+                $protected[$key] = $this->endOfLineToBr($value);
             }
 
             return $protected;
@@ -101,7 +96,7 @@ class Template
         return nl2br($variable);
     }
 
-    private function getVariables(string $name): mixed
+    public function getVariable(string $name): mixed
     {
         if (isset($this->variables[$name]))
         {
@@ -114,7 +109,7 @@ class Template
 
             if ($this->params['is_nl2br'])
             {
-                $variable = $this->endoflineToBr($variable);
+                $variable = $this->endOfLineToBr($variable);
             }
 
             return $variable;
@@ -123,4 +118,3 @@ class Template
         return null;
     }
 }
-

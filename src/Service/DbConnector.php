@@ -1,36 +1,41 @@
 <?php
 
-namespace Service;
+namespace Up\Service;
 
-class DbConnector
+class DbConnector extends BaseSingletonService
 {
-	function getConnection()
+	private $connection;
+
+	protected function __construct()
 	{
-		static $connection = null;
+		$this->createConnection(
+			Configuration::getInstance()->option('DB_HOST'),
+			Configuration::getInstance()->option('DB_USER'),
+			Configuration::getInstance()->option('DB_PASSWORD'),
+			Configuration::getInstance()->option('DB_NAME')
+		);
+	}
 
-		if ($connection === null)
+	private function createConnection($dbHost, $dbUser, $dbPassword, $dbName): void
+	{
+		$this->connection = mysqli_init();
+
+		$connected = mysqli_real_connect($this->connection, $dbHost, $dbUser, $dbPassword, $dbName);
+		if (!$connected)
 		{
-			$dbHost = option('DB_HOST');
-			$dbUser = option('DB_USER');
-			$dbPassword = option('DB_PASSWORD');
-			$dbName = option('DB_NAME');
-
-			$connection = mysqli_init();
-
-			$connected = mysqli_real_connect($connection, $dbHost, $dbUser, $dbPassword, $dbName);
-			if (!$connected)
-			{
-				$error = mysqli_connect_errno() . ': ' . mysqli_connect_error();
-				throw new Exception($error);
-			}
-
-			$encodingResult = mysqli_set_charset($connection, 'utf8');
-			if (!$encodingResult)
-			{
-				throw new Exception(mysqli_error($connection));
-			}
+			$error = mysqli_connect_errno() . ': ' . mysqli_connect_error();
+			throw new \RuntimeException($error);
 		}
 
-		return $connection;
+		$encodingResult = mysqli_set_charset($this->connection, 'utf8');
+		if (!$encodingResult)
+		{
+			throw new \RuntimeException(mysqli_error($this->connection));
+		}
+	}
+
+	public function getDbConnection()
+	{
+		return $this->connection;
 	}
 }

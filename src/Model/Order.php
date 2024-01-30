@@ -1,6 +1,6 @@
 <?php
 
-namespace Up\Models;
+namespace Up\Model;
 
 class Order
 {
