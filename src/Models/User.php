@@ -20,6 +20,7 @@ class User
 		string $role
 	)
 	{
+		var_dump($name);
 		$this->id = $id;
 		$this->name = $name;
 		$this->phoneNumber = $phoneNumber;

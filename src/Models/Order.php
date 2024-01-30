@@ -13,19 +13,24 @@ class Order
 
 	public function __construct(
 		int    $id,
-		array  $products,
+		Product  $products,
 		User   $user,
 		string $deliveryAddress,
-		int    $createdAt,
+		string    $createdAt,
 		string $status
 	)
 	{
 		$this->id = $id;
-		$this->products = $products;
+		$this->products = [$products];
 		$this->user = $user;
 		$this->deliveryAddress = $deliveryAddress;
-		$this->createdAt = $createdAt;
+		$this->createdAt = strtotime($createdAt);
 		$this->status = $status;
+	}
+
+	public function addProduct(Product $product)
+	{
+		$this->products[]=$product;
 	}
 
 	public function getId(): int

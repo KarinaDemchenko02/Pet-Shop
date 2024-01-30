@@ -2,5 +2,8 @@
 
 namespace Up\Repository;
 
-class Repository
-{}
+abstract class Repository
+{
+	abstract static function getAll(): array;
+	abstract static function getById(int $id);
+}

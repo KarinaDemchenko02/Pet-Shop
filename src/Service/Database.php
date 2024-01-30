@@ -6,7 +6,7 @@ class Database extends BaseSingletonService
 {
 	private $connection;
 
-	protected function __construct()
+	public function __construct()
 	{
 		$this->createConnection(
 			Configuration::getInstance()->option('DB_HOST'),

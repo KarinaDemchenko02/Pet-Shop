@@ -19,22 +19,26 @@ class Product
 		string $title,
 		string $description,
 		float  $price,
-		array  $tags,
+		Tag  $tag,
 		bool   $isActive,
-		int    $addedAt,
-		int    $editedAt
+		string    $addedAt,
+		string    $editedAt
 	)
 	{
 		$this->id = $id;
 		$this->title = $title;
 		$this->description = $description;
 		$this->price = $price;
-		$this->tags = $tags;
+		$this->tags = [$tag];
 		$this->isActive = $isActive;
-		$this->addedAt = $addedAt;
-		$this->editedAt = $editedAt;
+		$this->addedAt = strtotime($addedAt);
+		$this->editedAt = strtotime($editedAt);
 	}
 
+	public function addTag(Tag $tag)
+	{
+		$this->tags[]=$tag;
+	}
 	public function getId(): int
 	{
 		return $this->id;
