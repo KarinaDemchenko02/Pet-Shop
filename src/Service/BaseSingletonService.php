@@ -4,18 +4,32 @@ namespace Up\Service;
 
 abstract class BaseSingletonService
 {
-	private static ?BaseSingletonService $instance = null;
+	private static array $instances = [];
 
-	public static function getInstance(): BaseSingletonService
+	final private function __construct($params)
 	{
 		$class = static::class;
-		if (static::$instance)
+		if (array_key_exists($class, self::$instances))
 		{
-			return static::$instance;
+			throw new \RuntimeException("An instance of $class already exists");
 		}
 
-		static::$instance = new $class();
-
-		return static::$instance;
+		$this->initialize($params);
 	}
+
+	abstract protected function initialize($params);
+
+	public static function getInstance(...$params): BaseSingletonService
+	{
+		$class = static::class;
+		if (array_key_exists($class, self::$instances))
+		{
+			return static::$instances[$class];
+		}
+
+		static::$instances[$class] = new $class($params);
+
+		return static::$instances[$class];
+	}
+
 }

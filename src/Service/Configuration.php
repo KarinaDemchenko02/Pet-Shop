@@ -6,7 +6,7 @@ class Configuration extends BaseSingletonService
 {
 	private static array $config = [];
 
-	protected function __construct()
+	protected function initialize($params): void
 	{
 		if (!file_exists(ROOT . '/config/local.config.php'))
 		{
