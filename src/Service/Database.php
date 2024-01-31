@@ -2,6 +2,15 @@
 
 namespace Up\Service;
 
+/*
+$connection = \Up\Service\Database::getInstance(
+	\Up\Service\Configuration::getInstance()->option('DB_HOST'),
+	\Up\Service\Configuration::getInstance()->option('DB_USER'),
+	\Up\Service\Configuration::getInstance()->option('DB_PASSWORD'),
+	\Up\Service\Configuration::getInstance()->option('DB_NAME')
+)->getDbConnection();
+*/
+
 class Database extends BaseSingletonService
 {
 	private \mysqli $connection;

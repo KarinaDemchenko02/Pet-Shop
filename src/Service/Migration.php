@@ -14,9 +14,11 @@ class Migration
 				$connection,
 				'SELECT NAME FROM migration'
 			);
-			$fileName = $result->fetch_column();
-			$dateLastFile = self::getTimestampFromFileName($fileName);
-			self::doMigrations($connection, $dateLastFile);
+			if (!$result)
+			{
+				throw new \RuntimeException(mysqli_error($connection));
+			}
+			self::doMigrations($connection, self::getTimestampFromFileName($result->fetch_column()));
 
 		}
 		catch (\mysqli_sql_exception $e)
@@ -33,10 +35,8 @@ class Migration
 	{
 		preg_match(self::migrationPattern, $file, $date);
 		$lastFileDate = substr($date[0], 0, -1);
-		$parts = explode('_', $lastFileDate);
-		$dateString = $parts[0] . '-' . $parts[1] . '-' . $parts[2] . ' ' . $parts[3] . ':' . $parts[4];
 
-		return (int)\DateTime::createFromFormat('Y-m-d H:i', $dateString)->getTimestamp();
+		return (int)\DateTime::createFromFormat('Y_m_d_H_i', $lastFileDate)->getTimestamp();
 	}
 
 	private static function doMigrations($connection, $timeStamp = 0): void
@@ -60,23 +60,26 @@ class Migration
 				continue;
 			}
 			$migration = file_get_contents($dir . '/' . $file);
-			$queries = explode(';', $migration);
-			foreach ($queries as $query)
+			mysqli_multi_query($connection, $migration);
+			do
 			{
-				/*echo "Текущий запрос: $query <br>";*/
-				$query = trim($query);
-				if (!empty($query))
+				if ($error = mysqli_error($connection))
 				{
-					$result = mysqli_query($connection, $query);
-					if (!$result)
-					{
-						throw new \RuntimeException(mysqli_error($connection));
-					}
+					throw new \RuntimeException($error);
 				}
 			}
+			while (mysqli_next_result($connection));
 			$lastFile = $file;
 		}
-		if ($timeStamp === 0)
+
+		closedir($dh);
+		self::updateLastMigration($connection, $timeStamp === 0, $lastFile);
+
+	}
+
+	private static function updateLastMigration($connection, bool $isFirstTime, $lastFile): void
+	{
+		if ($isFirstTime)
 		{
 			$result = mysqli_query(
 				$connection,
@@ -94,10 +97,5 @@ class Migration
 		{
 			throw new \RuntimeException(mysqli_error($connection));
 		}
-
-		closedir($dh);
 	}
 }
-
-
-/*/[0-9]{4}_([0-9]{2}_){4}/*/
