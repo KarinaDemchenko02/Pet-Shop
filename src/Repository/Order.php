@@ -26,30 +26,35 @@ class Order extends Repository
 		}
 
 		$orders = [];
-
+		!$isFirstLine = true;
 		while ($row = mysqli_fetch_assoc($result))
 		{
-			if (!isset($orders[$row['id']]))
+			if (!isset($products[$row['id']]))
 			{
+				if (!$isFirstLine)
+				{
+					$orders[$id] = new Models\Order(
+						$id, $products, $user, $deliveryAddress, $createdAt, $status,
+					);
+				}
+				$id = $row['id'];
+				$products = [Product::getById($row['item_id'])];
 				$user = User::getById($row['user_id']);
-				$product = Product::getById($row['item_id']);
+				$deliveryAddress = $row['delivery_address'];
+				$createdAt = $row['created_at'];
+				$status = $row['status'];
 
-				$orders[$row['id']] = new Models\Order(
-					$row['id'],
-					$product,
-					$user,
-					$row['delivery_address'],
-					$row['created_at'],
-					$row['status']
-				);
+				$isFirstLine = false;
 			}
 			else
 			{
-				$product = Product::getById($row['item_id']);
-				$orders[$row['id']]->addProduct($product);
+				$products[] = Product::getById($row['item_id']);
 			}
-
 		}
+
+		$orders[$id] = new Models\Order(
+			$id, $products, $user, $deliveryAddress, $createdAt, $status,
+		);
 
 		return $orders;
 
@@ -72,28 +77,28 @@ class Order extends Repository
 			throw new Exception(mysqli_error($connection));
 		}
 
+		$isFirstLine = true;
 		while ($row = mysqli_fetch_assoc($result))
 		{
-			if (!isset($order))
+			if ($isFirstLine)
 			{
+				$id = $row['id'];
+				$products = [Product::getById($row['item_id'])];
 				$user = User::getById($row['user_id']);
-				$product = Product::getById($row['item_id']);
+				$deliveryAddress = $row['delivery_address'];
+				$createdAt = $row['created_at'];
+				$status = $row['status'];
 
-				$order = new Models\Order(
-					$row['id'],
-					$product,
-					$user,
-					$row['delivery_address'],
-					$row['created_at'],
-					$row['status']
-				);
+				$isFirstLine = false;
 			}
 			else
 			{
-				$product = Product::getById($row['item_id']);
-				$order->addProduct($product);
+				$products[] = Product::getById($row['item_id']);
 			}
 		}
+		$order = new Models\Order(
+			$id, $products, $user, $deliveryAddress, $createdAt, $status,
+		);
 
 		return $order;
 

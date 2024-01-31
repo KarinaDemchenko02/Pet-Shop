@@ -28,29 +28,51 @@ class Product extends Repository
 
 		$products = [];
 
+		$isFirstLine = true;
 		while ($row = mysqli_fetch_assoc($result))
 		{
 			if (!isset($products[$row['id']]))
 			{
-				$tag = Tag::getById($row['tagId']);
-				$products[$row['id']] = new Models\Product(
-					$row['id'],
-					$row['name'],
-					$row['description'],
-					$row['price'],
-					$tag,
-					$row['isActive'],
-					$row['addedAt'],
-					$row['editedAt']
-				);
+				if (!$isFirstLine)
+				{
+					$products[$id] = new Models\Product(
+						$id,
+						$name,
+						$description,
+						$price,
+						$tags,
+						$isActive,
+						$addedAt,
+						$editedAt
+					);
+				}
+				$id = $row['id'];
+				$name = $row['name'];
+				$description = $row['description'];
+				$price = $row['price'];
+				$tags = [Tag::getById($row['tagId'])];
+				$isActive = $row['isActive'];
+				$addedAt = $row['addedAt'];
+				$editedAt = $row['editedAt'];
+
+				$isFirstLine = false;
 			}
 			else
 			{
-				$tag = Tag::getById($row['tagId']);
-				$products[$row['id']]->addTag($tag);
+				$tags[]=Tag::getById($row['tagId']);
 			}
-
 		}
+
+		$products[$id] = new Models\Product(
+			$id,
+			$name,
+			$description,
+			$price,
+			$tags,
+			$isActive,
+			$addedAt,
+			$editedAt
+		);
 
 		return $products;
 
@@ -74,30 +96,30 @@ class Product extends Repository
 			throw new Exception(mysqli_error($connection));
 		}
 
+		$isFirstLine = true;
 		while ($row = mysqli_fetch_assoc($result))
 		{
-			if (!isset($product))
+			if ($isFirstLine)
 			{
-				$tag = Tag::getById($row['tagId']);
-				$tags = [$tag];
-				$product = new Models\Product(
-					$row['id'],
-					$row['name'],
-					$row['description'],
-					$row['price'],
-					$tag,
-					$row['isActive'],
-					$row['addedAt'],
-					$row['editedAt']
-				);
+				$id = $row['id'];
+				$name = $row['name'];
+				$description = $row['description'];
+				$price = $row['price'];
+				$tags = [Tag::getById($row['tagId'])];
+				$isActive = $row['isActive'];
+				$addedAt = $row['addedAt'];
+				$editedAt = $row['editedAt'];
+
+				$isFirstLine = false;
 			}
 			else
 			{
-				$tag = Tag::getById($row['tagId']);
-				$product->addTag($tag);
+				$tags[] = Tag::getById($row['tagId']);
 			}
-
 		}
+		$product = new Models\Product(
+			$id, $name, $description, $price, $tags, $isActive, $addedAt, $editedAt
+		);
 
 		return $product;
 
