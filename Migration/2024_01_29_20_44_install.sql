@@ -1,4 +1,3 @@
-USE module2;
 CREATE TABLE IF NOT EXISTS up_item
 (
 	id          INT            NOT NULL AUTO_INCREMENT,
@@ -117,4 +116,11 @@ CREATE TABLE IF NOT EXISTS up_image
 		REFERENCES up_item (id)
 		ON DELETE RESTRICT
 		ON UPDATE RESTRICT
+);
+
+CREATE TABLE migration
+(
+	ID   int          not null auto_increment,
+	NAME varchar(255) not null,
+	primary key (ID)
 );

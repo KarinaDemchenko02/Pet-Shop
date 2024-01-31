@@ -2,18 +2,23 @@
 
 namespace Up\Service;
 
+/*
+$connection = \Up\Service\Database::getInstance(
+	\Up\Service\Configuration::getInstance()->option('DB_HOST'),
+	\Up\Service\Configuration::getInstance()->option('DB_USER'),
+	\Up\Service\Configuration::getInstance()->option('DB_PASSWORD'),
+	\Up\Service\Configuration::getInstance()->option('DB_NAME')
+)->getDbConnection();
+*/
+
 class Database extends BaseSingletonService
 {
-	private $connection;
+	private \mysqli $connection;
+	private const encoding = 'utf8';
 
-	protected function __construct()
+	protected function initialize($params): void
 	{
-		$this->createConnection(
-			Configuration::getInstance()->option('DB_HOST'),
-			Configuration::getInstance()->option('DB_USER'),
-			Configuration::getInstance()->option('DB_PASSWORD'),
-			Configuration::getInstance()->option('DB_NAME')
-		);
+		$this->createConnection(...$params);
 	}
 
 	private function createConnection($dbHost, $dbUser, $dbPassword, $dbName): void
@@ -27,14 +32,14 @@ class Database extends BaseSingletonService
 			throw new \RuntimeException($error);
 		}
 
-		$encodingResult = mysqli_set_charset($this->connection, 'utf8');
+		$encodingResult = mysqli_set_charset($this->connection, self::encoding);
 		if (!$encodingResult)
 		{
 			throw new \RuntimeException(mysqli_error($this->connection));
 		}
 	}
 
-	public function getDbConnection()
+	public function getDbConnection(): \mysqli
 	{
 		return $this->connection;
 	}
