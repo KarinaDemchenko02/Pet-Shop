@@ -11,8 +11,12 @@ class User extends Repository
 
 	public static function getAll(): array
 	{
-		$database = new Database();
-		$connection = $database->getDbConnection();
+		$connection = \Up\Service\Database::getInstance(
+			\Up\Service\Configuration::getInstance()->option('DB_HOST'),
+			\Up\Service\Configuration::getInstance()->option('DB_USER'),
+			\Up\Service\Configuration::getInstance()->option('DB_PASSWORD'),
+			\Up\Service\Configuration::getInstance()->option('DB_NAME')
+		)->getDbConnection();
 
 		$sql = "select up_users.id, email, password, up_role.title as role, tel, name
 				from up_users inner join up_role on up_users.role_id = up_role.id;";
@@ -40,8 +44,12 @@ class User extends Repository
 
 	public static function getById(int $id): Models\User
 	{
-		$database = new Database();
-		$connection = $database->getDbConnection();
+		$connection = \Up\Service\Database::getInstance(
+			\Up\Service\Configuration::getInstance()->option('DB_HOST'),
+			\Up\Service\Configuration::getInstance()->option('DB_USER'),
+			\Up\Service\Configuration::getInstance()->option('DB_PASSWORD'),
+			\Up\Service\Configuration::getInstance()->option('DB_NAME')
+		)->getDbConnection();
 
 		$sql = "select up_users.id, email, password, up_role.title as role, tel, name
 				from up_users inner join up_role on up_users.role_id = up_role.id

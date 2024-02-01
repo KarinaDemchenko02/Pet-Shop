@@ -11,8 +11,12 @@ class Order extends Repository
 
 	public static function getAll(): array
 	{
-		$database = new Database();
-		$connection = $database->getDbConnection();
+		$connection = \Up\Service\Database::getInstance(
+			\Up\Service\Configuration::getInstance()->option('DB_HOST'),
+			\Up\Service\Configuration::getInstance()->option('DB_USER'),
+			\Up\Service\Configuration::getInstance()->option('DB_PASSWORD'),
+			\Up\Service\Configuration::getInstance()->option('DB_NAME')
+		)->getDbConnection();
 
 		$sql = "select up_order.id, item_id, user_id, delivery_address, created_at ,title as status
 				from up_order inner join up_order_item uoi on up_order.id = uoi.order_id
@@ -62,8 +66,12 @@ class Order extends Repository
 
 	public static function getById(int $id): Models\Order
 	{
-		$database = new Database();
-		$connection = $database->getDbConnection();
+		$connection = \Up\Service\Database::getInstance(
+			\Up\Service\Configuration::getInstance()->option('DB_HOST'),
+			\Up\Service\Configuration::getInstance()->option('DB_USER'),
+			\Up\Service\Configuration::getInstance()->option('DB_PASSWORD'),
+			\Up\Service\Configuration::getInstance()->option('DB_NAME')
+		)->getDbConnection();
 
 		$sql = "select up_order.id, item_id, user_id, delivery_address, created_at ,title as status
 				from up_order inner join up_order_item uoi on up_order.id = uoi.order_id

@@ -11,8 +11,12 @@ class Product extends Repository
 
 	public static function getAll(): array
 	{
-		$database = new Database();
-		$connection = $database->getDbConnection();
+		$connection = \Up\Service\Database::getInstance(
+			\Up\Service\Configuration::getInstance()->option('DB_HOST'),
+			\Up\Service\Configuration::getInstance()->option('DB_USER'),
+			\Up\Service\Configuration::getInstance()->option('DB_PASSWORD'),
+			\Up\Service\Configuration::getInstance()->option('DB_NAME')
+		)->getDbConnection();
 
 		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive, 
                 added_at as addedAt, edited_at as editedAt
@@ -80,8 +84,12 @@ class Product extends Repository
 
 	public static function getById(int $id): Models\Product
 	{
-		$database = new Database();
-		$connection = $database->getDbConnection();
+		$connection = \Up\Service\Database::getInstance(
+			\Up\Service\Configuration::getInstance()->option('DB_HOST'),
+			\Up\Service\Configuration::getInstance()->option('DB_USER'),
+			\Up\Service\Configuration::getInstance()->option('DB_PASSWORD'),
+			\Up\Service\Configuration::getInstance()->option('DB_NAME')
+		)->getDbConnection();
 
 		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive, 
                 added_at as addedAt, edited_at as editedAt

@@ -11,8 +11,12 @@ class Tag extends Repository
 
 	public static function getAll(): array
 	{
-		$database = new Database();
-		$connection = $database->getDbConnection();
+		$connection = \Up\Service\Database::getInstance(
+			\Up\Service\Configuration::getInstance()->option('DB_HOST'),
+			\Up\Service\Configuration::getInstance()->option('DB_USER'),
+			\Up\Service\Configuration::getInstance()->option('DB_PASSWORD'),
+			\Up\Service\Configuration::getInstance()->option('DB_NAME')
+		)->getDbConnection();
 
 		$sql = "select * from up_tags;";
 
@@ -35,8 +39,12 @@ class Tag extends Repository
 
 	public static function getById(int $id): Models\Tag
 	{
-		$database = new Database();
-		$connection = $database->getDbConnection();
+		$connection = \Up\Service\Database::getInstance(
+			\Up\Service\Configuration::getInstance()->option('DB_HOST'),
+			\Up\Service\Configuration::getInstance()->option('DB_USER'),
+			\Up\Service\Configuration::getInstance()->option('DB_PASSWORD'),
+			\Up\Service\Configuration::getInstance()->option('DB_NAME')
+		)->getDbConnection();
 
 		$sql = "select * from up_tags where id = {$id};";
 
