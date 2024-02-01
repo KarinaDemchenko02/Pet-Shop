@@ -19,7 +19,6 @@ class Migration
 				throw new \RuntimeException(mysqli_error($connection));
 			}
 			self::doMigrations($connection, self::getTimestampFromFileName($result->fetch_column()));
-
 		}
 		catch (\mysqli_sql_exception $e)
 		{
@@ -73,8 +72,10 @@ class Migration
 		}
 
 		closedir($dh);
-		self::updateLastMigration($connection, $timeStamp === 0, $lastFile);
-
+		if ($lastFile)
+		{
+			self::updateLastMigration($connection, $timeStamp === 0, $lastFile);
+		}
 	}
 
 	private static function updateLastMigration($connection, bool $isFirstTime, $lastFile): void
