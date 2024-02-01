@@ -34,10 +34,4 @@ class Product
 		$this->addedAt = strtotime($addedAt);
 		$this->editedAt = strtotime($editedAt);
 	}
-
-	// public function addTag(Tag $tag): void
-	// {
-	// 	$this->tags[]=$tag;
-	// }
-
 }
