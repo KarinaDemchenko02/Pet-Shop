@@ -2,5 +2,7 @@
 
 namespace Up\Repository;
 
-class Repository
-{}
+interface Repository
+{
+
+}

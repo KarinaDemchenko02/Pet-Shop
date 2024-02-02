@@ -1,8 +1,10 @@
 <?php
 
-namespace Up\Service;
+namespace Up\Util\Database;
 
-class DbConnector extends BaseSingletonService
+use Up\Util\Configuration;
+
+class Connector
 {
 	private $connection;
 

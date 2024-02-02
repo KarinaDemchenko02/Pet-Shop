@@ -1,8 +1,9 @@
 <?php
 
-namespace Up\Service;
+namespace Up\Util;
 
-class Configuration extends BaseSingletonService
+
+class Configuration
 {
 	private static array $config = [];
 

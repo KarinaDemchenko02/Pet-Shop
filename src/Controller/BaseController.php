@@ -3,8 +3,9 @@
 namespace Up\Controller;
 
 
-use Up\Service\Template;
+use Up\Util\TemplateEngine\TemplateEngine;
 
 abstract class BaseController
 {
+	protected TemplateEngine $engine;
 }
