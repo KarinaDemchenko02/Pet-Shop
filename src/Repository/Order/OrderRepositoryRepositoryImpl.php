@@ -1,12 +1,12 @@
 <?php
 
-namespace Up\Repository;
+namespace Up\Repository\Order;
 
-use Up\Repository\Repository;
-use Up\Service\Database;
 use Up\Models;
+use Up\Repository\Product\ProductRepositoryImpl;
+use Up\Repository\User\UserRepositoryImpl;
 
-class Order extends Repository
+class OrderRepositoryRepositoryImpl implements OrderRepository
 {
 
 	public static function getAll(): array
@@ -42,8 +42,8 @@ class Order extends Repository
 					);
 				}
 				$id = $row['id'];
-				$products = [Product::getById($row['item_id'])];
-				$user = User::getById($row['user_id']);
+				$products = [ProductRepositoryImpl::getById($row['item_id'])];
+				$user = UserRepositoryImpl::getById($row['user_id']);
 				$deliveryAddress = $row['delivery_address'];
 				$createdAt = $row['created_at'];
 				$status = $row['status'];
@@ -52,7 +52,7 @@ class Order extends Repository
 			}
 			else
 			{
-				$products[] = Product::getById($row['item_id']);
+				$products[] = ProductRepositoryImpl::getById($row['item_id']);
 			}
 		}
 
@@ -91,8 +91,8 @@ class Order extends Repository
 			if ($isFirstLine)
 			{
 				$id = $row['id'];
-				$products = [Product::getById($row['item_id'])];
-				$user = User::getById($row['user_id']);
+				$products = [ProductRepositoryImpl::getById($row['item_id'])];
+				$user = UserRepositoryImpl::getById($row['user_id']);
 				$deliveryAddress = $row['delivery_address'];
 				$createdAt = $row['created_at'];
 				$status = $row['status'];
@@ -101,7 +101,7 @@ class Order extends Repository
 			}
 			else
 			{
-				$products[] = Product::getById($row['item_id']);
+				$products[] = ProductRepositoryImpl::getById($row['item_id']);
 			}
 		}
 		$order = new Models\Order(

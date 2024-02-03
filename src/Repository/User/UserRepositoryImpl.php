@@ -1,12 +1,10 @@
 <?php
 
-namespace Up\Repository;
+namespace Up\Repository\User;
 
-use Up\Repository\Repository;
-use Up\Service\Database;
 use Up\Models;
 
-class User extends Repository
+class UserRepositoryImpl implements UserRepository
 {
 
 	public static function getAll(): array

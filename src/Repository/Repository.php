@@ -2,8 +2,9 @@
 
 namespace Up\Repository;
 
-abstract class Repository
+interface Repository
 {
-	abstract static function getAll(): array;
-	abstract static function getById(int $id);
+	public static function getAll(): array;
+
+	public static function getById(int $id);
 }

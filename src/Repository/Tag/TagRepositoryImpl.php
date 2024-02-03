@@ -1,12 +1,10 @@
 <?php
 
-namespace Up\Repository;
+namespace Up\Repository\Tag;
 
-use Up\Repository\Repository;
-use Up\Service\Database;
 use Up\Models;
 
-class Tag extends Repository
+class TagRepositoryImpl implements TagRepository
 {
 
 	public static function getAll(): array

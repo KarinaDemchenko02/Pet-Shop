@@ -1,12 +1,11 @@
 <?php
 
-namespace Up\Repository;
+namespace Up\Repository\Product;
 
-use Up\Repository\Repository;
-use Up\Service\Database;
 use Up\Models;
+use Up\Repository\Tag\TagRepositoryImpl;
 
-class Product extends Repository
+class ProductRepositoryImpl implements ProductRepository
 {
 
 	public static function getAll(): array
@@ -40,21 +39,14 @@ class Product extends Repository
 				if (!$isFirstLine)
 				{
 					$products[$id] = new Models\Product(
-						$id,
-						$name,
-						$description,
-						$price,
-						$tags,
-						$isActive,
-						$addedAt,
-						$editedAt
+						$id, $name, $description, $price, $tags, $isActive, $addedAt, $editedAt
 					);
 				}
 				$id = $row['id'];
 				$name = $row['name'];
 				$description = $row['description'];
 				$price = $row['price'];
-				$tags = [Tag::getById($row['tagId'])];
+				$tags = [TagRepositoryImpl::getById($row['tagId'])];
 				$isActive = $row['isActive'];
 				$addedAt = $row['addedAt'];
 				$editedAt = $row['editedAt'];
@@ -63,19 +55,12 @@ class Product extends Repository
 			}
 			else
 			{
-				$tags[]=Tag::getById($row['tagId']);
+				$tags[] = TagRepositoryImpl::getById($row['tagId']);
 			}
 		}
 
 		$products[$id] = new Models\Product(
-			$id,
-			$name,
-			$description,
-			$price,
-			$tags,
-			$isActive,
-			$addedAt,
-			$editedAt
+			$id, $name, $description, $price, $tags, $isActive, $addedAt, $editedAt
 		);
 
 		return $products;
@@ -113,7 +98,7 @@ class Product extends Repository
 				$name = $row['name'];
 				$description = $row['description'];
 				$price = $row['price'];
-				$tags = [Tag::getById($row['tagId'])];
+				$tags = [TagRepositoryImpl::getById($row['tagId'])];
 				$isActive = $row['isActive'];
 				$addedAt = $row['addedAt'];
 				$editedAt = $row['editedAt'];
@@ -122,7 +107,7 @@ class Product extends Repository
 			}
 			else
 			{
-				$tags[] = Tag::getById($row['tagId']);
+				$tags[] = TagRepositoryImpl::getById($row['tagId']);
 			}
 		}
 		$product = new Models\Product(
