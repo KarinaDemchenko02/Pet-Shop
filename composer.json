@@ -1,11 +1,15 @@
 {
-    "name": "madagascar/marketplace",
+    "name": "252/eshop",
     "autoload": {
         "psr-4": {
             "Up\\": "src/"
         }
     },
-    "require": {
-        "ext-mysqli": "*"
-    }
+    "authors": [
+        {
+            "name": "Karina Demchenko",
+            "email": "karina.demchenko.02@mail.ru"
+        }
+    ],
+    "require": {}
 }
