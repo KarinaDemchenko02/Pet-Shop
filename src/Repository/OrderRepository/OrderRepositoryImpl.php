@@ -67,7 +67,7 @@ class OrderRepositoryImpl implements OrderRepository
 
 	}
 
-	public static function getById(int $id): Models\Order
+	public static function getById(int $id): Order
 	{
 		$connection = \Up\Util\Database\Connector::getInstance(
 			\Up\Util\Database\Connector::getInstance()->option('DB_HOST'),
