@@ -12,13 +12,12 @@ class PageMainTemplateEngine implements TemplateEngine
 				[
 					'title' => $product->title,
 					'desc' => $product->description,
+					'price' => $product->price,
 					'id' => $product->id,
 				]
 			);
 		}
 		$mainPageTemplate = new Template('page/main/main', ['products' => $productTemplates],);
-		return (new Template('layout', [
-			'content' => $mainPageTemplate,
-		]));
+		return (new Template('layout', ['content' => $mainPageTemplate]));
 	}
 }

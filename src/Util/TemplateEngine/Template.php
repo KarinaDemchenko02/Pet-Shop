@@ -12,7 +12,7 @@ class Template
     ];
 
 
-    public function __construct(string $path, array $variables)
+    public function __construct(string $path, array $variables = [])
     {
         $this->path = ROOT . '/src/View/' .$path . '.php';
 		$this->variables = $variables;

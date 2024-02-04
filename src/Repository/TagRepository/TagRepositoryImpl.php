@@ -10,10 +10,10 @@ class TagRepositoryImpl implements TagRepository
 	public static function getAll(): array
 	{
 		$connection = \Up\Util\Database\Connector::getInstance(
-			\Up\Util\Database\Connector::getInstance()->option('DB_HOST'),
-			\Up\Util\Database\Connector::getInstance()->option('DB_USER'),
-			\Up\Util\Database\Connector::getInstance()->option('DB_PASSWORD'),
-			\Up\Util\Database\Connector::getInstance()->option('DB_NAME')
+			\Up\Util\Configuration::getInstance()->option('DB_HOST'),
+			\Up\Util\Configuration::getInstance()->option('DB_USER'),
+			\Up\Util\Configuration::getInstance()->option('DB_PASSWORD'),
+			\Up\Util\Configuration::getInstance()->option('DB_NAME')
 		)->getDbConnection();
 
 		$sql = "select * from up_tags;";
@@ -22,7 +22,7 @@ class TagRepositoryImpl implements TagRepository
 
 		if (!$result)
 		{
-			throw new Exception(mysqli_error($connection));
+			throw new \Exception(mysqli_error($connection));
 		}
 
 		$tags = [];
@@ -38,10 +38,10 @@ class TagRepositoryImpl implements TagRepository
 	public static function getById(int $id): Entity\Tag
 	{
 		$connection = \Up\Util\Database\Connector::getInstance(
-			\Up\Util\Database\Connector::getInstance()->option('DB_HOST'),
-			\Up\Util\Database\Connector::getInstance()->option('DB_USER'),
-			\Up\Util\Database\Connector::getInstance()->option('DB_PASSWORD'),
-			\Up\Util\Database\Connector::getInstance()->option('DB_NAME')
+			\Up\Util\Configuration::getInstance()->option('DB_HOST'),
+			\Up\Util\Configuration::getInstance()->option('DB_USER'),
+			\Up\Util\Configuration::getInstance()->option('DB_PASSWORD'),
+			\Up\Util\Configuration::getInstance()->option('DB_NAME')
 		)->getDbConnection();
 
 		$sql = "select * from up_tags where id = {$id};";
@@ -50,7 +50,7 @@ class TagRepositoryImpl implements TagRepository
 
 		if (!$result)
 		{
-			throw new Exception(mysqli_error($connection));
+			throw new \Exception(mysqli_error($connection));
 		}
 
 		$row = mysqli_fetch_assoc($result);

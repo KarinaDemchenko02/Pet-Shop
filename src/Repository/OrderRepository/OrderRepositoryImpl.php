@@ -2,10 +2,10 @@
 
 namespace Up\Repository\OrderRepository;
 
-
 use Exception;
 use Up\Entity\Order;
-use Up\Entity\Product;
+
+use Up\Repository\ProductRepository\ProductRepositoryImpl;
 use Up\Repository\UserRepository\UserRepositoryImpl;
 
 
@@ -15,10 +15,10 @@ class OrderRepositoryImpl implements OrderRepository
 	public static function getAll(): array
 	{
 		$connection = \Up\Util\Database\Connector::getInstance(
-			\Up\Util\Database\Connector::getInstance()->option('DB_HOST'),
-			\Up\Util\Database\Connector::getInstance()->option('DB_USER'),
-			\Up\Util\Database\Connector::getInstance()->option('DB_PASSWORD'),
-			\Up\Util\Database\Connector::getInstance()->option('DB_NAME')
+			\Up\Util\Configuration::getInstance()->option('DB_HOST'),
+			\Up\Util\Configuration::getInstance()->option('DB_USER'),
+			\Up\Util\Configuration::getInstance()->option('DB_PASSWORD'),
+			\Up\Util\Configuration::getInstance()->option('DB_NAME')
 		)->getDbConnection();
 
 		$sql = "select up_order.id, item_id, user_id, delivery_address, created_at ,title as status
@@ -29,7 +29,7 @@ class OrderRepositoryImpl implements OrderRepository
 
 		if (!$result)
 		{
-			throw new Exception(mysqli_error($connection));
+			throw new \Exception(mysqli_error($connection));
 		}
 
 		$orders = [];
@@ -45,7 +45,8 @@ class OrderRepositoryImpl implements OrderRepository
 					);
 				}
 				$id = $row['id'];
-				$products = [Product::getById($row['item_id'])];
+
+				$products = [ProductRepositoryImpl::getById($row['item_id'])];
 				$user = UserRepositoryImpl::getById($row['user_id']);
 				$deliveryAddress = $row['delivery_address'];
 				$createdAt = $row['created_at'];
@@ -55,7 +56,7 @@ class OrderRepositoryImpl implements OrderRepository
 			}
 			else
 			{
-				$products[] = Product::getById($row['item_id']);
+				$products[] = ProductRepositoryImpl::getById($row['item_id']);
 			}
 		}
 
@@ -70,10 +71,10 @@ class OrderRepositoryImpl implements OrderRepository
 	public static function getById(int $id): Order
 	{
 		$connection = \Up\Util\Database\Connector::getInstance(
-			\Up\Util\Database\Connector::getInstance()->option('DB_HOST'),
-			\Up\Util\Database\Connector::getInstance()->option('DB_USER'),
-			\Up\Util\Database\Connector::getInstance()->option('DB_PASSWORD'),
-			\Up\Util\Database\Connector::getInstance()->option('DB_NAME')
+			\Up\Util\Configuration::getInstance()->option('DB_HOST'),
+			\Up\Util\Configuration::getInstance()->option('DB_USER'),
+			\Up\Util\Configuration::getInstance()->option('DB_PASSWORD'),
+			\Up\Util\Configuration::getInstance()->option('DB_NAME')
 		)->getDbConnection();
 
 		$sql = "select up_order.id, item_id, user_id, delivery_address, created_at ,title as status
@@ -94,7 +95,7 @@ class OrderRepositoryImpl implements OrderRepository
 			if ($isFirstLine)
 			{
 				$id = $row['id'];
-				$products = [Product::getById($row['item_id'])];
+				$products = [ProductRepositoryImpl::getById($row['item_id'])];
 				$user = UserRepositoryImpl::getById($row['user_id']);
 				$deliveryAddress = $row['delivery_address'];
 				$createdAt = $row['created_at'];
@@ -104,7 +105,7 @@ class OrderRepositoryImpl implements OrderRepository
 			}
 			else
 			{
-				$products[] = Product::getById($row['item_id']);
+				$products[] = ProductRepositoryImpl::getById($row['item_id']);
 			}
 		}
 		$order = new Order(

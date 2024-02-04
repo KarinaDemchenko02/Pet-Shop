@@ -2,6 +2,9 @@
 
 namespace Up\Repository\ProductRepository;
 
+namespace Up\Repository\ProductRepository;
+
+
 use Up\Entity\Product;
 use Up\Repository\TagRepository\TagRepositoryImpl;
 
@@ -10,10 +13,10 @@ class ProductRepositoryImpl implements ProductRepository
 	public static function getAll(): array
 	{
 		$connection = \Up\Util\Database\Connector::getInstance(
-			\Up\Util\Database\Connector::getInstance()->option('DB_HOST'),
-			\Up\Util\Database\Connector::getInstance()->option('DB_USER'),
-			\Up\Util\Database\Connector::getInstance()->option('DB_PASSWORD'),
-			\Up\Util\Database\Connector::getInstance()->option('DB_NAME')
+			\Up\Util\Configuration::getInstance()->option('DB_HOST'),
+			\Up\Util\Configuration::getInstance()->option('DB_USER'),
+			\Up\Util\Configuration::getInstance()->option('DB_PASSWORD'),
+			\Up\Util\Configuration::getInstance()->option('DB_NAME')
 		)->getDbConnection();
 
 		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive, 
@@ -25,7 +28,7 @@ class ProductRepositoryImpl implements ProductRepository
 
 		if (!$result)
 		{
-			throw new Exception(mysqli_error($connection));
+			throw new \Exception(mysqli_error($connection));
 		}
 
 		$products = [];
@@ -38,14 +41,7 @@ class ProductRepositoryImpl implements ProductRepository
 				if (!$isFirstLine)
 				{
 					$products[$id] = new Product(
-						$id,
-						$name,
-						$description,
-						$price,
-						$tags,
-						$isActive,
-						$addedAt,
-						$editedAt
+						$id, $name, $description, $price, $tags, $isActive, $addedAt, $editedAt
 					);
 				}
 				$id = $row['id'];
@@ -61,19 +57,12 @@ class ProductRepositoryImpl implements ProductRepository
 			}
 			else
 			{
-				$tags[]=TagRepositoryImpl::getById($row['tagId']);
+				$tags[] = TagRepositoryImpl::getById($row['tagId']);
 			}
 		}
 
-		$products[$id] = new Models\Product(
-			$id,
-			$name,
-			$description,
-			$price,
-			$tags,
-			$isActive,
-			$addedAt,
-			$editedAt
+		$products[$id] = new Product(
+			$id, $name, $description, $price, $tags, $isActive, $addedAt, $editedAt
 		);
 
 		return $products;
@@ -83,10 +72,10 @@ class ProductRepositoryImpl implements ProductRepository
 	public static function getById(int $id): Product
 	{
 		$connection = \Up\Util\Database\Connector::getInstance(
-			\Up\Util\Database\Connector::getInstance()->option('DB_HOST'),
-			\Up\Util\Database\Connector::getInstance()->option('DB_USER'),
-			\Up\Util\Database\Connector::getInstance()->option('DB_PASSWORD'),
-			\Up\Util\Database\Connector::getInstance()->option('DB_NAME')
+			\Up\Util\Configuration::getInstance()->option('DB_HOST'),
+			\Up\Util\Configuration::getInstance()->option('DB_USER'),
+			\Up\Util\Configuration::getInstance()->option('DB_PASSWORD'),
+			\Up\Util\Configuration::getInstance()->option('DB_NAME')
 		)->getDbConnection();
 
 		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive, 
@@ -99,7 +88,7 @@ class ProductRepositoryImpl implements ProductRepository
 
 		if (!$result)
 		{
-			throw new Exception(mysqli_error($connection));
+			throw new \Exception(mysqli_error($connection));
 		}
 
 		$isFirstLine = true;

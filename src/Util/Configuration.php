@@ -3,7 +3,7 @@
 namespace Up\Util;
 
 
-class Configuration
+class Configuration extends Singleton
 {
 	private static array $config = [];
 
