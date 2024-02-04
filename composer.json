@@ -5,7 +5,7 @@
             "Up\\": "src/"
         }
     },
-	"require": {
-		"ext-mysqli": "*"
-	}
+    "require": {
+        "ext-mysqli": "*"
+    }
 }
