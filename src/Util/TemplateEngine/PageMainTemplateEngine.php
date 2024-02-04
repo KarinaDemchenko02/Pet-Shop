@@ -4,10 +4,44 @@ namespace Up\Util\TemplateEngine;
 
 class PageMainTemplateEngine implements TemplateEngine
 {
-	public function getPageTemplate(array $products): Template
+	public function getPageTemplate(array $variables): Template
+	{
+		$products = $variables['products'];
+		$tags = $variables['tags'];
+
+		$footer = new Template('components/main/footer');
+		$header = new Template('components/main/header');
+
+		$mainPageTemplate = new Template('page/main/main', [
+			'tags' => $this->getTagsSectionTemplate($tags),
+			'products' => $this->getProductsSectionTemplate($products),
+		],);
+
+		return (new Template('layout', [
+			'header' => $header,
+			'content' => $mainPageTemplate,
+			'footer' => $footer,
+		]));
+	}
+	public function getTagsSectionTemplate(array $tags): array
+	{
+		$tagsTemplates = [];
+		foreach ($tags as $tag)
+		{
+			$tagsTemplates[] = new Template('components/main/tag',
+				[
+					'title' => $tag->title,
+					'id' => $tag->id,
+				]
+			);
+		}
+		return $tagsTemplates;
+	}
+	public function getProductsSectionTemplate(array $products): array
 	{
 		$productTemplates = [];
-		foreach ($products as $product) {
+		foreach ($products as $product)
+		{
 			$productTemplates[] = new Template('components/main/product',
 				[
 					'title' => $product->title,
@@ -17,7 +51,6 @@ class PageMainTemplateEngine implements TemplateEngine
 				]
 			);
 		}
-		$mainPageTemplate = new Template('page/main/main', ['products' => $productTemplates],);
-		return (new Template('layout', ['content' => $mainPageTemplate]));
+		return $productTemplates;
 	}
 }

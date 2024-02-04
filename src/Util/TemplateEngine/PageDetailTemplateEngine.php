@@ -14,6 +14,12 @@ class PageDetailTemplateEngine implements TemplateEngine
 			'price' => $productDto->price,
 			'id' => $productDto->id,
 		]);
-		return (new Template('layout', ['content' => $detailTemplate]));
+		$footer = new Template('components/main/footer');
+		$header = new Template('components/main/header');
+		return (new Template('layout', [
+			'header' => $header,
+			'content' => $detailTemplate,
+			'footer' => $footer,
+		]));
 	}
 }

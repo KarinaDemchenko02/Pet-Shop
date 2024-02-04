@@ -22,6 +22,6 @@ class ProductDto implements Dto
 
 	public function from(Entity $entity): void
 	{
-
+		// TODO from function
 	}
 }

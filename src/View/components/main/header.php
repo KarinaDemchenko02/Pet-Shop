@@ -1,6 +1,5 @@
-<header class="header">
-    <div class="header__top-menu">
-        <img class="header__logo" src="/public/images/logoMadagascar.png" alt="logo">
+ <div class="header__top-menu">
+        <img class="header__logo" src="/../images/logoMadagascar.png" alt="logo">
         <div class="header__form">
             <label class="header__label">
                 <input class="header__input" placeholder="Поиск товаров">
@@ -18,7 +17,7 @@
         <nav class="header__nav">
             <ul class="header__list">
                 <li class="header__item">
-                    <a class="header__link" href="#">Главная</a>
+                    <a class="header__link" href="/">Главная</a>
                 </li>
                 <li class="header__item">
                     <a class="header__link" href="#">Личный кабинет</a>
@@ -30,4 +29,3 @@
             <button class="header__come-in">Войти</button>
         </nav>
     </div>
-</header>

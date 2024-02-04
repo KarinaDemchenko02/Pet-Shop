@@ -1,4 +1,4 @@
-<footer class="footer">
+
     <div class="footer__categories">
         <ul class="footer__list-categories">
             <li class="footer__item-categories"></li>
@@ -21,7 +21,7 @@
                 </a>
             </li>
             <li class="footer__item-social-media">
-                <a class="footer__link" href="#">
+                <a class="footer__link" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley">
                     <svg width="30px" height="30px" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" stroke-width="3" stroke="#ffff" fill="none">
                         <path d="M41.6,20.92A14.13,14.13,0,1,0,32.7,46c6.17,0,10.87-3.91,12.79-9.43H32V27.41H55.6"/><path d="M55.6,27.41c0,2.22,0,3,0,4.59a23.61,23.61,0,1,1-7.86-17.58l-6.2,6.45" stroke-linecap="square"/>
                     </svg>
@@ -36,4 +36,3 @@
             </li>
         </ul>
     </div>
-</footer>
