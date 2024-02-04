@@ -1,21 +1,9 @@
 <?php
-
-<<<<<<<< HEAD:src/Repository/ProductRepository/ProductRepositoryImpl.php
-namespace Up\Repository\ProductRepository;
-
-namespace Up\Repository\ProductRepository;
-
-
-use Up\Entity\Product;
-use Up\Repository\TagRepository\TagRepositoryImpl;
-
-========
 namespace Up\Repository\Product;
 
-use Up\Models;
+use Up\Entity\Product;
 use Up\Repository\Tag\TagRepositoryImpl;
 
->>>>>>>> f3757b0 (added interfaces to the repository):src/Repository/Product/ProductRepositoryImpl.php
 class ProductRepositoryImpl implements ProductRepository
 {
 	public static function getAll(): array
@@ -48,11 +36,7 @@ class ProductRepositoryImpl implements ProductRepository
 			{
 				if (!$isFirstLine)
 				{
-<<<<<<<< HEAD:src/Repository/ProductRepository/ProductRepositoryImpl.php
 					$products[$id] = new Product(
-========
-					$products[$id] = new Models\Product(
->>>>>>>> f3757b0 (added interfaces to the repository):src/Repository/Product/ProductRepositoryImpl.php
 						$id, $name, $description, $price, $tags, $isActive, $addedAt, $editedAt
 					);
 				}
@@ -73,11 +57,7 @@ class ProductRepositoryImpl implements ProductRepository
 			}
 		}
 
-<<<<<<<< HEAD:src/Repository/ProductRepository/ProductRepositoryImpl.php
 		$products[$id] = new Product(
-========
-		$products[$id] = new Models\Product(
->>>>>>>> f3757b0 (added interfaces to the repository):src/Repository/Product/ProductRepositoryImpl.php
 			$id, $name, $description, $price, $tags, $isActive, $addedAt, $editedAt
 		);
 

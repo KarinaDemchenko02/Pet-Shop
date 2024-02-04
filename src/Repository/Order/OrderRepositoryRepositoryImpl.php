@@ -1,25 +1,12 @@
 <?php
 
-<<<<<<<< HEAD:src/Repository/OrderRepository/OrderRepositoryImpl.php
-namespace Up\Repository\OrderRepository;
-
-use Exception;
-use Up\Entity\Order;
-
-use Up\Repository\ProductRepository\ProductRepositoryImpl;
-use Up\Repository\UserRepository\UserRepositoryImpl;
-
-
-class OrderRepositoryImpl implements OrderRepository
-========
 namespace Up\Repository\Order;
 
-use Up\Models;
+use Up\Entity;
 use Up\Repository\Product\ProductRepositoryImpl;
 use Up\Repository\User\UserRepositoryImpl;
 
 class OrderRepositoryRepositoryImpl implements OrderRepository
->>>>>>>> f3757b0 (added interfaces to the repository):src/Repository/Order/OrderRepositoryRepositoryImpl.php
 {
 
 	public static function getAll(): array
@@ -50,15 +37,11 @@ class OrderRepositoryRepositoryImpl implements OrderRepository
 			{
 				if (!$isFirstLine)
 				{
-					$orders[$id] = new Order(
+					$orders[$id] = new Entity\Order(
 						$id, $products, $user, $deliveryAddress, $createdAt, $status,
 					);
 				}
 				$id = $row['id'];
-<<<<<<<< HEAD:src/Repository/OrderRepository/OrderRepositoryImpl.php
-
-========
->>>>>>>> f3757b0 (added interfaces to the repository):src/Repository/Order/OrderRepositoryRepositoryImpl.php
 				$products = [ProductRepositoryImpl::getById($row['item_id'])];
 				$user = UserRepositoryImpl::getById($row['user_id']);
 				$deliveryAddress = $row['delivery_address'];
@@ -73,7 +56,7 @@ class OrderRepositoryRepositoryImpl implements OrderRepository
 			}
 		}
 
-		$orders[$id] = new Order(
+		$orders[$id] = new Entity\Order(
 			$id, $products, $user, $deliveryAddress, $createdAt, $status,
 		);
 
@@ -81,7 +64,7 @@ class OrderRepositoryRepositoryImpl implements OrderRepository
 
 	}
 
-	public static function getById(int $id): Order
+	public static function getById(int $id): Entity\Order
 	{
 		$connection = \Up\Util\Database\Connector::getInstance(
 			\Up\Util\Configuration::getInstance()->option('DB_HOST'),
@@ -99,7 +82,7 @@ class OrderRepositoryRepositoryImpl implements OrderRepository
 
 		if (!$result)
 		{
-			throw new Exception(mysqli_error($connection));
+			throw new \Exception(mysqli_error($connection));
 		}
 
 		$isFirstLine = true;
@@ -121,7 +104,7 @@ class OrderRepositoryRepositoryImpl implements OrderRepository
 				$products[] = ProductRepositoryImpl::getById($row['item_id']);
 			}
 		}
-		$order = new Order(
+		$order = new Entity\Order(
 			$id, $products, $user, $deliveryAddress, $createdAt, $status,
 		);
 

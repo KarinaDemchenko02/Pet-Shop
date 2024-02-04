@@ -2,7 +2,8 @@
 
 namespace Up\Repository\Tag;
 
-use Up\Models\Tag;
+
+use Up\Entity\Tag;
 use Up\Repository\Repository;
 
 interface TagRepository extends Repository

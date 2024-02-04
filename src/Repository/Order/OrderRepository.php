@@ -2,7 +2,7 @@
 
 namespace Up\Repository\Order;
 
-use Up\Models\Order;
+use Up\Entity\Order;
 use Up\Repository\Repository;
 
 interface OrderRepository extends Repository

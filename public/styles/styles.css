@@ -220,7 +220,7 @@ button {
 }
 
 .product__images {
-    height: 65%;
+    height: 100%;
     width: 100%;
     background-size: 100%;
 }

@@ -2,10 +2,8 @@
 
 namespace Up\Service\ProductService;
 
-use Up\Dto\Dto;
 use Up\Dto\ProductDto;
-use Up\Entity\Product;
-use Up\Repository\ProductRepository\ProductRepositoryImpl;
+use Up\Repository\Product\ProductRepositoryImpl;
 
 
 class ProductService
@@ -14,9 +12,7 @@ class ProductService
 	{
 
 		$products = ProductRepositoryImpl::getAll();
-//		$products =  [(new Product(1, 'title', 'desc', 1000, [1, 2], true, 'addedAt', 'editedAt')),
-//			(new Product(2, 'title2', 'desc2', 1000, [1, 2], true, 'addedAt', 'editedAt'))];
-		//
+
 		$productsDto = [];
 		foreach ($products as $product)
 		{
