@@ -1,10 +1,10 @@
 <?php
 
-namespace Up\Repository;
+namespace Up\Util\Database;
 
-class RepositoryImpl
+class QueryResult
 {
-	public static function getResultSQLQuery(string $sql): \mysqli_result|bool
+	static function getQueryResult(string $sql): \mysqli_result|bool
 	{
 		$connection = \Up\Util\Database\Connector::getInstance(
 			\Up\Util\Configuration::getInstance()->option('DB_HOST'),
@@ -19,6 +19,8 @@ class RepositoryImpl
 		{
 			throw new \Exception(mysqli_error($connection));
 		}
+
 		return $result;
+
 	}
 }
