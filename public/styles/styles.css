@@ -299,6 +299,9 @@ button {
 }
 
 .product__right-done {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
     width: calc(30% - 2px);
     float: left;
     transition: transform 0.5s;
@@ -307,6 +310,9 @@ button {
 }
 
 .product__right-remove {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
     clear: both;
     width: calc(30% - 1px);
     border-right:solid thin rgba(255,255,255,0.3);
