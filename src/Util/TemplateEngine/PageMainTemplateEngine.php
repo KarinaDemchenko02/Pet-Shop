@@ -11,7 +11,7 @@ class PageMainTemplateEngine implements TemplateEngine
 
 		$footer = new Template('components/main/footer');
 		$header = new Template('components/main/header');
-        $form = new Template('components/main/FormAuthorization');
+        $form = new Template('components/main/formAuthorization');
 
 		$mainPageTemplate = new Template('page/main/main', [
 			'tags' => $this->getTagsSectionTemplate($tags),
