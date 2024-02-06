@@ -73,19 +73,31 @@ class ProductRepositoryImpl implements ProductRepository
 		return self::createProductList($result);
 	}
 
-	public static function add(Product $product): bool
+	public static function add($title, $description, $price, $tags): void
 	{
+		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
+		try
+		{
+			mysqli_begin_transaction($connection);
+			$description = $description ? : "NULL";
 
+			$addNewProductSQL = "INSERT INTO up_item (name, description, price) 
+				VALUES ('{$title}', '{$description}', {$price})";
+			QueryResult::getQueryResult($addNewProductSQL);
+			$last = mysqli_insert_id($connection);
+			foreach ($tags as $tag)
+			{
+				$addLinkToTagSQL = "INSERT INTO up_item_tag (id_item, id_tag) VALUES ({$last}, {$tag})";
+				QueryResult::getQueryResult($addLinkToTagSQL);
+			}
+			mysqli_commit($connection);
+		}
+		catch (\Throwable $e)
+		{
+			mysqli_rollback($connection);
+			throw $e;
+		}
 
-		$addNewProductSQL = "INSERT INTO up_item (name, description, price, added_at, edited_at, is_active) 
-				VALUES ('{$product->title}', '{$product->description}', {$product->price}, 
-				        '{$product->addedAt}', '{$product->editedAt}', {$product->isActive})";
-
-		$addLinkToTagSQL = "INSERT INTO up_item_tag (id_item, id_tag) VALUES (2, 3)";
-
-		QueryResult::getQueryResult($addNewProductSQL);
-
-		return true;
 	}
 
 	public static function getByTags(array $tags): array
