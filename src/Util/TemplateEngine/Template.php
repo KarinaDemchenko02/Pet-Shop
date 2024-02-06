@@ -11,17 +11,15 @@ class Template
         'is_nl2br' => false
     ];
 
-
     public function __construct(string $path, array $variables = [])
     {
-        $this->path = ROOT . '/src/View/' .$path . '.php';
-		$this->variables = $variables;
+        $this->path = ROOT . '/src/View/' . $path . '.php';
+        $this->variables = $variables;
     }
 
     public function setParam(string $param, bool $value): bool
     {
-        if (isset($this->params[$param]))
-        {
+        if (isset($this->params[$param])) {
             $this->params[$param] = $value;
             return true;
         }
@@ -31,8 +29,7 @@ class Template
 
     public function display(): void
     {
-        if (!file_exists($this->path))
-        {
+        if (!file_exists($this->path)) {
             throw new \Exception('Template file ' . $this->path . ' not exists');
         }
 
@@ -42,11 +39,9 @@ class Template
 
     private function xssProtection(mixed $variables): array|string
     {
-        if (is_array($variables))
-        {
+        if (is_array($variables)) {
             $protected = [];
-            foreach ($variables as $key => $value)
-            {
+            foreach ($variables as $key => $value) {
                 $protected[$key] = $this->xssProtection($value);
             }
 
@@ -58,11 +53,9 @@ class Template
 
     private function endOfLineToBr(mixed $variable): array|string
     {
-        if (is_array($variable))
-        {
+        if (is_array($variable)) {
             $protected = [];
-            foreach ($variable as $key => $value)
-            {
+            foreach ($variable as $key => $value) {
                 $protected[$key] = $this->endOfLineToBr($value);
             }
 
@@ -72,10 +65,10 @@ class Template
         return nl2br($variable);
     }
 
-	//TODO XSS protection
+    //TODO XSS protection
     public function getVariable(string $name): mixed
     {
-		return $this->variables[$name];
+        return $this->variables[$name];
         /*if (isset($this->variables[$name]))
         {
             $variable = $this->variables[$name];

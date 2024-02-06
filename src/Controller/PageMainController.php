@@ -21,6 +21,7 @@ class PageMainController extends BaseController
 			'products' => $products,
 			'tags' => $tags,
 			]);
+
 		$template->display();
 	}
 }

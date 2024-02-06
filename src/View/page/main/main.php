@@ -9,7 +9,9 @@
             </ul>
         </div>
     </section>
-
+    <section class="form">
+        <?php $this->getVariable('form')->display() ?>
+    </section>
     <section class="product">
         <ul class="product__list">
 			<?php foreach ($this->getVariable('products') as $product): ?>

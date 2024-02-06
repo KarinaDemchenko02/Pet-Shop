@@ -11,10 +11,12 @@ class PageMainTemplateEngine implements TemplateEngine
 
 		$footer = new Template('components/main/footer');
 		$header = new Template('components/main/header');
+        $form = new Template('components/main/FormAuthorization');
 
 		$mainPageTemplate = new Template('page/main/main', [
 			'tags' => $this->getTagsSectionTemplate($tags),
 			'products' => $this->getProductsSectionTemplate($products),
+            'form' => $form,
 		],);
 
 		return (new Template('layout', [

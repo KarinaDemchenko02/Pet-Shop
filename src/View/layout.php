@@ -12,14 +12,14 @@
     <script defer src="https://cdn.jsdelivr.net/npm/js-image-zoom/js-image-zoom.min.js"></script>
     <script defer src="/js/index.js" type="module"></script>
 </head>
-<body>
-    <header class="header">
+<body class="body">
+    <header class="header" id="header">
         <?php $this->getVariable('header')->display() ?>
     </header>
-    <main class="main">
+    <main class="main" id="main">
         <?php $this->getVariable('content')->display() ?>
     </main>
-    <footer class="footer">
+    <footer class="footer" id="footer">
 		<?php $this->getVariable('footer')->display() ?>
     </footer>
 </body>
