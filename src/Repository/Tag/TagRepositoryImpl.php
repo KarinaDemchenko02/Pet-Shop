@@ -3,6 +3,7 @@
 namespace Up\Repository\Tag;
 
 use Up\Entity\Tag;
+use Up\Repository\RepositoryImpl;
 
 class TagRepositoryImpl implements TagRepository
 {
@@ -13,12 +14,7 @@ class TagRepositoryImpl implements TagRepository
 
 		$sql = "select * from up_tags;";
 
-		$result = mysqli_query($connection, $sql);
-
-		if (!$result)
-		{
-			throw new \Exception(mysqli_error($connection));
-		}
+		$result = RepositoryImpl::getResultSQLQuery($sql);
 
 		$tags = [];
 
@@ -36,12 +32,7 @@ class TagRepositoryImpl implements TagRepository
 
 		$sql = "select * from up_tags where id = {$id};";
 
-		$result = mysqli_query($connection, $sql);
-
-		if (!$result)
-		{
-			throw new \Exception(mysqli_error($connection));
-		}
+		$result = RepositoryImpl::getResultSQLQuery($sql);
 
 		$row = mysqli_fetch_assoc($result);
 

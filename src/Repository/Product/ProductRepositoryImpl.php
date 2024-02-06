@@ -1,7 +1,9 @@
 <?php
+
 namespace Up\Repository\Product;
 
 use Up\Entity\Product;
+use Up\Repository\RepositoryImpl;
 use Up\Repository\Tag\TagRepositoryImpl;
 
 class ProductRepositoryImpl implements ProductRepository
@@ -15,12 +17,7 @@ class ProductRepositoryImpl implements ProductRepository
 				from up_item
 	            inner join up_item_tag on up_item.id = up_item_tag.id_item";
 
-		$result = mysqli_query($connection, $sql);
-
-		if (!$result)
-		{
-			throw new \Exception(mysqli_error($connection));
-		}
+		$result = RepositoryImpl::getResultSQLQuery($sql);
 
 		$products = [];
 
@@ -70,12 +67,7 @@ class ProductRepositoryImpl implements ProductRepository
 	            inner join up_item_tag on up_item.id = up_item_tag.id_item
 	            where up_item.id = {$id}";
 
-		$result = mysqli_query($connection, $sql);
-
-		if (!$result)
-		{
-			throw new \Exception(mysqli_error($connection));
-		}
+		$result = RepositoryImpl::getResultSQLQuery($sql);
 
 		$isFirstLine = true;
 		while ($row = mysqli_fetch_assoc($result))

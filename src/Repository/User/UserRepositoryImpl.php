@@ -3,6 +3,8 @@
 namespace Up\Repository\User;
 
 
+use Up\Repository\RepositoryImpl;
+
 class UserRepositoryImpl implements UserRepository
 {
 
@@ -13,13 +15,7 @@ class UserRepositoryImpl implements UserRepository
 		$sql = "select up_users.id, email, password, up_role.title as role, tel, name
 				from up_users inner join up_role on up_users.role_id = up_role.id;";
 
-		$result = mysqli_query($connection, $sql);
-
-		if (!$result)
-		{
-			throw new \Exception(mysqli_error($connection));
-		}
-
+		$result = RepositoryImpl::getResultSQLQuery($sql);
 		$users = [];
 
 		while ($row = mysqli_fetch_assoc($result))
@@ -42,12 +38,7 @@ class UserRepositoryImpl implements UserRepository
 				from up_users inner join up_role on up_users.role_id = up_role.id
 				where up_users.id = {$id};";
 
-		$result = mysqli_query($connection, $sql);
-
-		if (!$result)
-		{
-			throw new \Exception(mysqli_error($connection));
-		}
+		$result = RepositoryImpl::getResultSQLQuery($sql);
 
 		$row = mysqli_fetch_assoc($result);
 
