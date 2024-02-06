@@ -3,17 +3,22 @@
 namespace Up\Repository\Tag;
 
 use Up\Entity\Tag;
-use Up\Repository\RepositoryImpl;
 
-class TagRepositoryImpl extends RepositoryImpl
+class TagRepositoryImpl implements TagRepository
 {
 
 	public static function getAll(): array
 	{
+		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
 
 		$sql = "select * from up_tags;";
 
-		$result = RepositoryImpl::getResultSQLQuery($sql);
+		$result = mysqli_query($connection, $sql);
+
+		if (!$result)
+		{
+			throw new \Exception(mysqli_error($connection));
+		}
 
 		$tags = [];
 
@@ -27,9 +32,16 @@ class TagRepositoryImpl extends RepositoryImpl
 
 	public static function getById(int $id): Tag
 	{
+		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
+
 		$sql = "select * from up_tags where id = {$id};";
 
-		$result = RepositoryImpl::getResultSQLQuery($sql);
+		$result = mysqli_query($connection, $sql);
+
+		if (!$result)
+		{
+			throw new \Exception(mysqli_error($connection));
+		}
 
 		$row = mysqli_fetch_assoc($result);
 

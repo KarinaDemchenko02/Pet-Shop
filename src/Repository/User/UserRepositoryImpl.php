@@ -3,17 +3,22 @@
 namespace Up\Repository\User;
 
 
-use Up\Repository\RepositoryImpl;
-
 class UserRepositoryImpl implements UserRepository
 {
 
 	public static function getAll(): array
 	{
+		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
+
 		$sql = "select up_users.id, email, password, up_role.title as role, tel, name
 				from up_users inner join up_role on up_users.role_id = up_role.id;";
 
-		$result = RepositoryImpl::getResultSQLQuery($sql);
+		$result = mysqli_query($connection, $sql);
+
+		if (!$result)
+		{
+			throw new \Exception(mysqli_error($connection));
+		}
 
 		$users = [];
 
@@ -31,11 +36,18 @@ class UserRepositoryImpl implements UserRepository
 
 	public static function getById(int $id): \Up\Entity\User
 	{
+		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
+
 		$sql = "select up_users.id, email, password, up_role.title as role, tel, name
 				from up_users inner join up_role on up_users.role_id = up_role.id
 				where up_users.id = {$id};";
 
-		$result = RepositoryImpl::getResultSQLQuery($sql);
+		$result = mysqli_query($connection, $sql);
+
+		if (!$result)
+		{
+			throw new \Exception(mysqli_error($connection));
+		}
 
 		$row = mysqli_fetch_assoc($result);
 

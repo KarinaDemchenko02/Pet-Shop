@@ -2,12 +2,12 @@
 
 namespace Up\Util;
 
-
-class Configuration extends Singleton
+class Configuration
 {
 	private static array $config = [];
+	private static ?Configuration $instance = null;
 
-	protected function initialize($params): void
+	private function __construct()
 	{
 		if (!file_exists(ROOT . '/config/local.config.php'))
 		{
@@ -36,5 +36,17 @@ class Configuration extends Singleton
 		}
 
 		throw new \RuntimeException("Configuration option {$name} not found");
+	}
+
+	public static function getInstance(): Configuration
+	{
+		if (static::$instance)
+		{
+			return static::$instance;
+		}
+
+		static::$instance = new self();
+
+		return static::$instance;
 	}
 }
