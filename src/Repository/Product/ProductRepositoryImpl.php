@@ -1,32 +1,125 @@
 <?php
+
 namespace Up\Repository\Product;
 
 use Up\Entity\Product;
 use Up\Repository\Tag\TagRepositoryImpl;
+use Up\Util\Database\QueryResult;
 
 class ProductRepositoryImpl implements ProductRepository
 {
 	public static function getAll(): array
 	{
-		$connection = \Up\Util\Database\Connector::getInstance(
-			\Up\Util\Configuration::getInstance()->option('DB_HOST'),
-			\Up\Util\Configuration::getInstance()->option('DB_USER'),
-			\Up\Util\Configuration::getInstance()->option('DB_PASSWORD'),
-			\Up\Util\Configuration::getInstance()->option('DB_NAME')
-		)->getDbConnection();
-
-		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive, 
+		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive,
                 added_at as addedAt, edited_at as editedAt
 				from up_item
 	            inner join up_item_tag on up_item.id = up_item_tag.id_item";
 
-		$result = mysqli_query($connection, $sql);
+		$result = QueryResult::getQueryResult($sql);
 
-		if (!$result)
+		return self::createProductList($result);
+	}
+
+	public static function getById(int $id): Product
+	{
+
+		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive, 
+                added_at as addedAt, edited_at as editedAt
+				from up_item
+	            inner join up_item_tag on up_item.id = up_item_tag.id_item
+	            where up_item.id = {$id}";
+
+		$result = QueryResult::getQueryResult($sql);
+
+		$isFirstLine = true;
+		while ($row = mysqli_fetch_assoc($result))
 		{
-			throw new \Exception(mysqli_error($connection));
+			if ($isFirstLine)
+			{
+				$id = $row['id'];
+				$name = $row['name'];
+				$description = $row['description'];
+				$price = $row['price'];
+				$tags = [TagRepositoryImpl::getById($row['tagId'])];
+				$isActive = $row['isActive'];
+				$addedAt = $row['addedAt'];
+				$editedAt = $row['editedAt'];
+
+				$isFirstLine = false;
+			}
+			else
+			{
+				$tags[] = TagRepositoryImpl::getById($row['tagId']);
+			}
+		}
+		$product = new Product(
+			$id, $name, $description, $price, $tags, $isActive, $addedAt, $editedAt
+		);
+
+		return $product;
+
+	}
+
+	public static function getByTitle(string $title): array
+	{
+		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive,
+				added_at as addedAt, edited_at as editedAt
+				from up_item
+				inner join up_item_tag on up_item.id = up_item_tag.id_item
+				WHERE up_item.name LIKE '%{$title}%'";
+
+		$result = QueryResult::getQueryResult($sql);
+
+		return self::createProductList($result);
+	}
+
+	public static function add($title, $description, $price, $tags): void
+	{
+		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
+		try
+		{
+			mysqli_begin_transaction($connection);
+			$description = $description ? : "NULL";
+
+			$addNewProductSQL = "INSERT INTO up_item (name, description, price) 
+				VALUES ('{$title}', '{$description}', {$price})";
+			QueryResult::getQueryResult($addNewProductSQL);
+			$last = mysqli_insert_id($connection);
+			foreach ($tags as $tag)
+			{
+				$addLinkToTagSQL = "INSERT INTO up_item_tag (id_item, id_tag) VALUES ({$last}, {$tag})";
+				QueryResult::getQueryResult($addLinkToTagSQL);
+			}
+			mysqli_commit($connection);
+		}
+		catch (\Throwable $e)
+		{
+			mysqli_rollback($connection);
+			throw $e;
 		}
 
+	}
+
+	public static function getByTags(array $tags): array
+	{
+		foreach ($tags as $tag)
+		{
+			$tagIds[] = $tag->id;
+		}
+
+		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive,
+				added_at as addedAt, edited_at as editedAt
+				from up_item
+				inner join up_item_tag on up_item.id = up_item_tag.id_item
+				WHERE it.id_tag IN (" . implode(",", $tagIds) . ")";
+
+		$result = QueryResult::getQueryResult($sql);
+
+		return self::createProductList($result);
+	}
+
+	private static function createProductList(\mysqli_result $result): array
+	{
 		$products = [];
 
 		$isFirstLine = true;
@@ -62,57 +155,5 @@ class ProductRepositoryImpl implements ProductRepository
 		);
 
 		return $products;
-
-	}
-
-	public static function getById(int $id): Product
-	{
-		$connection = \Up\Util\Database\Connector::getInstance(
-			\Up\Util\Configuration::getInstance()->option('DB_HOST'),
-			\Up\Util\Configuration::getInstance()->option('DB_USER'),
-			\Up\Util\Configuration::getInstance()->option('DB_PASSWORD'),
-			\Up\Util\Configuration::getInstance()->option('DB_NAME')
-		)->getDbConnection();
-
-		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive, 
-                added_at as addedAt, edited_at as editedAt
-				from up_item
-	            inner join up_item_tag on up_item.id = up_item_tag.id_item
-	            where up_item.id = {$id}";
-
-		$result = mysqli_query($connection, $sql);
-
-		if (!$result)
-		{
-			throw new \Exception(mysqli_error($connection));
-		}
-
-		$isFirstLine = true;
-		while ($row = mysqli_fetch_assoc($result))
-		{
-			if ($isFirstLine)
-			{
-				$id = $row['id'];
-				$name = $row['name'];
-				$description = $row['description'];
-				$price = $row['price'];
-				$tags = [TagRepositoryImpl::getById($row['tagId'])];
-				$isActive = $row['isActive'];
-				$addedAt = $row['addedAt'];
-				$editedAt = $row['editedAt'];
-
-				$isFirstLine = false;
-			}
-			else
-			{
-				$tags[] = TagRepositoryImpl::getById($row['tagId']);
-			}
-		}
-		$product = new Product(
-			$id, $name, $description, $price, $tags, $isActive, $addedAt, $editedAt
-		);
-
-		return $product;
-
 	}
 }
