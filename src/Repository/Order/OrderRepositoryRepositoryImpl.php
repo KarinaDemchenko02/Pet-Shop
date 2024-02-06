@@ -11,12 +11,7 @@ class OrderRepositoryRepositoryImpl implements OrderRepository
 
 	public static function getAll(): array
 	{
-		$connection = \Up\Util\Database\Connector::getInstance(
-			\Up\Util\Configuration::getInstance()->option('DB_HOST'),
-			\Up\Util\Configuration::getInstance()->option('DB_USER'),
-			\Up\Util\Configuration::getInstance()->option('DB_PASSWORD'),
-			\Up\Util\Configuration::getInstance()->option('DB_NAME')
-		)->getDbConnection();
+		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
 
 		$sql = "select up_order.id, item_id, user_id, delivery_address, created_at ,title as status
 				from up_order inner join up_order_item uoi on up_order.id = uoi.order_id
@@ -66,12 +61,7 @@ class OrderRepositoryRepositoryImpl implements OrderRepository
 
 	public static function getById(int $id): Entity\Order
 	{
-		$connection = \Up\Util\Database\Connector::getInstance(
-			\Up\Util\Configuration::getInstance()->option('DB_HOST'),
-			\Up\Util\Configuration::getInstance()->option('DB_USER'),
-			\Up\Util\Configuration::getInstance()->option('DB_PASSWORD'),
-			\Up\Util\Configuration::getInstance()->option('DB_NAME')
-		)->getDbConnection();
+		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
 
 		$sql = "select up_order.id, item_id, user_id, delivery_address, created_at ,title as status
 				from up_order inner join up_order_item uoi on up_order.id = uoi.order_id

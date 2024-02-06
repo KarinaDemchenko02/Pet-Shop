@@ -2,16 +2,20 @@
 
 namespace Up\Util\Database;
 
-use Up\Util\Singleton;
-
-class Connector extends Singleton
+class Connector
 {
 	private \mysqli $connection;
 	private const encoding = 'utf8';
+	private static ?Connector $instance = null;
 
-	protected function initialize($params): void
+	protected function __construct()
 	{
-		$this->createConnection(...$params);
+		$this->createConnection(
+			\Up\Util\Configuration::getInstance()->option('DB_HOST'),
+			\Up\Util\Configuration::getInstance()->option('DB_USER'),
+			\Up\Util\Configuration::getInstance()->option('DB_PASSWORD'),
+			\Up\Util\Configuration::getInstance()->option('DB_NAME')
+		);
 	}
 
 	private function createConnection($dbHost, $dbUser, $dbPassword, $dbName): void
@@ -35,5 +39,17 @@ class Connector extends Singleton
 	public function getDbConnection(): \mysqli
 	{
 		return $this->connection;
+	}
+
+	public static function getInstance(): Connector
+	{
+		if (static::$instance)
+		{
+			return static::$instance;
+		}
+
+		static::$instance = new self();
+
+		return static::$instance;
 	}
 }

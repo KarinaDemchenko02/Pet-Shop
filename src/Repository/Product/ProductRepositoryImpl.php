@@ -8,12 +8,7 @@ class ProductRepositoryImpl implements ProductRepository
 {
 	public static function getAll(): array
 	{
-		$connection = \Up\Util\Database\Connector::getInstance(
-			\Up\Util\Configuration::getInstance()->option('DB_HOST'),
-			\Up\Util\Configuration::getInstance()->option('DB_USER'),
-			\Up\Util\Configuration::getInstance()->option('DB_PASSWORD'),
-			\Up\Util\Configuration::getInstance()->option('DB_NAME')
-		)->getDbConnection();
+		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
 
 		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive, 
                 added_at as addedAt, edited_at as editedAt
@@ -67,12 +62,7 @@ class ProductRepositoryImpl implements ProductRepository
 
 	public static function getById(int $id): Product
 	{
-		$connection = \Up\Util\Database\Connector::getInstance(
-			\Up\Util\Configuration::getInstance()->option('DB_HOST'),
-			\Up\Util\Configuration::getInstance()->option('DB_USER'),
-			\Up\Util\Configuration::getInstance()->option('DB_PASSWORD'),
-			\Up\Util\Configuration::getInstance()->option('DB_NAME')
-		)->getDbConnection();
+		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
 
 		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive, 
                 added_at as addedAt, edited_at as editedAt

@@ -9,12 +9,7 @@ class TagRepositoryImpl implements TagRepository
 
 	public static function getAll(): array
 	{
-		$connection = \Up\Util\Database\Connector::getInstance(
-			\Up\Util\Configuration::getInstance()->option('DB_HOST'),
-			\Up\Util\Configuration::getInstance()->option('DB_USER'),
-			\Up\Util\Configuration::getInstance()->option('DB_PASSWORD'),
-			\Up\Util\Configuration::getInstance()->option('DB_NAME')
-		)->getDbConnection();
+		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
 
 		$sql = "select * from up_tags;";
 
@@ -37,12 +32,7 @@ class TagRepositoryImpl implements TagRepository
 
 	public static function getById(int $id): Tag
 	{
-		$connection = \Up\Util\Database\Connector::getInstance(
-			\Up\Util\Configuration::getInstance()->option('DB_HOST'),
-			\Up\Util\Configuration::getInstance()->option('DB_USER'),
-			\Up\Util\Configuration::getInstance()->option('DB_PASSWORD'),
-			\Up\Util\Configuration::getInstance()->option('DB_NAME')
-		)->getDbConnection();
+		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
 
 		$sql = "select * from up_tags where id = {$id};";
 
