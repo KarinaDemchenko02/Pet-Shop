@@ -8,6 +8,7 @@ class Migration
 
 	public static function migrate($connection): void
 	{
+		$lastFileTimestamp = 0;
 		try
 		{
 			$result = mysqli_query(
@@ -18,7 +19,8 @@ class Migration
 			{
 				throw new \RuntimeException(mysqli_error($connection));
 			}
-			self::doMigrations($connection, self::getTimestampFromFileName($result->fetch_column()));
+			$lastFileTimestamp = self::getTimestampFromFileName($result->fetch_column());
+
 		}
 		catch (\mysqli_sql_exception $e)
 		{
@@ -26,7 +28,10 @@ class Migration
 			{
 				throw $e;
 			}
-			self::doMigrations($connection);
+		}
+		finally
+		{
+			self::doMigrations($connection, $lastFileTimestamp);
 		}
 	}
 

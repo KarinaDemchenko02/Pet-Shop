@@ -97,7 +97,66 @@ class ProductRepositoryImpl implements ProductRepository
 			mysqli_rollback($connection);
 			throw $e;
 		}
+	}
 
+	/*	public static function delete($id): void
+		{
+			$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
+			try
+			{
+				mysqli_begin_transaction($connection);
+				QueryResult::getQueryResult($addNewProductSQL);
+				mysqli_commit($connection);
+			}
+			catch (\Throwable $e)
+			{
+				mysqli_rollback($connection);
+				throw $e;
+			}
+		}*/
+
+	public static function disable($id): void
+	{
+		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
+		try
+		{
+			mysqli_begin_transaction($connection);
+			$disableProductSQL = "UPDATE up_item SET is_active=0 where id = {$id}";
+			QueryResult::getQueryResult($disableProductSQL);
+			mysqli_commit($connection);
+		}
+		catch (\Throwable $e)
+		{
+			mysqli_rollback($connection);
+			throw $e;
+		}
+	}
+
+	public static function change($id, $name, $description, $price, $tags): void
+	{
+		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
+		$time = new \DateTime();
+		$now = $time->format('Y-m-d H:i:s');
+		$strTags = implode(', ', $tags);
+		try
+		{
+			mysqli_begin_transaction($connection);
+			$changeProductSQL = "UPDATE up_item SET name='{$name}', description='{$description}', price=$price, edited_at='{$now}'  where id = {$id}";
+			QueryResult::getQueryResult($changeProductSQL);
+			$deleteProductSQL = "DELETE FROM up_item_tag WHERE id_item={$id} AND id_tag NOT IN ({$strTags})";
+			QueryResult::getQueryResult($deleteProductSQL);
+			foreach ($tags as $tag)
+			{
+				$addLinkToTagSQL = "INSERT IGNORE INTO up_item_tag (id_item, id_tag) VALUES ({$id}, {$tag})";
+				QueryResult::getQueryResult($addLinkToTagSQL);
+			}
+			mysqli_commit($connection);
+		}
+		catch (\Throwable $e)
+		{
+			mysqli_rollback($connection);
+			throw $e;
+		}
 	}
 
 	public static function getByTags(array $tags): array

@@ -93,16 +93,14 @@ CREATE TABLE IF NOT EXISTS up_order_item
 	quantities INT         NOT NULL,
 	price      VARCHAR(45) NOT NULL,
 	PRIMARY KEY (order_id, item_id),
-	CONSTRAINT order_id
-		FOREIGN KEY fk_ot_order (order_id)
-			REFERENCES up_order (id)
-			ON DELETE RESTRICT
-			ON UPDATE RESTRICT,
-	CONSTRAINT good_id
-		FOREIGN KEY fk_ot_item (item_id)
-			REFERENCES up_item (id)
-			ON DELETE RESTRICT
-			ON UPDATE RESTRICT
+	FOREIGN KEY fk_ot_order (order_id)
+		REFERENCES up_order (id)
+		ON DELETE RESTRICT
+		ON UPDATE RESTRICT,
+	FOREIGN KEY fk_ot_item (item_id)
+		REFERENCES up_item (id)
+		ON DELETE RESTRICT
+		ON UPDATE RESTRICT
 );
 
 
