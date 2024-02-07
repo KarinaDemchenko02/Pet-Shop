@@ -877,3 +877,80 @@ button {
 .form__input-register, .form__button-register {
     display: none;
 }
+
+.form-product__container {
+    width: 96%;
+    max-width: 1000px;
+    height: 550px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 3px;
+    overflow: hidden;
+    background-color: white;
+    box-shadow: 5px 5px 30px rgba(0,0,0,.3);
+}
+
+.form-product__modal {
+    width: 40%;
+    height: 100%;
+    float: left;
+    position: relative;
+}
+
+.form-product__item {
+    width: 100%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    text-align: center;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+}
+
+.form-product__round {
+    width: 125%;
+    height: 150%;
+    position: absolute;
+    top: 50%;
+    left: 38%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background-color: #2ca02c;
+    box-shadow: 0 0 25px rgba(0,0,0,.3);
+    z-index: 1;
+}
+
+.form-product__heading {
+    margin-bottom: 20px;
+    color: #ffffff;
+    font-size: 25px;
+    font-weight: 300;
+    line-height: 25px;
+    text-align: center;
+}
+
+.form-product__price {
+    font-size: 20px;
+    font-weight: 300;
+    text-align: center;
+    color: #ffffff;
+}
+
+.form-product__images {
+    margin-bottom: 20px;
+    width: 83%;
+}
+
+.form-product__container-info {
+    width: 60%;
+    height: 100%;
+    float: right;
+}
+
+.header__main-form {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}

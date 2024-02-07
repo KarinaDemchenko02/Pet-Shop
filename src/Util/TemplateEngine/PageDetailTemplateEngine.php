@@ -9,6 +9,10 @@ class PageDetailTemplateEngine implements TemplateEngine
 	public function getPageTemplate(ProductDto $productDto): Template
 	{
         $form = new Template('components/main/formAuthorization');
+        $formBuyProduct = new Template('components/detail/formBuyProduct', [
+            'title' => $productDto->title,
+            'price' => $productDto->price,
+        ]);
 
 		$detailTemplate = new Template('page/detail/detail', [
 			'title' => $productDto->title,
@@ -16,6 +20,7 @@ class PageDetailTemplateEngine implements TemplateEngine
 			'price' => $productDto->price,
 			'id' => $productDto->id,
             'form' => $form,
+            'formBuyProduct' => $formBuyProduct,
 		]);
 		$footer = new Template('components/main/footer');
 		$header = new Template('components/main/header');
