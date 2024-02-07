@@ -12,6 +12,7 @@ class Product implements Entity
 	public readonly bool $isActive;
 	public readonly int $addedAt;
 	public readonly int $editedAt;
+	public readonly array $images;
 
 	public function __construct(
 		int    $id,
@@ -21,7 +22,8 @@ class Product implements Entity
 		array  $tag,
 		bool   $isActive,
 		string $addedAt,
-		string $editedAt
+		string $editedAt,
+		array $images
 	)
 	{
 		$this->id = $id;
@@ -32,5 +34,6 @@ class Product implements Entity
 		$this->isActive = $isActive;
 		$this->addedAt = strtotime($addedAt);
 		$this->editedAt = strtotime($editedAt);
+		$this->images = $images;
 	}
 }

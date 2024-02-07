@@ -27,7 +27,4 @@ $shoppingSession->user : User
 
 $shoppingSession->products[i]->info : Product
 $shoppingSession->products[i]->quantity : int
-
-
-
  */

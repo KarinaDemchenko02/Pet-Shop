@@ -2,6 +2,7 @@
 
 namespace Up\Repository\Product;
 
+use Up\Entity\Image;
 use Up\Entity\Product;
 use Up\Repository\Tag\TagRepositoryImpl;
 use Up\Util\Database\QueryResult;
@@ -11,8 +12,9 @@ class ProductRepositoryImpl implements ProductRepository
 	public static function getAll(): array
 	{
 		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive,
-                added_at as addedAt, edited_at as editedAt
+                added_at as addedAt, edited_at as editedAt, up_image.id as imageId, path
 				from up_item
+				inner join up_image on up_item.id = item_id
 	            inner join up_item_tag on up_item.id = up_item_tag.id_item";
 
 		$result = QueryResult::getQueryResult($sql);
@@ -24,9 +26,10 @@ class ProductRepositoryImpl implements ProductRepository
 	{
 
 		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive, 
-                added_at as addedAt, edited_at as editedAt
+                added_at as addedAt, edited_at as editedAt, up_image.id as imageId, path
 				from up_item
 	            inner join up_item_tag on up_item.id = up_item_tag.id_item
+				inner join up_image on up_item.id = item_id
 	            where up_item.id = {$id}";
 
 		$result = QueryResult::getQueryResult($sql);
@@ -36,7 +39,6 @@ class ProductRepositoryImpl implements ProductRepository
 		{
 			if ($isFirstLine)
 			{
-				$id = $row['id'];
 				$name = $row['name'];
 				$description = $row['description'];
 				$price = $row['price'];
@@ -44,16 +46,18 @@ class ProductRepositoryImpl implements ProductRepository
 				$isActive = $row['isActive'];
 				$addedAt = $row['addedAt'];
 				$editedAt = $row['editedAt'];
+				$images = [new Image($row['imageId'], $row['path'], 'characteristic')];
 
 				$isFirstLine = false;
 			}
 			else
 			{
 				$tags[] = TagRepositoryImpl::getById($row['tagId']);
+				$images[] = new Image($row['imageId'], $row['path'], 'characteristic');
 			}
 		}
 		$product = new Product(
-			$id, $name, $description, $price, $tags, $isActive, $addedAt, $editedAt
+			$id, $name, $description, $price, $tags, $isActive, $addedAt, $editedAt, $images
 		);
 
 		return $product;
@@ -63,9 +67,10 @@ class ProductRepositoryImpl implements ProductRepository
 	public static function getByTitle(string $title): array
 	{
 		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive,
-				added_at as addedAt, edited_at as editedAt
+                added_at as addedAt, edited_at as editedAt, up_image.id as imageId, path
 				from up_item
-				inner join up_item_tag on up_item.id = up_item_tag.id_item
+				inner join up_image on up_item.id = item_id
+	            inner join up_item_tag on up_item.id = up_item_tag.id_item
 				WHERE up_item.name LIKE '%{$title}%'";
 
 		$result = QueryResult::getQueryResult($sql);
@@ -167,9 +172,10 @@ class ProductRepositoryImpl implements ProductRepository
 		}
 
 		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive,
-				added_at as addedAt, edited_at as editedAt
+                added_at as addedAt, edited_at as editedAt, up_image.id as imageId, path
 				from up_item
-				inner join up_item_tag on up_item.id = up_item_tag.id_item
+				inner join up_image on up_item.id = item_id
+	            inner join up_item_tag on up_item.id = up_item_tag.id_item
 				WHERE it.id_tag IN (" . implode(",", $tagIds) . ")";
 
 		$result = QueryResult::getQueryResult($sql);
@@ -189,7 +195,7 @@ class ProductRepositoryImpl implements ProductRepository
 				if (!$isFirstLine)
 				{
 					$products[$id] = new Product(
-						$id, $name, $description, $price, $tags, $isActive, $addedAt, $editedAt
+						$id, $name, $description, $price, $tags, $isActive, $addedAt, $editedAt, $images
 					);
 				}
 				$id = $row['id'];
@@ -200,17 +206,19 @@ class ProductRepositoryImpl implements ProductRepository
 				$isActive = $row['isActive'];
 				$addedAt = $row['addedAt'];
 				$editedAt = $row['editedAt'];
+				$images = [new Image($row['imageId'], $row['path'], 'characteristic')];
 
 				$isFirstLine = false;
 			}
 			else
 			{
+				$images[] = new Image($row['imageId'], $row['path'], 'characteristic');
 				$tags[] = TagRepositoryImpl::getById($row['tagId']);
 			}
 		}
 
-		$products[$id] = new Product(
-			$id, $name, $description, $price, $tags, $isActive, $addedAt, $editedAt
+		new Product(
+			$id, $name, $description, $price, $tags, $isActive, $addedAt, $editedAt, $images
 		);
 
 		return $products;
