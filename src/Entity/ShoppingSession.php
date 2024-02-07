@@ -2,22 +2,21 @@
 
 namespace Up\Entity;
 
-class ShoppingSession
+class ShoppingSession implements Entity
 {
 	readonly int $id;
 	readonly User $user;
 	readonly array $products;
+	readonly int $createdAt;
+	readonly int $updatedAt;
 
-	/**
-	 * @param int $id
-	 * @param User $user
-	 * @param array $products
-	 */
-	public function __construct(int $id, User $user, array $products)
+	public function __construct(int $id, User $user, array $products, int $createdAt, int $updatedAt)
 	{
 		$this->id = $id;
 		$this->user = $user;
 		$this->products = $products;
+		$this->createdAt = $createdAt;
+		$this->updatedAt = $updatedAt;
 	}
 
 }
