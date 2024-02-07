@@ -1,4 +1,3 @@
-
 <div class="main__container container">
     <section class="details">
         <div class="details_main-information">
@@ -58,5 +57,11 @@
                 </ul>
             </div>
         </div>
+    </section>
+    <section class="form">
+        <?php $this->getVariable('form')->display(); ?>
+    </section>
+    <section class="form-product">
+        <?php $this->getVariable('formBuyProduct')->display(); ?>
     </section>
 </div>

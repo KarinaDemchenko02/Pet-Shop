@@ -1,12 +1,14 @@
  <div class="header__top-menu">
         <img class="header__logo" src="/../images/logoMadagascar.png" alt="logo">
         <div class="header__form">
-            <label class="header__label">
-                <input class="header__input" placeholder="Поиск товаров">
-            </label>
-            <button class="header__button">
-                <i class="header__search material-icons">search</i>
-            </button>
+            <form class="header__main-form" action="/" method="get">
+                <label class="header__label">
+                    <input class="header__input" placeholder="Поиск товаров">
+                </label>
+                <button class="header__button" type="submit">
+                    <i class="header__search material-icons">search</i>
+                </button>
+            </form>
         </div>
         <div class="header__phone">
             <i class="header__call material-icons">call</i>
