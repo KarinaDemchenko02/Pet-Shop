@@ -59,4 +59,7 @@
             </div>
         </div>
     </section>
+    <section class="form">
+        <?php $this->getVariable('form')->display() ?>
+    </section>
 </div>
