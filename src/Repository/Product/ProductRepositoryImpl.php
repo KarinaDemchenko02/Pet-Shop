@@ -34,8 +34,7 @@ class ProductRepositoryImpl implements ProductRepository
 		$isFirstLine = true;
 		while ($row = mysqli_fetch_assoc($result))
 		{
-			if ($isFirstLine)
-			{
+			if ($isFirstLine) {
 				$id = $row['id'];
 				$name = $row['name'];
 				$description = $row['description'];
@@ -79,7 +78,7 @@ class ProductRepositoryImpl implements ProductRepository
 		try
 		{
 			mysqli_begin_transaction($connection);
-			$description = $description ? : "NULL";
+			$description = $description ?: "NULL";
 
 			$addNewProductSQL = "INSERT INTO up_item (name, description, price) 
 				VALUES ('{$title}', '{$description}', {$price})";
@@ -145,8 +144,7 @@ class ProductRepositoryImpl implements ProductRepository
 			QueryResult::getQueryResult($changeProductSQL);
 			$deleteProductSQL = "DELETE FROM up_item_tag WHERE id_item={$id} AND id_tag NOT IN ({$strTags})";
 			QueryResult::getQueryResult($deleteProductSQL);
-			foreach ($tags as $tag)
-			{
+			foreach ($tags as $tag) {
 				$addLinkToTagSQL = "INSERT IGNORE INTO up_item_tag (id_item, id_tag) VALUES ({$id}, {$tag})";
 				QueryResult::getQueryResult($addLinkToTagSQL);
 			}
@@ -161,8 +159,7 @@ class ProductRepositoryImpl implements ProductRepository
 
 	public static function getByTags(array $tags): array
 	{
-		foreach ($tags as $tag)
-		{
+		foreach ($tags as $tag) {
 			$tagIds[] = $tag->id;
 		}
 
@@ -214,5 +211,22 @@ class ProductRepositoryImpl implements ProductRepository
 		);
 
 		return $products;
+	}
+
+	public static function getColumn(): array
+	{
+		$sql = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+                WHERE TABLE_NAME = 'up_item';";
+
+		$result = QueryResult::getQueryResult($sql);
+
+		$columns = [];
+
+		while ($column = mysqli_fetch_column($result))
+		{
+			$columns[] = $column;
+		}
+
+		return $columns;
 	}
 }

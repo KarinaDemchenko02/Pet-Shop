@@ -1,57 +1,46 @@
-export default class AddBasket
-{
-    constructor(buttonBuy, buttonRemove, classContains)
-    {
-        this.buttonBuy = buttonBuy;
-        this.buttonRemove = buttonRemove;
-        this.classContains = classContains;
-    }
-    addBasket()
-    {
-        this.buttonBuy.forEach(bntBuy =>
-        {
-            bntBuy.addEventListener('click', (event) =>
-            {
-                this.clicked('add')
-            })
-        })
+export default class AddBasket {
+	constructor(buttonBuy, buttonRemove, classContains) {
+		this.buttonBuy = buttonBuy;
+		this.buttonRemove = buttonRemove;
+		this.classContains = classContains;
+	}
 
-        this.buttonRemove.forEach(btnRemove =>
-        {
-            btnRemove.addEventListener('click', () =>
-            {
-                this.clicked('remove')
-            })
-        })
-    }
+	addBasket() {
+		this.buttonBuy.forEach(bntBuy => {
+			bntBuy.addEventListener('click', (event) => {
+				this.clicked('add')
+			})
+		})
 
-    clicked(action)
-    {
-        let parentElement = event.target.parentElement;
-        let parents;
+		this.buttonRemove.forEach(btnRemove => {
+			btnRemove.addEventListener('click', () => {
+				this.clicked('remove')
+			})
+		})
+	}
 
-        while (parentElement)
-        {
-            if (parentElement.classList.contains(this.classContains))
-            {
-                parents = parentElement;
-                break;
-            }
-            parentElement = parentElement.parentElement;
-        }
+	clicked(action) {
+		let parentElement = event.target.parentElement;
+		let parents;
 
-        if (action === 'add')
-        {
-            parents.classList.add('clicked');
-            return true;
-        }
+		while (parentElement) {
+			if (parentElement.classList.contains(this.classContains)) {
+				parents = parentElement;
+				break;
+			}
+			parentElement = parentElement.parentElement;
+		}
 
-        if (action === 'remove')
-        {
-            parents.classList.remove('clicked');
-            return true;
-        }
+		if (action === 'add') {
+			parents.classList.add('clicked');
+			return true;
+		}
 
-        return false;
-    }
+		if (action === 'remove') {
+			parents.classList.remove('clicked');
+			return true;
+		}
+
+		return false;
+	}
 }

@@ -12,11 +12,13 @@ class PageMainTemplateEngine implements TemplateEngine
 		$footer = new Template('components/main/footer');
 		$header = new Template('components/main/header');
         $form = new Template('components/main/formAuthorization');
+        $basket = new Template('components/main/basket');
 
 		$mainPageTemplate = new Template('page/main/main', [
 			'tags' => $this->getTagsSectionTemplate($tags),
 			'products' => $this->getProductsSectionTemplate($products),
             'form' => $form,
+            'basket' => $basket
 		],);
 
 		return (new Template('layout', [

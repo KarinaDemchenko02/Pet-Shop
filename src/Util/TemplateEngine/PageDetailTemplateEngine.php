@@ -13,6 +13,7 @@ class PageDetailTemplateEngine implements TemplateEngine
             'title' => $productDto->title,
             'price' => $productDto->price,
         ]);
+        $basket = new Template('components/main/basket');
 
 		$detailTemplate = new Template('page/detail/detail', [
 			'title' => $productDto->title,
@@ -21,6 +22,7 @@ class PageDetailTemplateEngine implements TemplateEngine
 			'id' => $productDto->id,
             'form' => $form,
             'formBuyProduct' => $formBuyProduct,
+            'basket' => $basket
 		]);
 		$footer = new Template('components/main/footer');
 		$header = new Template('components/main/header');

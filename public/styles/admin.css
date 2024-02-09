@@ -1,0 +1,54 @@
+table, th, td {
+	border: 1px solid black;
+}
+
+.header {
+	padding: 30px;
+	margin-bottom: 40px;
+	background-color: #1c7430;
+}
+
+.header__list {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-wrap: wrap;
+}
+
+.header__item:not(:last-child) {
+	margin-right: 25px;
+}
+
+.header__link {
+	color: #ffffff;
+}
+
+.table {
+	margin-right: auto;
+	margin-left: auto;
+	width: 60%;
+}
+
+.table__th_button {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+}
+
+.table__button {
+	padding: 5px 10px;
+	border: none;
+	border-radius: 3px;
+	color: #ffffff;
+	cursor: pointer;
+}
+
+.table__button_edit {
+	margin-right: 15px;
+	background-color: #2ca02c;
+}
+
+.table__button_delete {
+	background-color: #a40000;
+}
