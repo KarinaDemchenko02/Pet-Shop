@@ -1,6 +1,6 @@
 <?php
 
-namespace Up\Repository\Session;
+namespace Up\Repository\ShoppingSession;
 
 use Up\Entity\ShoppingSession;
 use Up\Repository\Repository;
