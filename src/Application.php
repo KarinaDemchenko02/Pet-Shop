@@ -11,7 +11,7 @@ class Application
 	{
 		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
 
-		//\Up\Service\Migration::migrate($connection);
+		\Up\Service\Migration::migrate($connection);
 
 		$route = \Up\Routing\Router::find($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
 
