@@ -1,15 +1,18 @@
 <?php
 
 namespace Up\Util\TemplateEngine;
+use Up\Util\Alert;
+
 class Template
 {
-    private string $path;
-    private array $variables;
+	private Alert $alert;
+	private string $path;
+	private array $variables;
 
-    private array $params = [
-        'is_xss' => true,
-        'is_nl2br' => false
-    ];
+	private array $params = [
+		'is_xss' => true,
+		'is_nl2br' => false
+	];
 
     public function __construct(string $path, array $variables = [])
     {
@@ -24,8 +27,8 @@ class Template
             return true;
         }
 
-        return false;
-    }
+		return false;
+	}
 
     public function display(): void
     {
@@ -48,8 +51,8 @@ class Template
             return $protected;
         }
 
-        return htmlspecialchars($variables);
-    }
+		return htmlspecialchars($variables);
+	}
 
     private function endOfLineToBr(mixed $variable): array|string
     {

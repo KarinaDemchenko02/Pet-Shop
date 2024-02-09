@@ -18,9 +18,7 @@
 	<section class="product">
 		<ul class="product__list">
 			<?php foreach ($this->getVariable('products') as $product): ?>
-
 				<?php $product->display() ?>
-
 			<?php endforeach; ?>
 		</ul>
 	</section>

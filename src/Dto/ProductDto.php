@@ -20,8 +20,8 @@ class ProductDto implements Dto
 		$this->price = $product->price;
 	}
 
-	public function from(Entity $entity): void
+	/*public static function from(Entity $entity): void
 	{
-		// TODO from function
-	}
+		// TODO: from() function
+	}*/
 }

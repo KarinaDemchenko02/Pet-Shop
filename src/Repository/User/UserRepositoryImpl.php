@@ -2,7 +2,9 @@
 
 namespace Up\Repository\User;
 
+use Up\Dto\UserAddingDto;
 use Up\Entity\User;
+use Up\Exceptions\Service\UserService\UserAdding;
 use Up\Util\Database\QueryResult;
 
 class UserRepositoryImpl implements UserRepository
@@ -46,21 +48,60 @@ class UserRepositoryImpl implements UserRepository
 		return $user;
 	}
 
-	public static function add(User $user): bool
+	public static function getByEmail(string $email): ?User
 	{
-		$sql = "select id from up_role where title = '{$user->role}';";
+
+		$sql = "select up_users.id, up_users.email, up_users.password, up_role.title as role, up_users.tel, up_users.name
+				from up_users inner join up_role on up_users.role_id = up_role.id
+				where up_users.email = '{$email}'";
 
 		$result = QueryResult::getQueryResult($sql);
 
 		$row = mysqli_fetch_assoc($result);
 
+		if (is_null($row))
+		{
+			return null;
+		}
+
+		return new User(
+			$row['id'], $row['name'], $row['tel'], $row['email'], $row['password'], $row['role']
+		);
+	}
+
+
+	/**
+	 * @throws UserAdding
+	 * @throws \Exception
+	 */
+	public static function add(UserAddingDto $user): void
+	{
+		$sql = "select id from up_role where title = '{$user->roleId}';";
+
+		$result = QueryResult::getQueryResult($sql);
+
+		$row = mysqli_fetch_assoc($result);
+		if (is_null($row))
+		{
+			throw new \RuntimeException('This role was not found');
+		}
 		$roleId = $row['id'];
 
-		$sql = "INSERT INTO up_users (email, password, role_id, tel, name) 
+
+		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
+		try
+		{
+			mysqli_begin_transaction($connection);
+			$sql = "INSERT INTO up_users (email, password, role_id, tel, name) 
 				VALUES ('{$user->email}', '{$user->password}', {$roleId}, '{$user->phoneNumber}', '{$user->name}');";
 
-		QueryResult::getQueryResult($sql);
-
-		return true;
+			QueryResult::getQueryResult($sql);
+			mysqli_commit($connection);
+		}
+		catch (\Throwable $e)
+		{
+			mysqli_rollback($connection);
+			throw new UserAdding('Failed to add a user');
+		}
 	}
 }

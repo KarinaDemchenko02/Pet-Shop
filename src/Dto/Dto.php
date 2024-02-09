@@ -7,5 +7,5 @@ use Up\Entity\Entity;
 
 interface Dto
 {
-	public function from(Entity $entity): void;
+	/*public static function from(Entity $entity): void;*/
 }

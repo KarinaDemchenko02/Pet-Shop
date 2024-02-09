@@ -124,6 +124,9 @@ class ProductRepositoryImpl implements ProductRepository
 			}
 		}*/
 
+	/**
+	 * @throws \Throwable
+	 */
 	public static function disable($id): void
 	{
 		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();

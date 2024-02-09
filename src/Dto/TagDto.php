@@ -15,8 +15,8 @@ class TagDto implements Dto
 		$this->id = $tag->id;
 		$this->title = $tag->title;
 	}
-	public function from(Entity $entity): void
+	/*public static function from(Entity $entity): void
 	{
 		// TODO: Implement from() method.
-	}
+	}*/
 }

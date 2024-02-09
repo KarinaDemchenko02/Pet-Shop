@@ -1,6 +1,6 @@
 <?php
 
-namespace Up\Service;
+namespace Up\Util\Database;
 
 class Migration
 {
