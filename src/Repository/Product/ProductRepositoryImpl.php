@@ -37,13 +37,12 @@ class ProductRepositoryImpl implements ProductRepository
 		$isFirstLine = true;
 		while ($row = mysqli_fetch_assoc($result))
 		{
-<<<<<<< HEAD
-			if ($isFirstLine) {
-				$id = $row['id'];
-=======
 			if ($isFirstLine)
 			{
->>>>>>> 6232235df3eb16160cc436c0e279362a14ab3c73
+				$id = $row['id'];
+			}
+			if ($isFirstLine)
+			{
 				$name = $row['name'];
 				$description = $row['description'];
 				$price = $row['price'];
