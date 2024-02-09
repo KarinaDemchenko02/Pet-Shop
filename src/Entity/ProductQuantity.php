@@ -7,16 +7,24 @@ use Up\Entity\Entity;
 class ProductQuantity implements Entity
 {
 	readonly Product $info;
-	readonly int $quantity;
 
 	/**
 	 * @param Product $info
 	 * @param int $quantity
 	 */
-	public function __construct(Product $info, int $quantity)
+	public function __construct(Product $info, private int $quantity)
 	{
 		$this->info = $info;
+	}
+
+	public function setQuantity(int $quantity): void
+	{
 		$this->quantity = $quantity;
+	}
+
+	public function getQuantity(): int
+	{
+		return $this->quantity;
 	}
 
 }
