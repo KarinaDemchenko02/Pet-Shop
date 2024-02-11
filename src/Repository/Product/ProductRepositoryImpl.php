@@ -58,21 +58,19 @@ class ProductRepositoryImpl implements ProductRepository
 				$isActive = $row['isActive'];
 				$addedAt = $row['addedAt'];
 				$editedAt = $row['editedAt'];
-				$images = [new Image($row['imageId'], $row['path'], 'characteristic')];
+				$imagePath = $row['path'];
 
 				$isFirstLine = false;
 			}
 			else
 			{
 				$tags[] = TagRepositoryImpl::getById($row['tagId']);
-				$images[] = new Image($row['imageId'], $row['path'], 'characteristic');
+				$imagePath = $row['path'];
 			}
 		}
-		$product = new Product(
-			$id, $name, $description, $price, $tags, $isActive, $addedAt, $editedAt, $images
+		return new Product(
+			$id, $name, $description, $price, $tags, $isActive, $addedAt, $editedAt, $imagePath
 		);
-
-		return $product;
 
 	}
 
@@ -103,11 +101,11 @@ class ProductRepositoryImpl implements ProductRepository
 		try
 		{
 			mysqli_begin_transaction($connection);
-			$escapedTitle = mysqli_real_escape_string($connection, $title);
-			$escapedDescription = mysqli_real_escape_string($connection, $description) ? : "NULL";
+			$escapedTitle = mysqli_real_escape_string($connection, $productAddingDto->title);
+			$escapedDescription = mysqli_real_escape_string($connection, $productAddingDto->description) ? : "NULL";
 
 			$addNewProductSQL = "INSERT INTO up_item (name, description, price) 
-				VALUES ('{$escapedTitle}', '{$escapedDescription}', {$price})";
+				VALUES ('{$escapedTitle}', '{$escapedDescription}', {$productAddingDto->price})";
 			QueryResult::getQueryResult($addNewProductSQL);
 //			$last = mysqli_insert_id($connection);
 //			foreach ($tags as $tag)
@@ -166,26 +164,26 @@ class ProductRepositoryImpl implements ProductRepository
 		$time = new \DateTime();
 		$now = $time->format('Y-m-d H:i:s');
 
-		foreach ($tags as $tag)
+		/*foreach ($tags as $tag)
 		{
 			$tagIds[] = $tag->id;
-		}
+		}*/
 
-		$strTags = implode(', ', $tagIds);
-		$escapedName = mysqli_real_escape_string($connection, $name);
-		$escapedDescription = mysqli_real_escape_string($connection, $description);
+		/*$strTags = implode(', ', $tagIds);*/
+		$escapedName = mysqli_real_escape_string($connection, $productChangeDto->title);
+		$escapedDescription = mysqli_real_escape_string($connection, $productChangeDto->description);
 		try
 		{
 			mysqli_begin_transaction($connection);
-			$changeProductSQL = "UPDATE up_item SET name='{$escapedName}', description='{$escapedDescription}', price=$price, edited_at='{$now}'  where id = {$id}";
+			$changeProductSQL = "UPDATE up_item SET name='{$escapedName}', description='{$escapedDescription}', price= {$productChangeDto->price}, edited_at='{$now}' where id = {$productChangeDto->id}";
 			QueryResult::getQueryResult($changeProductSQL);
-			$deleteProductSQL = "DELETE FROM up_item_tag WHERE id_item={$id} AND id_tag NOT IN ({$strTags})";
+			/*$deleteProductSQL = "DELETE FROM up_item_tag WHERE id_item={$productChangeDto->id} AND id_tag NOT IN ({$strTags})";
 			QueryResult::getQueryResult($deleteProductSQL);
 			foreach ($tags as $tag)
 			{
 				$addLinkToTagSQL = "INSERT IGNORE INTO up_item_tag (id_item, id_tag) VALUES ({$id}, {$tag->id})";
 				QueryResult::getQueryResult($addLinkToTagSQL);
-			}
+			}*/
 			mysqli_commit($connection);
 		}
 		catch (\Throwable $e)
@@ -248,7 +246,7 @@ class ProductRepositoryImpl implements ProductRepository
 				if (!$isFirstLine)
 				{
 					$products[$id] = new Product(
-						$id, $name, $description, $price, $tags, $isActive, $addedAt, $editedAt, $images
+						$id, $name, $description, $price, $tags, $isActive, $addedAt, $editedAt, $imagePath
 					);
 				}
 				$id = $row['id'];
@@ -259,19 +257,19 @@ class ProductRepositoryImpl implements ProductRepository
 				$isActive = $row['isActive'];
 				$addedAt = $row['addedAt'];
 				$editedAt = $row['editedAt'];
-				$images = [new Image($row['imageId'], $row['path'], 'characteristic')];
+				$imagePath = $row['path'];
 
 				$isFirstLine = false;
 			}
 			else
 			{
-				$images[] = new Image($row['imageId'], $row['path'], 'characteristic');
+				$imagePath = $row['path'];
 				$tags[] = TagRepositoryImpl::getById($row['tagId']);
 			}
 		}
 
 		$products[] = new Product(
-			$id, $name, $description, $price, $tags, $isActive, $addedAt, $editedAt, $images
+			@$id, @$name, @$description, @$price, @$tags, @$isActive, @$addedAt, @$editedAt, @$imagePath
 		);
 
 		return $products;

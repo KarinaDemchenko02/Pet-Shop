@@ -8,14 +8,11 @@ class PageMainTemplateEngine implements TemplateEngine
 	{
 		$products = $variables['products'];
 		$tags = $variables['tags'];
+		$isLogIn = $variables['isLogIn'];
 
-		if ($variables['isLogIn'])
-		{
-
-		}
 
 		$footer = new Template('components/main/footer');
-		$header = new Template('components/main/header');
+		$header = $this->getHeaderTemplate($isLogIn);
         $form = new Template('components/main/formAuthorization');
         $basket = new Template('components/main/basket');
 
@@ -57,9 +54,23 @@ class PageMainTemplateEngine implements TemplateEngine
 					'desc' => $product->description,
 					'price' => $product->price,
 					'id' => $product->id,
+					'imagePath' => $product->imagePath,
 				]
 			);
 		}
 		return $productTemplates;
+	}
+
+	public function getHeaderTemplate(bool $isLogIn): Template
+	{
+		if ($isLogIn)
+		{
+			$authSection = new Template('components/main/logOut');
+		}
+		else
+		{
+			$authSection = new Template('components/main/logIn');
+		}
+		return new Template('components/main/header', ['authSection' => $authSection]);
 	}
 }

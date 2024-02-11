@@ -10,6 +10,7 @@ class ProductAddingDto implements Dto
 		public readonly string $title,
 		public readonly string $description,
 		public readonly string $price,
+		public readonly string $imagePath,
 	){}
 
 	public static function from(Entity $entity): void

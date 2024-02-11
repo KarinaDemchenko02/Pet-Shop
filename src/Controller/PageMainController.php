@@ -15,9 +15,8 @@ class PageMainController extends BaseController
 
 	public function showProductsAction()
 	{
-
 		$tags = TagService::getAllTags();
-		if (isset($_GET['page'])&&is_numeric($_GET['page'])&&$_GET['page']>0)
+		if (isset($_GET['page']) && is_numeric($_GET['page']) && $_GET['page']>0)
 		{
 			$page = $_GET['page'];
 		}

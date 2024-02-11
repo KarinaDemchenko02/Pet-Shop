@@ -15,7 +15,7 @@
 		crossorigin="anonymous">
 	</script>
 
-	<script defer src="/js/admin/ajaxChange.js"></script>
+	<!--<script defer src="/js/admin/ajaxChange.js"></script>-->
 
 	<script defer src="/js/admin/index.js" type="module"></script>
 <body>

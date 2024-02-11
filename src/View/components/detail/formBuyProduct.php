@@ -4,7 +4,7 @@
 	</button>
 	<div class="form-product__modal">
 		<div class="form-product__item">
-			<img class="form-product__images" src="/../images/productImages.png" alt="product">
+			<img class="form-product__images" src="<?=$this->getVariable('imagePath')?>" alt="product">
 			<h2 class="form-product__heading"><?= $this->getVariable('title') ?></h2>
 			<p class="form-product__price"><?= $this->getVariable('price') ?> ₽</p>
 		</div>
@@ -26,25 +26,6 @@
 			<div class="form-product__container-input">
 				<label class="form-product__label" for="address">Адрес доставки</label>
 				<input class="form-product__input" id="address" name="address" type="text">
-			</div>
-			<div class="form-product__container-input">
-				<label class="form-product__label" for="cardNumber">Номер карты</label>
-				<input class="form-product__input" id="cardNumber" name="cardNumber" type="number">
-			</div>
-			<div class="form-product__date-container">
-				<div class="form-product__container-input">
-					<label class="form-product__label" for="month">Дата окончания</label><br>
-					<div class="form-product__date-input">
-						<input class="form-product__input form-product__input-date" name="month" id="month" type="text"
-							   required placeholder="MM">
-						<input class="form-product__input form-product__input-date" name="year" id="year" type="text"
-							   required placeholder="YY">
-					</div>
-				</div>
-				<div class="form-product__container-input">
-					<label class="form-product__label" for="cvc">CVC</label>
-					<input class="form-product__input form-product__input-cvc" id="cvc" name="cvc" type="number">
-				</div>
 			</div>
 			<button class="form-product__submit" type="submit">Купить</button>
 		</form>

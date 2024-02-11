@@ -16,10 +16,13 @@ class PageAdminController extends BaseController
 
 	public function showProductsAction()
 	{
-		if (isset($_GET['entity'])) {
-			echo 'test';exit();
+		$page = 1;
+		if (isset($_GET['page']))
+		{
+			$page = (int)$_GET['page'];
 		}
-		$products = ProductService::getAllProductsForAdmin();
+
+		$products = ProductService::getAllProductsForAdmin($page);
 		$columnsProducts = ProductRepositoryImpl::getColumn();
 
 		$template = $this->engine->getPageTemplate([

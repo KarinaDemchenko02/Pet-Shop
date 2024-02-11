@@ -44,9 +44,9 @@ class ProductService
 		return $productsDto;
 	}
 
-	public static function getAllProductsForAdmin(): array
+	public static function getAllProductsForAdmin(int $page = 1): array
 	{
-		$products = ProductRepositoryImpl::getAll();
+		$products = ProductRepositoryImpl::getAll($page);
 
 		$productsDto = [];
 		foreach ($products as $product)

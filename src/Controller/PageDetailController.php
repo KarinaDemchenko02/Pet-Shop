@@ -14,7 +14,11 @@ class PageDetailController extends BaseController
 	public function showProductAction(int $id)
 	{
 		$product = ProductService::getProductById($id);
-		$template = $this->engine->getPageTemplate($product);
+		$template = $this->engine->getPageTemplate(['productDto' => $product, 'isLogIn' => $this->isLogIn()]);
 		$template->display();
+	}
+	public function buyProductAction(int $id)
+	{
+
 	}
 }

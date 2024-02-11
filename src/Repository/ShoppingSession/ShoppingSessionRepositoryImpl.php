@@ -79,11 +79,9 @@ class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
 			);
 
 		}
-		$shoppingSession = new ShoppingSession(
+		return new ShoppingSession(
 			$id, $user, $products, $createdAt, $updatedAt
 		);
-
-		return $shoppingSession;
 	}
 
 	private static function createShoppingSessionList(\mysqli_result $result): array
