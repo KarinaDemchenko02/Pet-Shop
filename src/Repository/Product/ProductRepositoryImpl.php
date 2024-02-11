@@ -5,6 +5,7 @@ namespace Up\Repository\Product;
 use Up\Entity\Image;
 use Up\Entity\Product;
 use Up\Repository\Tag\TagRepositoryImpl;
+use Up\Util\Database\Connector;
 use Up\Util\Database\QueryResult;
 
 class ProductRepositoryImpl implements ProductRepository
@@ -70,12 +71,14 @@ class ProductRepositoryImpl implements ProductRepository
 
 	public static function getByTitle(string $title): array
 	{
+		$connection = Connector::getInstance()->getDbConnection();
+		$escapedTitle = mysqli_real_escape_string($connection, $title);
 		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive,
                 added_at as addedAt, edited_at as editedAt, up_image.id as imageId, path
 				from up_item
 				inner join up_image on up_item.id = item_id
 	            inner join up_item_tag on up_item.id = up_item_tag.id_item
-				WHERE up_item.name LIKE '%{$title}%'";
+				WHERE up_item.name LIKE '%{$escapedTitle}%'";
 
 		$result = QueryResult::getQueryResult($sql);
 
@@ -88,10 +91,11 @@ class ProductRepositoryImpl implements ProductRepository
 		try
 		{
 			mysqli_begin_transaction($connection);
-			$description = $description ?: "NULL";
+			$escapedTitle = mysqli_real_escape_string($connection, $title);
+			$escapedDescription = mysqli_real_escape_string($connection, $description) ? : "NULL";
 
 			$addNewProductSQL = "INSERT INTO up_item (name, description, price) 
-				VALUES ('{$title}', '{$description}', {$price})";
+				VALUES ('{$escapedTitle}', '{$escapedDescription}', {$price})";
 			QueryResult::getQueryResult($addNewProductSQL);
 			$last = mysqli_insert_id($connection);
 			foreach ($tags as $tag)
@@ -149,16 +153,25 @@ class ProductRepositoryImpl implements ProductRepository
 		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
 		$time = new \DateTime();
 		$now = $time->format('Y-m-d H:i:s');
-		$strTags = implode(', ', $tags);
+
+		foreach ($tags as $tag)
+		{
+			$tagIds[] = $tag->id;
+		}
+
+		$strTags = implode(', ', $tagIds);
+		$escapedName = mysqli_real_escape_string($connection, $name);
+		$escapedDescription = mysqli_real_escape_string($connection, $description);
 		try
 		{
 			mysqli_begin_transaction($connection);
-			$changeProductSQL = "UPDATE up_item SET name='{$name}', description='{$description}', price=$price, edited_at='{$now}'  where id = {$id}";
+			$changeProductSQL = "UPDATE up_item SET name='{$escapedName}', description='{$escapedDescription}', price=$price, edited_at='{$now}'  where id = {$id}";
 			QueryResult::getQueryResult($changeProductSQL);
 			$deleteProductSQL = "DELETE FROM up_item_tag WHERE id_item={$id} AND id_tag NOT IN ({$strTags})";
 			QueryResult::getQueryResult($deleteProductSQL);
-			foreach ($tags as $tag) {
-				$addLinkToTagSQL = "INSERT IGNORE INTO up_item_tag (id_item, id_tag) VALUES ({$id}, {$tag})";
+			foreach ($tags as $tag)
+			{
+				$addLinkToTagSQL = "INSERT IGNORE INTO up_item_tag (id_item, id_tag) VALUES ({$id}, {$tag->id})";
 				QueryResult::getQueryResult($addLinkToTagSQL);
 			}
 			mysqli_commit($connection);
@@ -172,7 +185,8 @@ class ProductRepositoryImpl implements ProductRepository
 
 	public static function getByTags(array $tags): array
 	{
-		foreach ($tags as $tag) {
+		foreach ($tags as $tag)
+		{
 			$tagIds[] = $tag->id;
 		}
 
@@ -222,7 +236,7 @@ class ProductRepositoryImpl implements ProductRepository
 			}
 		}
 
-		$products[]=new Product(
+		$products[] = new Product(
 			$id, $name, $description, $price, $tags, $isActive, $addedAt, $editedAt, $images
 		);
 

@@ -89,11 +89,13 @@ class UserRepositoryImpl implements UserRepository
 
 
 		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
+		$escapedUserName = mysqli_real_escape_string($connection, $user->name);
+		$escapedUserPassword = mysqli_real_escape_string($connection, $user->password);
 		try
 		{
 			mysqli_begin_transaction($connection);
 			$sql = "INSERT INTO up_users (email, password, role_id, tel, name) 
-				VALUES ('{$user->email}', '{$user->password}', {$roleId}, '{$user->phoneNumber}', '{$user->name}');";
+				VALUES ('{$user->email}', '{$escapedUserPassword}', {$roleId}, '{$user->phoneNumber}', '{$escapedUserName}');";
 
 			QueryResult::getQueryResult($sql);
 			mysqli_commit($connection);
