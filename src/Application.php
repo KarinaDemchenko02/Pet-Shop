@@ -19,11 +19,11 @@ class Application
 		{
 			if ($_SESSION['user'] === null)
 			{
-				$_SESSION['shoppingSession'] = new ShoppingSession(null, null, [], null, null);
+				/*$_SESSION['shoppingSession'] = new ShoppingSession(null, null, [], null, null);*/
 			}
 			else
 			{
-				$_SESSION['shoppingSession'] = ShoppingSessionRepositoryImpl::getByUser($_SESSION['user']->id);
+				/*$_SESSION['shoppingSession'] = ShoppingSessionRepositoryImpl::getByUser($_SESSION['user']->id);*/
 			}
 		}
 

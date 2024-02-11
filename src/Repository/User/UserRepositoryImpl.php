@@ -76,7 +76,7 @@ class UserRepositoryImpl implements UserRepository
 	 */
 	public static function add(UserAddingDto $user): void
 	{
-		$sql = "select id from up_role where title = '{$user->roleId}';";
+		$sql = "select id from up_role where title = '{$user->roleTitle}';";
 
 		$result = QueryResult::getQueryResult($sql);
 

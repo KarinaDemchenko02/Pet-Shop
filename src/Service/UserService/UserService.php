@@ -18,7 +18,7 @@ class UserService
 		$user = UserRepositoryImpl::getByEmail($email);
 		if (is_null($user))
 		{
-			throw new UserNotFound('User with this email does not exist');
+			throw new UserNotFound('Пользователь с этим email не существует');
 		}
 		return new UserDto($user);
 	}

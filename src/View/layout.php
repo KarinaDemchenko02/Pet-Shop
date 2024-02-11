@@ -1,10 +1,3 @@
-<?php
-if (isset($_POST['name'])) {
-	echo $_POST['name'];
-}
-
-?>
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
