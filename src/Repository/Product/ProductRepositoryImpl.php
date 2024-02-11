@@ -222,7 +222,7 @@ class ProductRepositoryImpl implements ProductRepository
 			}
 		}
 
-		new Product(
+		$products[]=new Product(
 			$id, $name, $description, $price, $tags, $isActive, $addedAt, $editedAt, $images
 		);
 
