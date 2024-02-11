@@ -10,7 +10,7 @@ class ShoppingSession implements Entity
 	readonly string $createdAt;
 	readonly string $updatedAt;
 
-	public function __construct(int $id, User $user, array $products, string $createdAt, string $updatedAt)
+	public function __construct(?int $id, ?User $user, array $products, string $createdAt, string $updatedAt)
 	{
 		$this->id = $id;
 		$this->user = $user;
