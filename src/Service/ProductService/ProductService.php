@@ -8,10 +8,10 @@ use Up\Repository\Product\ProductRepositoryImpl;
 
 class ProductService
 {
-	public static function getAllProducts(): array
+	public static function getAllProducts(int $page): array
 	{
 
-		$products = ProductRepositoryImpl::getAll();
+		$products = ProductRepositoryImpl::getAll($page);
 
 		$productsDto = [];
 		foreach ($products as $product)
@@ -25,5 +25,20 @@ class ProductService
 	{
 		$product = ProductRepositoryImpl::getById($id);
 		return new ProductDto($product);
+	}
+
+	public static function getProductByTitle(string $title, int $page): array
+	{
+		$title = strtolower(trim($title));
+		var_dump($title);
+		$products = ProductRepositoryImpl::getByTitle($title, $page);
+
+		$productsDto = [];
+		foreach ($products as $product)
+		{
+			$productsDto[] = new ProductDto($product);
+		}
+
+		return $productsDto;
 	}
 }

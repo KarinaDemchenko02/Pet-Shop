@@ -15,17 +15,17 @@ class Application
 		{
 			$_SESSION['user'] = null;
 		}
-		if (!isset($_SESSION['shoppingSession']))
-		{
-			if ($_SESSION['user'] === null)
-			{
-				$_SESSION['shoppingSession'] = new ShoppingSession(null, null, [], null, null);
-			}
-			else
-			{
-				$_SESSION['shoppingSession'] = ShoppingSessionRepositoryImpl::getByUser($_SESSION['user']->id);
-			}
-		}
+		// if (!isset($_SESSION['shoppingSession']))
+		// {
+		// 	if ($_SESSION['user'] === null)
+		// 	{
+		// 		$_SESSION['shoppingSession'] = new ShoppingSession(null, null, [], null, null);
+		// 	}
+		// 	else
+		// 	{
+		// 		$_SESSION['shoppingSession'] = ShoppingSessionRepositoryImpl::getByUser($_SESSION['user']->id);
+		// 	}
+		// }
 
 		Util\Database\Migration::migrate($connection);
 

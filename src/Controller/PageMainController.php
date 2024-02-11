@@ -16,7 +16,24 @@ class PageMainController extends BaseController
 	public function showProductsAction()
 	{
 		$tags = TagService::getAllTags();
-		$products = ProductService::getAllProducts();
+		if (isset($_GET['page'])&&is_numeric($_GET['page']))
+		{
+			$page = $_GET['page'];
+		}
+		else
+		{
+			$page = 1;
+		}
+		if (isset($_GET['title']))
+		{
+			var_dump($_GET['title']);
+			$products = ProductService::getProductByTitle($_GET['title'], $page);
+		}
+		else
+		{
+			$products = ProductService::getAllProducts($page);
+		}
+
 		$template = $this->engine->getPageTemplate([
 			'products' => $products,
 			'tags' => $tags,
