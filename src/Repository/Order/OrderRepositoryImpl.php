@@ -2,6 +2,7 @@
 
 namespace Up\Repository\Order;
 
+use Up\Dto\OrderAddingDto;
 use Up\Entity;
 use Up\Repository\Product\ProductRepositoryImpl;
 use Up\Repository\User\UserRepositoryImpl;
@@ -55,11 +56,6 @@ class OrderRepositoryImpl implements OrderRepository
 		);
 	}
 
-	public static function add(): void
-	{
-		// TODO: Implement add() method.
-	}
-
 	private static function createOrderList(\mysqli_result $result): array
 	{
 		$orders = [];
@@ -94,5 +90,30 @@ class OrderRepositoryImpl implements OrderRepository
 		);
 
 		return $orders;
+	}
+
+	public static function add(OrderAddingDto $order): void
+	{
+		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
+		try
+		{
+			mysqli_begin_transaction($connection);
+			$addNewShoppingSessionSQL = "INSERT INTO up_order (user_id, delivery_address, status_id, creaed_at) 
+				VALUES ({$order->userId}, {$order->deliveryAddress}, {$order->statusId}, {$order->createdAt})";
+			QueryResult::getQueryResult($addNewShoppingSessionSQL);
+			$last = mysqli_insert_id($connection);
+			foreach ($order->products as $product)
+			{
+				$addLinkToItemSQL = "INSERT INTO up_order_item (order_id, item_id, quantities, price)
+									VALUES ({$last}, {$product->info->id}, {$product->getQuantity()}, {$product->getPrice()})";
+				QueryResult::getQueryResult($addLinkToItemSQL);
+			}
+			mysqli_commit($connection);
+		}
+		catch (\Throwable $e)
+		{
+			mysqli_rollback($connection);
+			throw $e;
+		}
 	}
 }
