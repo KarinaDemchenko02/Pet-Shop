@@ -4,6 +4,7 @@ namespace Up\Repository\Product;
 
 use Up\Entity\Image;
 use Up\Entity\Product;
+use Up\Entity\Tag;
 use Up\Repository\Tag\TagRepositoryImpl;
 use Up\Util\Database\QueryResult;
 
@@ -170,6 +171,23 @@ class ProductRepositoryImpl implements ProductRepository
 		}
 	}
 
+	public static function getByTag(Tag $tag): array
+	{
+
+		$tagId = $tag->id;
+
+
+		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive,
+                added_at as addedAt, edited_at as editedAt, up_image.id as imageId, path
+				from up_item
+				inner join up_image on up_item.id = item_id
+	            inner join up_item_tag on up_item.id = up_item_tag.id_item
+				WHERE it.id_tag = {$tagId};";
+
+		$result = QueryResult::getQueryResult($sql);
+
+		return self::createProductList($result);
+	}
 	public static function getByTags(array $tags): array
 	{
 		foreach ($tags as $tag) {
