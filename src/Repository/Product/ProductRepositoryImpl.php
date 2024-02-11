@@ -4,19 +4,24 @@ namespace Up\Repository\Product;
 
 use Up\Entity\Image;
 use Up\Entity\Product;
+use Up\Entity\Tag;
 use Up\Repository\Tag\TagRepositoryImpl;
 use Up\Util\Database\Connector;
 use Up\Util\Database\QueryResult;
 
 class ProductRepositoryImpl implements ProductRepository
 {
-	public static function getAll(): array
+	public static function getAll(int $page = 1): array
 	{
+		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
+		$offset = $limit * ($page - 1);
+
 		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive,
                 added_at as addedAt, edited_at as editedAt, up_image.id as imageId, path
 				from up_item
 				inner join up_image on up_item.id = item_id
-	            inner join up_item_tag on up_item.id = up_item_tag.id_item";
+	            inner join up_item_tag on up_item.id = up_item_tag.id_item
+	            LIMIT {$limit} OFFSET {$offset}";
 
 		$result = QueryResult::getQueryResult($sql);
 
@@ -69,16 +74,21 @@ class ProductRepositoryImpl implements ProductRepository
 
 	}
 
-	public static function getByTitle(string $title): array
+	public static function getByTitle(string $title, int $page = 1): array
 	{
 		$connection = Connector::getInstance()->getDbConnection();
 		$escapedTitle = mysqli_real_escape_string($connection, $title);
+
+		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
+		$offset = $limit * ($page - 1);
+
 		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive,
                 added_at as addedAt, edited_at as editedAt, up_image.id as imageId, path
 				from up_item
 				inner join up_image on up_item.id = item_id
 	            inner join up_item_tag on up_item.id = up_item_tag.id_item
-				WHERE up_item.name LIKE '%{$escapedTitle}%'";
+				WHERE up_item.name LIKE '%{$escapedTitle}%'
+				LIMIT {$limit} OFFSET {$offset}";
 
 		$result = QueryResult::getQueryResult($sql);
 
@@ -183,10 +193,31 @@ class ProductRepositoryImpl implements ProductRepository
 		}
 	}
 
-	public static function getByTags(array $tags): array
+	public static function getByTag(Tag $tag, int $page = 1): array
 	{
-		foreach ($tags as $tag)
-		{
+		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
+		$offset = $limit * ($page - 1);
+
+		$tagId = $tag->id;
+
+		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive,
+                added_at as addedAt, edited_at as editedAt, up_image.id as imageId, path
+				from up_item
+				inner join up_image on up_item.id = item_id
+	            inner join up_item_tag on up_item.id = up_item_tag.id_item
+				WHERE it.id_tag = {$tagId};
+				LIMIT {$limit} OFFSET {$offset}";
+
+		$result = QueryResult::getQueryResult($sql);
+
+		return self::createProductList($result);
+	}
+	public static function getByTags(array $tags, int $page = 1): array
+	{
+		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
+		$offset = $limit * ($page - 1);
+
+		foreach ($tags as $tag) {
 			$tagIds[] = $tag->id;
 		}
 
@@ -195,7 +226,8 @@ class ProductRepositoryImpl implements ProductRepository
 				from up_item
 				inner join up_image on up_item.id = item_id
 	            inner join up_item_tag on up_item.id = up_item_tag.id_item
-				WHERE it.id_tag IN (" . implode(",", $tagIds) . ")";
+				WHERE it.id_tag IN (" . implode(",", $tagIds) . ")
+				LIMIT {$limit} OFFSET {$offset}";
 
 		$result = QueryResult::getQueryResult($sql);
 
