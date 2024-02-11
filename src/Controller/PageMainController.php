@@ -17,7 +17,7 @@ class PageMainController extends BaseController
 	{
 
 		$tags = TagService::getAllTags();
-		if (isset($_GET['page'])&&is_numeric($_GET['page']))
+		if (isset($_GET['page'])&&is_numeric($_GET['page'])&&$_GET['page']>0)
 		{
 			$page = $_GET['page'];
 		}
@@ -27,14 +27,12 @@ class PageMainController extends BaseController
 		}
 		if (isset($_GET['title']))
 		{
-			var_dump($_GET['title']);
 			$products = ProductService::getProductByTitle($_GET['title'], $page);
 		}
 		else
 		{
 			$products = ProductService::getAllProducts($page);
 		}
-
 		$template = $this->engine->getPageTemplate([
 			'products' => $products,
 			'tags' => $tags,

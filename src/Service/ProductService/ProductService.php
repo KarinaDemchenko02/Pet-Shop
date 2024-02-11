@@ -30,7 +30,6 @@ class ProductService
 	public static function getProductByTitle(string $title, int $page): array
 	{
 		$title = strtolower(trim($title));
-		var_dump($title);
 		$products = ProductRepositoryImpl::getByTitle($title, $page);
 
 		$productsDto = [];
