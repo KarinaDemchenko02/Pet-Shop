@@ -1,12 +1,3 @@
-<?php
-
-if (isset($_POST['action']))
-{
-	print_r($_POST);
-}
-
-?>
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>

@@ -54,6 +54,38 @@ class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
 		return self::createShoppingSessionList($result);
 	}
 
+	public static function getByUser($id)
+	{
+		$sql = "select id, user_id, item_id, quantities ,created_at, updated_at
+				from up_shopping_session
+				inner join up_shopping_session_item on id = up_shopping_session_item.shopping_session_id
+				where user_id = {$id};";
+
+		$result = QueryResult::getQueryResult($sql);
+
+		$isFirstLine = true;
+		while ($row = mysqli_fetch_assoc($result))
+		{
+			if ($isFirstLine)
+			{
+				$user = UserRepositoryImpl::getById($row['user_id']);
+				$createdAt = $row['created_at'];
+				$updatedAt = $row['updated_at'];
+				$isFirstLine = false;
+			}
+
+			$products[$row['item_id']] = new ProductQuantity(
+				ProductRepositoryImpl::getById($row['item_id']), $row['quantities']
+			);
+
+		}
+		$shoppingSession = new ShoppingSession(
+			$id, $user, $products, $createdAt, $updatedAt
+		);
+
+		return $shoppingSession;
+	}
+
 	private static function createShoppingSessionList(\mysqli_result $result): array
 	{
 		$ShoppingSessions = [];
@@ -136,8 +168,7 @@ class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
 			QueryResult::getQueryResult($deleteProductSQL);
 			foreach ($shoppingSession->getProducts() as $item)
 			{
-				$addLinkToTagSQL =
-					"INSERT IGNORE INTO up_shopping_session_item (item_id, shopping_session_id, quantities)
+				$addLinkToTagSQL = "INSERT IGNORE INTO up_shopping_session_item (item_id, shopping_session_id, quantities)
 					VALUES ({$item->info->id}, {$shoppingSession->id}, {$item->getQuantity()})";
 				QueryResult::getQueryResult($addLinkToTagSQL);
 			}

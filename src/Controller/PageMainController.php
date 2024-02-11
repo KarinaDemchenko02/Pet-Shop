@@ -15,11 +15,13 @@ class PageMainController extends BaseController
 
 	public function showProductsAction()
 	{
+
 		$tags = TagService::getAllTags();
 		$products = ProductService::getAllProducts();
 		$template = $this->engine->getPageTemplate([
 			'products' => $products,
 			'tags' => $tags,
+			'isLogIn' => $this->isLogIn(),
 			]);
 
 		$template->display();

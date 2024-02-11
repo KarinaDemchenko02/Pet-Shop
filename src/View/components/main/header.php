@@ -3,7 +3,7 @@
 	<div class="header__form">
 		<form class="header__main-form" action="/" method="get">
 			<label class="header__label">
-				<input class="header__input" placeholder="Поиск товаров">
+				<input name="title" class="header__input" placeholder="Поиск товаров">
 			</label>
 			<button class="header__button" type="submit">
 				<i class="header__search material-icons">search</i>
