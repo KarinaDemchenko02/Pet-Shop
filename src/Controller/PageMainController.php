@@ -17,7 +17,22 @@ class PageMainController extends BaseController
 	{
 
 		$tags = TagService::getAllTags();
-		$products = ProductService::getAllProducts();
+		if (isset($_GET['page'])&&is_numeric($_GET['page'])&&$_GET['page']>0)
+		{
+			$page = $_GET['page'];
+		}
+		else
+		{
+			$page = 1;
+		}
+		if (isset($_GET['title']))
+		{
+			$products = ProductService::getProductByTitle($_GET['title'], $page);
+		}
+		else
+		{
+			$products = ProductService::getAllProducts($page);
+		}
 		$template = $this->engine->getPageTemplate([
 			'products' => $products,
 			'tags' => $tags,
