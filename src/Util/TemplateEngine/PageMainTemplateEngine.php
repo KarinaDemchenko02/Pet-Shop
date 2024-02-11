@@ -9,6 +9,11 @@ class PageMainTemplateEngine implements TemplateEngine
 		$products = $variables['products'];
 		$tags = $variables['tags'];
 
+		if ($variables['isLogIn'])
+		{
+
+		}
+
 		$footer = new Template('components/main/footer');
 		$header = new Template('components/main/header');
         $form = new Template('components/main/formAuthorization');

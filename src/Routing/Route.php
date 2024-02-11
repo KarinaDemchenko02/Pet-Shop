@@ -13,6 +13,7 @@ class Route
 
 	public function match(string $uri): bool
 	{
+		$uri = explode('?', $uri)[0];
 		$regexpVar = '([A-Za-z0-9_-]+)';
 		$regexp = '#^' . preg_replace('(:[A-Za-z]+)', $regexpVar, $this->uri) . '$#';
 
@@ -24,7 +25,6 @@ class Route
 			array_shift($matches);
 			$this->variables = $matches;
 		}
-
 		return $result;
 	}
 

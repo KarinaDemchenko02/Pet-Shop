@@ -4,6 +4,7 @@ namespace Up\Auth;
 
 
 use Up\Dto\UserAddingDto;
+use Up\Dto\UserDto;
 use Up\Exceptions\Service\UserService\UserAdding;
 use Up\Exceptions\Service\UserService\UserNotFound;
 use Up\Service\UserService\UserService;
@@ -11,42 +12,40 @@ use Up\Service\UserService\UserService;
 class Auth
 {
 	private array $errors = [];
-	public function verifyUser(string $email, string $password): bool
+	public function verifyUser(UserDto $userDto, string $password): bool
 	{
 		try
 		{
-			$user = UserService::getUserByEmail($email);
-			if (password_verify(trim($password), $user->password))
+			if (password_verify(trim($password), $userDto->password))
 			{
 				return true;
 			}
-
 			$this->errors[] = 'Invalid password';
-			return false;
 		}
 		catch (UserNotFound $exception)
 		{
 			$this->errors[] = $exception->getMessage();
-			return false;
 		}
+		return false;
 	}
-	public function registerUser(string $name, string $surname, string $phoneNumber,string $email, string $password, string $roleId = 'Пользователь'): bool
+
+	public function registerUser(UserAddingDto $user): bool
 	{
-		if(!preg_match("/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/", $email))
+		if(!preg_match("/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/", $user->email))
 		{
-			$this->errors[] = "Invalid email";
+			$this->errors[] = "Неправильно введён Email";
 		}
-		if (!preg_match("/^[a-zA-Z]{1,30}+$/", $name) || !preg_match("/^[a-zA-Z]{1,30}+$/", $surname))
+		if (!preg_match("/^[a-zA-Z]{1,30}+$/", $user->name) || !preg_match("/^[a-zA-Z]{1,30}+$/", $user->surname))
 		{
-			$this->errors[] = "The first or last name was entered incorrectly";
+			$this->errors[] = "Имя и фамилия введены некорректно";
 		}
-		if (!preg_match("/^\+[0-9]+$/", $phoneNumber))
+		if (!preg_match("/^\+\d+$/", $user->phoneNumber))
 		{
-			$this->errors[] = "Phone number was entered incorrectly";
+			$this->errors[] = "Номер телефона введён некорректно";
 		}
-		if (!preg_match("/(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/", $password))
+		if (!preg_match("/^(?=^.{8,}$)(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s).*$/", $user->password))
 		{
-			$this->errors[] = "Пароль состоит минимум из 8 символов и может содержать только строчные и прописные латинские буквы, цифры, спецсимволы";
+			$this->errors[] = "Пароль состоит минимум из 8 символов и может содержать только строчные и прописные латинские буквы, цифры";
 		}
 
 		if (!empty($this->errors))
@@ -54,8 +53,15 @@ class Auth
 			return false;
 		}
 
-		$password = password_hash($password, PASSWORD_DEFAULT);
-		$userAddingDto = new UserAddingDto($name, $email, $password, $phoneNumber, $roleId);
+		$password = password_hash($user->password, PASSWORD_DEFAULT);
+		$userAddingDto = new UserAddingDto(
+			$user->name,
+			$user->surname,
+			$user->email,
+			$password,
+			$user->phoneNumber,
+			$user->roleTitle
+		);
 		try
 		{
 			UserService::addUser($userAddingDto);
@@ -63,7 +69,7 @@ class Auth
 		}
 		catch (UserAdding)
 		{
-			$this->errors[] = "User with this email already exists";
+			$this->errors[] = "Пользователь с этим Email уже существует";
 			return false;
 		}
 	}

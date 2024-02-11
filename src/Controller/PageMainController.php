@@ -15,6 +15,7 @@ class PageMainController extends BaseController
 
 	public function showProductsAction()
 	{
+
 		$tags = TagService::getAllTags();
 		if (isset($_GET['page'])&&is_numeric($_GET['page']))
 		{
@@ -37,6 +38,7 @@ class PageMainController extends BaseController
 		$template = $this->engine->getPageTemplate([
 			'products' => $products,
 			'tags' => $tags,
+			'isLogIn' => $this->isLogIn(),
 			]);
 
 		$template->display();
