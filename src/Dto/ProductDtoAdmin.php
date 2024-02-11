@@ -1,0 +1,34 @@
+<?php
+
+namespace Up\Dto;
+
+
+use Up\Entity\Entity;
+use Up\Entity\Product;
+
+class ProductDtoAdmin implements Dto
+{
+	public readonly string $id;
+	public readonly string $title;
+	public readonly string $description;
+	public readonly string $price;
+	public readonly bool $isActive;
+	public readonly int $addedAt;
+	public readonly int $editedAt;
+
+	public function __construct(Product $product)
+	{
+		$this->id = $product->id;
+		$this->title = $product->title;
+		$this->description = $product->description;
+		$this->price = $product->price;
+		$this->isActive = $product->isActive;
+		$this->addedAt = $product->addedAt;
+		$this->editedAt = $product->editedAt;
+	}
+
+	public static function from(Entity $entity): void
+	{
+		// TODO: from() function
+	}
+}

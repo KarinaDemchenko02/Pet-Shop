@@ -2,6 +2,8 @@
 
 namespace Up\Repository\Product;
 
+use Up\Dto\ProductAddingDto;
+use Up\Dto\ProductChangeDto;
 use Up\Entity\Image;
 use Up\Entity\Product;
 use Up\Entity\Tag;
@@ -95,7 +97,7 @@ class ProductRepositoryImpl implements ProductRepository
 		return self::createProductList($result);
 	}
 
-	public static function add($title, $description, $price, $tags): void
+	public static function add(ProductAddingDto $productAddingDto): void
 	{
 		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
 		try
@@ -107,12 +109,12 @@ class ProductRepositoryImpl implements ProductRepository
 			$addNewProductSQL = "INSERT INTO up_item (name, description, price) 
 				VALUES ('{$escapedTitle}', '{$escapedDescription}', {$price})";
 			QueryResult::getQueryResult($addNewProductSQL);
-			$last = mysqli_insert_id($connection);
-			foreach ($tags as $tag)
-			{
-				$addLinkToTagSQL = "INSERT INTO up_item_tag (id_item, id_tag) VALUES ({$last}, {$tag})";
-				QueryResult::getQueryResult($addLinkToTagSQL);
-			}
+//			$last = mysqli_insert_id($connection);
+//			foreach ($tags as $tag)
+//			{
+//				$addLinkToTagSQL = "INSERT INTO up_item_tag (id_item, id_tag) VALUES ({$last}, {$tag})";
+//				QueryResult::getQueryResult($addLinkToTagSQL);
+//			}
 			mysqli_commit($connection);
 		}
 		catch (\Throwable $e)
@@ -158,7 +160,7 @@ class ProductRepositoryImpl implements ProductRepository
 		}
 	}
 
-	public static function change($id, $name, $description, $price, $tags): void
+	public static function change(ProductChangeDto $productChangeDto): void
 	{
 		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
 		$time = new \DateTime();
