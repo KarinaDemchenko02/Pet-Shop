@@ -8,7 +8,7 @@ class Application
 	{
 		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
 
-		Util\Database\Migration::migrate($connection);
+		//Util\Database\Migration::migrate($connection);
 
 		$route = \Up\Routing\Router::find($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
 

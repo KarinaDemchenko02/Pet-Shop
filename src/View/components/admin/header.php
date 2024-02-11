@@ -1,4 +1,5 @@
 <header class="header">
+	<img class="header__logo" src="/../images/logoMadagascar.png" alt="logo">
 	<nav class="header__nav">
 		<ul class="header__list">
 			<li class="header__item">

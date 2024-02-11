@@ -2,6 +2,8 @@
 
 namespace Up\Repository\Product;
 
+use Up\Dto\ProductAddingDto;
+use Up\Dto\ProductChangeDto;
 use Up\Entity\Image;
 use Up\Entity\Product;
 use Up\Repository\Tag\TagRepositoryImpl;
@@ -82,23 +84,23 @@ class ProductRepositoryImpl implements ProductRepository
 		return self::createProductList($result);
 	}
 
-	public static function add($title, $description, $price, $tags): void
+	public static function add(ProductAddingDto $productAddingDto): void
 	{
 		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
 		try
 		{
 			mysqli_begin_transaction($connection);
-			$description = $description ?: "NULL";
+			$description = $productAddingDto->description ?: "NULL";
 
 			$addNewProductSQL = "INSERT INTO up_item (name, description, price) 
-				VALUES ('{$title}', '{$description}', {$price})";
+				VALUES ('{$productAddingDto->title}', '{$description}', {$productAddingDto->price})";
 			QueryResult::getQueryResult($addNewProductSQL);
-			$last = mysqli_insert_id($connection);
-			foreach ($tags as $tag)
-			{
-				$addLinkToTagSQL = "INSERT INTO up_item_tag (id_item, id_tag) VALUES ({$last}, {$tag})";
-				QueryResult::getQueryResult($addLinkToTagSQL);
-			}
+//			$last = mysqli_insert_id($connection);
+//			foreach ($tags as $tag)
+//			{
+//				$addLinkToTagSQL = "INSERT INTO up_item_tag (id_item, id_tag) VALUES ({$last}, {$tag})";
+//				QueryResult::getQueryResult($addLinkToTagSQL);
+//			}
 			mysqli_commit($connection);
 		}
 		catch (\Throwable $e)
@@ -144,23 +146,24 @@ class ProductRepositoryImpl implements ProductRepository
 		}
 	}
 
-	public static function change($id, $name, $description, $price, $tags): void
+	public static function change(ProductChangeDto $productChangeDto): void
 	{
 		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
 		$time = new \DateTime();
 		$now = $time->format('Y-m-d H:i:s');
-		$strTags = implode(', ', $tags);
+//		$strTags = implode(', ', $tags);
 		try
 		{
 			mysqli_begin_transaction($connection);
-			$changeProductSQL = "UPDATE up_item SET name='{$name}', description='{$description}', price=$price, edited_at='{$now}'  where id = {$id}";
+			$changeProductSQL = "UPDATE up_item SET name='{$productChangeDto->title}', description='{$productChangeDto->description}', 
+                   price=$productChangeDto->price, edited_at='{$now}'  where id = {$productChangeDto->id}";
 			QueryResult::getQueryResult($changeProductSQL);
-			$deleteProductSQL = "DELETE FROM up_item_tag WHERE id_item={$id} AND id_tag NOT IN ({$strTags})";
-			QueryResult::getQueryResult($deleteProductSQL);
-			foreach ($tags as $tag) {
-				$addLinkToTagSQL = "INSERT IGNORE INTO up_item_tag (id_item, id_tag) VALUES ({$id}, {$tag})";
-				QueryResult::getQueryResult($addLinkToTagSQL);
-			}
+//			$deleteProductSQL = "DELETE FROM up_item_tag WHERE id_item={$id} AND id_tag NOT IN ({$strTags})";
+//			QueryResult::getQueryResult($deleteProductSQL);
+//			foreach ($tags as $tag) {
+//				$addLinkToTagSQL = "INSERT IGNORE INTO up_item_tag (id_item, id_tag) VALUES ({$id}, {$tag})";
+//				QueryResult::getQueryResult($addLinkToTagSQL);
+//			}
 			mysqli_commit($connection);
 		}
 		catch (\Throwable $e)

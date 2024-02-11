@@ -1,6 +1,8 @@
 <?php
-if (isset($_POST['name'])) {
-	echo $_POST['name'];
+
+if (isset($_POST['action']))
+{
+	print_r($_POST);
 }
 
 ?>
