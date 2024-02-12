@@ -16,9 +16,6 @@ class PageAdminController extends BaseController
 
 	public function showProductsAction()
 	{
-		if (isset($_GET['entity'])) {
-			echo 'test';exit();
-		}
 		$products = ProductService::getAllProductsForAdmin();
 		$columnsProducts = ProductRepositoryImpl::getColumn();
 
