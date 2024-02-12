@@ -2,8 +2,6 @@
 
 namespace Up;
 
-use Up\Auth\Auth;
-use Up\Dto\UserAddingDto;
 use Up\Entity\ShoppingSession;
 use Up\Util\Session;
 

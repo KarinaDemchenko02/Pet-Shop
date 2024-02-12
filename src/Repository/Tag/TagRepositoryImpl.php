@@ -36,9 +36,9 @@ class TagRepositoryImpl implements TagRepository
 		return new Tag($row['id'], $row['name']);
 	}
 
-	public static function add(Tag $tag): bool
+	public static function add(string $title): bool
 	{
-		$sql = "INSERT INTO up_tags (name) VALUES ('{$tag->title}');";
+		$sql = "INSERT INTO up_tags (name) VALUES ('{$title}');";
 
 		$result = QueryResult::getQueryResult($sql);
 

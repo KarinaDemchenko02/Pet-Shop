@@ -8,9 +8,9 @@ use Up\Service\ProductService\ProductService;
 
 class Add {
 	private array $errors = [];
-	public function addProduct(string $title, string $description, string $price): bool
+	public function addProduct(string $title, string $description, string $price, string $tag): bool
 	{
-		$productAddingDto = new ProductAddingDto($title, $description, $price);
+		$productAddingDto = new ProductAddingDto($title, $description, $price, '/images/imgNotFound.png', $tag);
 
 		try
 		{

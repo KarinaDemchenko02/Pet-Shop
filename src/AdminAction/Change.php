@@ -15,7 +15,7 @@ class Change
 	public function changeProduct(int $id, string $title, string $description, $price): bool
 	{
 
-		$productChangeDto = new ProductChangeDto($id, $title, $description, $price);
+		$productChangeDto = new ProductChangeDto($id, $title, $description, $price, '/images/imgNotFound.png');
 
 		try {
 			ProductService::changeProduct($productChangeDto);
