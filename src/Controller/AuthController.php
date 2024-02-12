@@ -8,7 +8,6 @@ use Up\Exceptions\Service\UserService\UserNotFound;
 use Up\Service\UserService\UserService;
 use Up\Util\Session;
 use Up\Util\TemplateEngine\PageMainTemplateEngine;
-use Up\Util\TemplateEngine\Template;
 
 class AuthController extends BaseController
 {
@@ -21,7 +20,11 @@ class AuthController extends BaseController
 	}
 	public function authAction()
 	{
-		if (isset($_POST['log_in']))
+		if (isset($_POST['logOut']))
+		{
+			$this->logOut();
+		}
+		if (isset($_POST['logIn']))
 		{
 			$this->logIn();
 		}
@@ -69,5 +72,11 @@ class AuthController extends BaseController
 		{
 			$this->errors[] = 'Не удалось добавить пользователя';
 		}
+	}
+
+	private function logOut(): void
+	{
+		Session::delete();
+		self::$user = null;
 	}
 }

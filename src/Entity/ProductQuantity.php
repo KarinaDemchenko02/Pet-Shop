@@ -9,12 +9,12 @@ class ProductQuantity implements Entity
 
 	readonly Product $info;
 	private int $quantity;
-	private int $price;
 
 
-	public function __construct(Product $info)
+	public function __construct(Product $info, $quantity)
 	{
 		$this->info = $info;
+		$this->quantity = $quantity;
 	}
 
 	public function setQuantity(int $quantity): void

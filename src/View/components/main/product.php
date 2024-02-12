@@ -1,7 +1,7 @@
 <li class="product__wrapper">
 	<div class="product__content">
 		<a href="/product/<?= $this->getVariable('id') ?>/">
-			<img class="product__images" src="/../images/productImages.png" alt="product">
+			<img class="product__images" src="<?=$this->getVariable('imagePath')?>" alt="product">
 		</a>
 		<div class="product__bottom-content">
 			<div class="product__left-content">

@@ -9,3 +9,5 @@ Router::post('/', new \Up\Controller\AuthController(), 'authAction');
 Router::get('/admin/', new \Up\Controller\PageAdminController(), 'showProductsAction');
 
 Router::post('/admin/', new \Up\Controller\MultipleController(), 'processAction');
+
+Router::post('/product/:id/', new \Up\Controller\PageDetailController(), 'buyProductAction');

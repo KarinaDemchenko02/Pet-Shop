@@ -37,7 +37,7 @@
                         <input class="form__input" type="password" id="password" name="password">
                     </div>
                 </div>
-                <button class="form__button" type="submit" name="log_in">ВОЙТИ</button>
+                <button class="form__button" type="submit" name="logIn">ВОЙТИ</button>
                 <button class="form__button form__button-register" type="submit" name="register">ЗАРЕГИСТРИРОВАТЬСЯ</button>
             </form>
         </div>

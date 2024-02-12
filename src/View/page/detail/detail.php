@@ -2,7 +2,7 @@
 	<section class="details">
 		<div class="details_main-information">
 			<div id="img-container" class="details__images-container">
-				<img id="product" class="details__images" src="/../images/productImages.png" alt="product">
+				<img id="product" class="details__images" src="<?=$this->getVariable('imagePath')?>" alt="product">
 			</div>
 			<div class="details__information">
 				<div class="details__name-container">

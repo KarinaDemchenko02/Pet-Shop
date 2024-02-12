@@ -15,10 +15,11 @@ class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
 	{
 		$sql = "select id, user_id, item_id, quantities ,created_at, updated_at
 				from up_shopping_session
-				inner join up_shopping_session_item on id = up_shopping_session_item.shopping_session_id
+				left join up_shopping_session_item on id = up_shopping_session_item.shopping_session_id
 				where id = {$id};";
 
 		$result = QueryResult::getQueryResult($sql);
+		$products = [];
 
 		$isFirstLine = true;
 		while ($row = mysqli_fetch_assoc($result))
@@ -29,6 +30,11 @@ class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
 				$createdAt = $row['created_at'];
 				$updatedAt = $row['updated_at'];
 				$isFirstLine = false;
+			}
+
+			if ($row['item_id'] === null)
+			{
+				continue;
 			}
 
 			$products[$row['item_id']] = new ProductQuantity(
@@ -58,10 +64,11 @@ class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
 	{
 		$sql = "select id, user_id, item_id, quantities ,created_at, updated_at
 				from up_shopping_session
-				inner join up_shopping_session_item on id = up_shopping_session_item.shopping_session_id
+				left join up_shopping_session_item on id = up_shopping_session_item.shopping_session_id
 				where user_id = {$id};";
 
 		$result = QueryResult::getQueryResult($sql);
+		$products = [];
 
 		$isFirstLine = true;
 		while ($row = mysqli_fetch_assoc($result))
@@ -74,10 +81,20 @@ class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
 				$isFirstLine = false;
 			}
 
+			if ($row['item_id'] === null)
+			{
+				continue;
+			}
+
 			$products[$row['item_id']] = new ProductQuantity(
 				ProductRepositoryImpl::getById($row['item_id']), $row['quantities']
 			);
 
+		}
+		if ($isFirstLine)
+		{
+			self::add($id, []);
+			return self::getByUser($id);
 		}
 		$shoppingSession = new ShoppingSession(
 			$id, $user, $products, $createdAt, $updatedAt

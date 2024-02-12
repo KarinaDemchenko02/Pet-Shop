@@ -2,16 +2,17 @@
 
 namespace Up\Util\TemplateEngine;
 
-use Up\Dto\ProductDto;
-
 class PageDetailTemplateEngine implements TemplateEngine
 {
-	public function getPageTemplate(ProductDto $productDto): Template
+	public function getPageTemplate($variables): Template
 	{
+		$productDto = $variables['productDto'];
+
         $form = new Template('components/main/formAuthorization');
         $formBuyProduct = new Template('components/detail/formBuyProduct', [
             'title' => $productDto->title,
             'price' => $productDto->price,
+			'imagePath' => $productDto->imagePath,
         ]);
         $basket = new Template('components/main/basket');
 		$success = new Template('components/modals/success');
@@ -21,18 +22,34 @@ class PageDetailTemplateEngine implements TemplateEngine
 			'desc' => $productDto->description,
 			'price' => $productDto->price,
 			'id' => $productDto->id,
+			'imagePath' => $productDto->imagePath,
             'form' => $form,
             'formBuyProduct' => $formBuyProduct,
 			'success' => $success,
             'basket' => $basket
 		]);
 		$footer = new Template('components/main/footer');
-		$header = new Template('components/main/header');
+		$isLogIn = $variables['isLogIn'];
+
+		$header = $this->getHeaderTemplate($isLogIn);
 
 		return (new Template('layout', [
 			'header' => $header,
 			'content' => $detailTemplate,
 			'footer' => $footer,
 		]));
+	}
+
+	public function getHeaderTemplate(bool $isLogIn): Template
+	{
+		if ($isLogIn)
+		{
+			$authSection = new Template('components/main/logOut');
+		}
+		else
+		{
+			$authSection = new Template('components/main/logIn');
+		}
+		return new Template('components/main/header', ['authSection' => $authSection]);
 	}
 }

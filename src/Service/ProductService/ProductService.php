@@ -11,10 +11,10 @@ use Up\Repository\Product\ProductRepositoryImpl;
 
 class ProductService
 {
-	public static function getAllProducts(): array
+	public static function getAllProducts(int $page): array
 	{
 
-		$products = ProductRepositoryImpl::getAll();
+		$products = ProductRepositoryImpl::getAll($page);
 
 		$productsDto = [];
 		foreach ($products as $product)
@@ -30,9 +30,23 @@ class ProductService
 		return new ProductDto($product);
 	}
 
-	public static function getAllProductsForAdmin(): array
+	public static function getProductByTitle(string $title, int $page): array
 	{
-		$products = ProductRepositoryImpl::getAll();
+		$title = strtolower(trim($title));
+		$products = ProductRepositoryImpl::getByTitle($title, $page);
+
+		$productsDto = [];
+		foreach ($products as $product)
+		{
+			$productsDto[] = new ProductDto($product);
+		}
+
+		return $productsDto;
+	}
+
+	public static function getAllProductsForAdmin(int $page = 1): array
+	{
+		$products = ProductRepositoryImpl::getAll($page);
 
 		$productsDto = [];
 		foreach ($products as $product)
