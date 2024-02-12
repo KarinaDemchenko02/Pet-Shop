@@ -8,6 +8,7 @@ use Up\Service\OrderService\OrderService;
 use Up\Service\ProductService\ProductService;
 use Up\Util\Session;
 use Up\Util\TemplateEngine\PageDetailTemplateEngine;
+use Up\Util\TemplateEngine\Template;
 
 class PageDetailController extends BaseController
 {
@@ -42,11 +43,14 @@ class PageDetailController extends BaseController
 				$id,
 			);
 			OrderService::buyProduct($orderDto);
-			header('Location: /');
+			header('Location: /success/');
 		}
 		catch (OrderNotCompleted)
 		{
 			echo "fail";
 		}
+	}
+	public function showModalSuccess(): void {
+		$this->engine->viewModalSuccess()->display();
 	}
 }

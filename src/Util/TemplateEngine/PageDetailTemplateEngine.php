@@ -16,7 +16,6 @@ class PageDetailTemplateEngine implements TemplateEngine
 			'imagePath' => $productDto->imagePath,
         ]);
         $basket = new Template('components/main/basket');
-		$success = new Template('components/modals/success');
 
 		$detailTemplate = new Template('page/detail/detail', [
 			'title' => $productDto->title,
@@ -26,7 +25,6 @@ class PageDetailTemplateEngine implements TemplateEngine
 			'imagePath' => $productDto->imagePath,
             'form' => $form,
             'formBuyProduct' => $formBuyProduct,
-			'success' => $success,
             'basket' => $basket
 		]);
 		$footer = new Template('components/main/footer');
@@ -52,5 +50,10 @@ class PageDetailTemplateEngine implements TemplateEngine
 			$authSection = new Template('components/main/logIn');
 		}
 		return new Template('components/main/header', ['authSection' => $authSection]);
+	}
+
+	public function viewModalSuccess(): Template
+	{
+		return new Template('components/modals/success');
 	}
 }

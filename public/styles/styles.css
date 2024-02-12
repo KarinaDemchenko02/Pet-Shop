@@ -71,7 +71,7 @@ button {
 	width: 14%;
 }
 
-.header__come-in {
+.header__come-in, .header__come-out {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -1223,7 +1223,7 @@ button {
 	color: #9B2847;
 }
 
-.basket::before, .success::before {
+.basket::before {
 	content: "";
 	position: fixed;
 	top: 0;
@@ -1234,12 +1234,8 @@ button {
 	display: none;
 }
 
-.basket.open::before, .success.open::before {
+.basket.open::before  {
 	display: block;
-}
-
-.success {
-	display: none;
 }
 
 .success__container {

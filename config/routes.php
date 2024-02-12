@@ -13,3 +13,5 @@ Router::get('/admin/', new \Up\Controller\PageAdminController(), 'showProductsAc
 Router::post('/admin/', new \Up\Controller\MultipleController(), 'processAction');
 
 Router::post('/product/:id/', new \Up\Controller\PageDetailController(), 'buyProductAction');
+
+Router::get('/success/', new \Up\Controller\PageDetailController(), 'showModalSuccess');

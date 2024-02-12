@@ -280,7 +280,7 @@ class ProductRepositoryImpl implements ProductRepository
 
 	public static function getColumn(): array
 	{
-		$sql = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+		$sql = "SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
                 WHERE TABLE_NAME = 'up_item';";
 
 		$result = QueryResult::getQueryResult($sql);
