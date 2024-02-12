@@ -144,6 +144,15 @@ td {
 	outline: 1px solid #1c7430;
 }
 
+.form__main-container_admin {
+	width: 27%;
+}
+
+.form__login-container_admin {
+	display: flex;
+	justify-content: center;
+}
+
 .form__button {
 	padding: 15px 20px;
 	margin: 0 auto;

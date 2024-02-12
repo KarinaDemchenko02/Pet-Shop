@@ -1,8 +1,8 @@
 <div class="form__box" style="display: block">
 	<div class="form__login-tab"></div>
 
-	<div class="form__login-container">
-		<form class="form__main-container" method="post" action="/admin/logIn/">
+	<div class="form__login-container form__login-container_admin">
+		<form class="form__main-container form__main-container_admin" method="post" action="/admin/logIn/">
 			<div class="form__input-container">
 				<div class="form__input-container form__container-email">
 					<label class="form__label" for="email">E-MAIL</label>
