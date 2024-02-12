@@ -193,19 +193,17 @@ class ProductRepositoryImpl implements ProductRepository
 		}
 	}
 
-	public static function getByTag(Tag $tag, int $page = 1): array
+	public static function getByTag(int $tagId, int $page = 1): array
 	{
 		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
 		$offset = $limit * ($page - 1);
-
-		$tagId = $tag->id;
 
 		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive,
                 added_at as addedAt, edited_at as editedAt, up_image.id as imageId, path
 				from up_item
 				inner join up_image on up_item.id = item_id
-	            inner join up_item_tag on up_item.id = up_item_tag.id_item
-				WHERE it.id_tag = {$tagId};
+	            inner join up_item_tag it on up_item.id = it.id_item
+				WHERE it.id_tag = {$tagId}
 				LIMIT {$limit} OFFSET {$offset}";
 
 		$result = QueryResult::getQueryResult($sql);
@@ -237,41 +235,46 @@ class ProductRepositoryImpl implements ProductRepository
 	private static function createProductList(\mysqli_result $result): array
 	{
 		$products = [];
-
-		$isFirstLine = true;
-		while ($row = mysqli_fetch_assoc($result))
+		try
 		{
-			if (!isset($products[$row['id']]))
+			$isFirstLine = true;
+			while ($row = mysqli_fetch_assoc($result))
 			{
-				if (!$isFirstLine)
+				if (!isset($products[$row['id']]))
 				{
-					$products[$id] = new Product(
-						$id, $name, $description, $price, $tags, $isActive, $addedAt, $editedAt, $imagePath
-					);
+					if (!$isFirstLine)
+					{
+						$products[$id] = new Product(
+							$id, $name, $description, $price, $tags, $isActive, $addedAt, $editedAt, $imagePath
+						);
+					}
+					$id = $row['id'];
+					$name = $row['name'];
+					$description = $row['description'];
+					$price = $row['price'];
+					$tags = [TagRepositoryImpl::getById($row['tagId'])];
+					$isActive = $row['isActive'];
+					$addedAt = $row['addedAt'];
+					$editedAt = $row['editedAt'];
+					$imagePath = $row['path'];
+
+					$isFirstLine = false;
 				}
-				$id = $row['id'];
-				$name = $row['name'];
-				$description = $row['description'];
-				$price = $row['price'];
-				$tags = [TagRepositoryImpl::getById($row['tagId'])];
-				$isActive = $row['isActive'];
-				$addedAt = $row['addedAt'];
-				$editedAt = $row['editedAt'];
-				$imagePath = $row['path'];
+				else
+				{
+					$imagePath = $row['path'];
+					$tags[] = TagRepositoryImpl::getById($row['tagId']);
+				}
+			}
 
-				$isFirstLine = false;
-			}
-			else
-			{
-				$imagePath = $row['path'];
-				$tags[] = TagRepositoryImpl::getById($row['tagId']);
-			}
+			$products[] = new Product(
+				@$id, @$name, @$description, @$price, @$tags, @$isActive, @$addedAt, @$editedAt, @$imagePath
+			);
 		}
-
-		$products[] = new Product(
-			@$id, @$name, @$description, @$price, @$tags, @$isActive, @$addedAt, @$editedAt, @$imagePath
-		);
-
+		catch (\TypeError)
+		{
+			return [];
+		}
 		return $products;
 	}
 

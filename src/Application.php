@@ -5,6 +5,7 @@ namespace Up;
 use Up\Entity\ShoppingSession;
 use Up\Repository\ShoppingSession\ShoppingSessionRepositoryImpl;
 use Up\Repository\User\UserRepositoryImpl;
+use Up\Util\Session;
 
 class Application
 {
@@ -13,22 +14,15 @@ class Application
 		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
 		Util\Database\Migration::migrate($connection);
 
-		session_start();
-		if (!isset($_SESSION['user']))
+		Session::init();
+		$user = Session::get('user');
+		$shoppingSession = Session::get('shoppingSession');
+
+		if (!isset($shoppingSession) && is_null($user))
 		{
-			$_SESSION['user'] = UserRepositoryImpl::getById(1);
+			Session::set('shoppingSession', new ShoppingSession(null, null, [], null, null));
 		}
-		if (!isset($_SESSION['shoppingSession']))
-		{
-			if ($_SESSION['user'] === null)
-			{
-				$_SESSION['shoppingSession'] = new ShoppingSession(null, null, [], null, null);
-			}
-			else
-			{
-				$_SESSION['shoppingSession'] = ShoppingSessionRepositoryImpl::getByUser($_SESSION['user']->id);
-			}
-		}
+
 
 		$route = \Up\Routing\Router::find($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
 

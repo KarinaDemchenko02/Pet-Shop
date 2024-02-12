@@ -32,6 +32,10 @@ class Router
 	{
 		self::add('POST', $uri, $controller, $action);
 	}
+	public static function put(string $uri, object $controller, string $action)
+	{
+		self::add('POST', $uri, $controller, $action);
+	}
 	public static function find(string $REQUEST_METHOD, string $REQUEST_URI): Route|false
 	{
 		foreach (self::$routes as $route)

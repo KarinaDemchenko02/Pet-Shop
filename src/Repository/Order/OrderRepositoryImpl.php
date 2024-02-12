@@ -4,6 +4,7 @@ namespace Up\Repository\Order;
 
 use Up\Dto\OrderAddingDto;
 use Up\Entity;
+use Up\Exceptions\Service\OrderService\OrderNotCompleted;
 use Up\Repository\Product\ProductRepositoryImpl;
 use Up\Repository\User\UserRepositoryImpl;
 use Up\Util\Database\QueryResult;
@@ -92,28 +93,31 @@ class OrderRepositoryImpl implements OrderRepository
 		return $orders;
 	}
 
+	/**
+	 * @throws OrderNotCompleted
+	 */
 	public static function add(OrderAddingDto $order): void
 	{
 		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
 		try
 		{
+			$userId = $order->userId ?? 'null';
+
 			mysqli_begin_transaction($connection);
-			$addNewShoppingSessionSQL = "INSERT INTO up_order (user_id, delivery_address, status_id, creaed_at) 
-				VALUES ({$order->userId}, {$order->deliveryAddress}, {$order->statusId}, {$order->createdAt})";
+			$addNewShoppingSessionSQL = "INSERT INTO up_order (up_order.user_id, up_order.delivery_address, up_order.status_id, up_order.created_at, up_order.name, up_order.surname) 
+				VALUES ($userId, '{$order->deliveryAddress}', {$order->statusId}, CURRENT_TIMESTAMP, '{$order->name}', '{$order->surname}')";
 			QueryResult::getQueryResult($addNewShoppingSessionSQL);
 			$last = mysqli_insert_id($connection);
-			foreach ($order->products as $product)
-			{
-				$addLinkToItemSQL = "INSERT INTO up_order_item (order_id, item_id, quantities, price)
-									VALUES ({$last}, {$product->info->id}, {$product->getQuantity()}, {$product->getPrice()})";
-				QueryResult::getQueryResult($addLinkToItemSQL);
-			}
+			$price = ProductRepositoryImpl::getById($order->productId)->price;
+			$addLinkToItemSQL = "INSERT INTO up_order_item (order_id, item_id, quantities, price)
+									VALUES ({$last}, {$order->productId}, 1, {$price})";
+			QueryResult::getQueryResult($addLinkToItemSQL);
 			mysqli_commit($connection);
 		}
-		catch (\Throwable $e)
+		catch (\Throwable)
 		{
 			mysqli_rollback($connection);
-			throw $e;
+			throw new OrderNotCompleted();
 		}
 	}
 }

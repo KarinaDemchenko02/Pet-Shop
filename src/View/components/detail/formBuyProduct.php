@@ -14,7 +14,7 @@
 		<div class="form-product__info">
 			<h2 class="form-product__info-heading">Оформление заказа</h2>
 		</div>
-		<form class="form-product__main-form" method="post" action="/">
+		<form class="form-product__main-form" method="post" action="/product/<?=$this->getVariable('id')?>/">
 			<div class="form-product__container-input">
 				<label class="form-product__label" for="name">Имя</label>
 				<input class="form-product__input" id="name" name="name" type="text">

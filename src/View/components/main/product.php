@@ -9,9 +9,11 @@
 					<h2 class="product__heading"><?= $this->getVariable('title') ?></h2>
 					<p class="product__price"><?= $this->getVariable('price') ?> ₽</p>
 				</div>
-				<button class="product__buy">
-					<i class="material-icons product__icon-buy">add_shopping_cart</i>
-				</button>
+				<form method="post" action="/">
+					<button class="product__buy">
+						<i class="material-icons product__icon-buy">add_shopping_cart</i>
+					</button>
+				</form>
 			</div>
 			<div class="product__right-content">
 				<div class="product__right-done">

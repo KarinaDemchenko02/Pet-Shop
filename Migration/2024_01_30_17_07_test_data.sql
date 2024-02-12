@@ -1,13 +1,13 @@
-INSERT INTO up_role (title)
-VALUES ('Администратор'),
-       ('Пользователь'),
-       ('Гость');
+INSERT INTO up_role (id, title)
+VALUES (1, 'Администратор'),
+	   (2, 'Пользователь'),
+	   (3, 'Гость');
 
-INSERT INTO up_status (title)
-VALUES ('В ожидании'),
-       ('В обработке'),
-       ('Отправлено'),
-       ('Доставлено');
+INSERT INTO up_status (id, title)
+VALUES (1, 'В ожидании'),
+       (2, 'В обработке'),
+       (3, 'Отправлено'),
+       (4, 'Доставлено');
 
 INSERT INTO up_tags (name)
 VALUES ('Корм для животных'),
@@ -25,23 +25,23 @@ INSERT INTO up_users (email, password, role_id, tel, name)
 VALUES ('admin@example.com', 'admin_password', 1, '+71234567890', 'Администратор Магазина'),
        ('user@example.com', 'user_password', 2, '+79876543210', 'Обычный Пользователь');
 
-INSERT INTO up_order (user_id, delivery_address, status_id)
-VALUES (1, '123 Улица Главная, Москва', 1),
-       (2, '456 Улица Дубравная, Санкт-Петербург', 2);
+INSERT INTO up_order (user_id, delivery_address, status_id, name, surname)
+VALUES (19, '123 Улица Главная, Москва', 1, 'Антон', 'Антонов'),
+       (20, '456 Улица Дубравная, Санкт-Петербург', 2, 'Иван', 'Иванов');
 
 INSERT INTO up_item_tag (id_item, id_tag)
-VALUES (1, 1),
-       (2, 2),
-       (3, 3),
-       (4, 4);
+VALUES (8, 5),
+       (9, 6),
+       (10, 7),
+       (11, 8);
 
 INSERT INTO up_order_item (order_id, item_id, quantities, price)
-VALUES (1, 1, 2, '1200.50'),
-       (2, 2, 3, '19.99'),
-       (1, 4, 1, '49.99');
+VALUES (45, 8, 2, '1200.50'),
+       (46, 9, 3, '19.99'),
+       (45, 11, 1, '49.99');
 
 INSERT INTO up_image (id, path, item_id)
-VALUES (1, '/images/dogfood.jpg', 1),
-       (2, '/images/catball.jpg', 2),
-       (3, '/images/catscratcher.jpg', 3),
-       (4, '/images/birdvitamins.jpg', 4);
+VALUES (1, '/images/productImages/1.jpg', 8),
+       (2, '/images/productImages/2.jpg', 9),
+       (3, '/images/productImages/3.jpg', 10),
+       (4, '/images/productImages/4.jpg', 11);

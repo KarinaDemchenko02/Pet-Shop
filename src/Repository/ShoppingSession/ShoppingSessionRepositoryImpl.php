@@ -5,7 +5,6 @@ namespace Up\Repository\ShoppingSession;
 use Up\Entity\ProductQuantity;
 use Up\Entity\ShoppingSession;
 use Up\Repository\Product\ProductRepositoryImpl;
-use Up\Repository\User\UserRepositoryImpl;
 use Up\Util\Database\QueryResult;
 
 class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
@@ -26,7 +25,7 @@ class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
 		{
 			if ($isFirstLine)
 			{
-				$user = UserRepositoryImpl::getById($row['user_id']);
+				$userId = $row['user_id'];
 				$createdAt = $row['created_at'];
 				$updatedAt = $row['updated_at'];
 				$isFirstLine = false;
@@ -42,11 +41,9 @@ class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
 			);
 
 		}
-		$shoppingSession = new ShoppingSession(
-			$id, $user, $products, $createdAt, $updatedAt
+		return new ShoppingSession(
+			$id, $userId, $products, $createdAt, $updatedAt
 		);
-
-		return $shoppingSession;
 	}
 
 	public static function getAll(): array
@@ -75,7 +72,7 @@ class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
 		{
 			if ($isFirstLine)
 			{
-				$user = UserRepositoryImpl::getById($row['user_id']);
+				$userId = $row['user_id'];
 				$createdAt = $row['created_at'];
 				$updatedAt = $row['updated_at'];
 				$isFirstLine = false;
@@ -96,11 +93,9 @@ class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
 			self::add($id, []);
 			return self::getByUser($id);
 		}
-		$shoppingSession = new ShoppingSession(
-			$id, $user, $products, $createdAt, $updatedAt
+		return new ShoppingSession(
+			$id, $userId, $products, $createdAt, $updatedAt
 		);
-
-		return $shoppingSession;
 	}
 
 	private static function createShoppingSessionList(\mysqli_result $result): array
@@ -116,7 +111,7 @@ class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
 				if (!$isFirstLine)
 				{
 					$ShoppingSessions[$id] = new ShoppingSession(
-						$id, $user, $products, $createdAt, $updatedAt
+						$id, $userId, $products, $createdAt, $updatedAt
 					);
 				}
 				$id = $row['id'];
@@ -124,7 +119,7 @@ class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
 					ProductRepositoryImpl::getById($row['item_id']), $row['quantities']
 				);
 
-				$user = UserRepositoryImpl::getById($row['user_id']);
+				$userId = $row['user_id'];
 				$createdAt = $row['created_at'];
 				$updatedAt = $row['updated_at'];
 
@@ -139,7 +134,7 @@ class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
 		}
 
 		$ShoppingSessions[$id] = new ShoppingSession(
-			$id, $user, $products, $createdAt, $updatedAt
+			$id, $userId, $products, $createdAt, $updatedAt
 		);
 
 		return $ShoppingSessions;

@@ -5,6 +5,7 @@ namespace Up\Controller;
 use Up\Auth\Auth;
 use Up\Dto\UserAddingDto;
 use Up\Exceptions\Service\UserService\UserNotFound;
+use Up\Repository\ShoppingSession\ShoppingSessionRepositoryImpl;
 use Up\Service\UserService\UserService;
 use Up\Util\Session;
 use Up\Util\TemplateEngine\PageMainTemplateEngine;
@@ -54,6 +55,7 @@ class AuthController extends BaseController
 		{
 			Session::set('logIn', true);
 			Session::set('user', $user);
+			Session::set('shoppingSession', ShoppingSessionRepositoryImpl::getByUser($user->id));
 		}
 	}
 

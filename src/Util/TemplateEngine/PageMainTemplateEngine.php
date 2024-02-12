@@ -2,6 +2,8 @@
 
 namespace Up\Util\TemplateEngine;
 
+use Up\Util\Session;
+
 class PageMainTemplateEngine implements TemplateEngine
 {
 	public function getPageTemplate(array $variables): Template
@@ -10,17 +12,16 @@ class PageMainTemplateEngine implements TemplateEngine
 		$tags = $variables['tags'];
 		$isLogIn = $variables['isLogIn'];
 
-
 		$footer = new Template('components/main/footer');
 		$header = $this->getHeaderTemplate($isLogIn);
-        $form = new Template('components/main/formAuthorization');
-        $basket = new Template('components/main/basket');
+		$form = new Template('components/main/formAuthorization');
+		$basket = $this->getBasketTemplate(Session::get('shoppingSession')->getProducts());
 
 		$mainPageTemplate = new Template('page/main/main', [
 			'tags' => $this->getTagsSectionTemplate($tags),
 			'products' => $this->getProductsSectionTemplate($products),
-            'form' => $form,
-            'basket' => $basket
+			'form' => $form,
+			'basket' => $basket,
 		],);
 
 		return (new Template('layout', [
@@ -29,6 +30,36 @@ class PageMainTemplateEngine implements TemplateEngine
 			'footer' => $footer,
 		]));
 	}
+
+	public function getHeaderTemplate(bool $isLogIn): Template
+	{
+		if ($isLogIn)
+		{
+			$authSection = new Template('components/main/logOut');
+		}
+		else
+		{
+			$authSection = new Template('components/main/logIn');
+		}
+		return new Template('components/main/header', ['authSection' => $authSection]);
+	}
+
+	public function getBasketTemplate(array $basketItems): Template
+	{
+		$basketItemsTemplates = [];
+		foreach ($basketItems as $item)
+		{
+			$basketItemsTemplates[] = new Template('components/main/basketItem', [
+				'title' => $item->info->title,
+				'price' => $item->info->price,
+				'id' => $item->info->id,
+				'imagePath' => $item->info->imagePath,
+				'quantity' => $item->quantity,
+			]);
+		}
+		return new Template('components/main/basket', ['items' => $basketItemsTemplates]);
+	}
+
 	public function getTagsSectionTemplate(array $tags): array
 	{
 		$tagsTemplates = [];
@@ -43,6 +74,7 @@ class PageMainTemplateEngine implements TemplateEngine
 		}
 		return $tagsTemplates;
 	}
+
 	public function getProductsSectionTemplate(array $products): array
 	{
 		$productTemplates = [];
@@ -59,18 +91,5 @@ class PageMainTemplateEngine implements TemplateEngine
 			);
 		}
 		return $productTemplates;
-	}
-
-	public function getHeaderTemplate(bool $isLogIn): Template
-	{
-		if ($isLogIn)
-		{
-			$authSection = new Template('components/main/logOut');
-		}
-		else
-		{
-			$authSection = new Template('components/main/logIn');
-		}
-		return new Template('components/main/header', ['authSection' => $authSection]);
 	}
 }

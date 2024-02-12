@@ -6,6 +6,8 @@ Router::get('/', new \Up\Controller\PageMainController(), 'showProductsAction');
 Router::get('/product/:id/', new \Up\Controller\PageDetailController(), 'showProductAction');
 Router::post('/', new \Up\Controller\AuthController(), 'authAction');
 
+Router::post('/addToBasket/:id/', new \Up\Controller\BasketController(), '');
+
 Router::get('/admin/', new \Up\Controller\PageAdminController(), 'showProductsAction');
 
 Router::post('/admin/', new \Up\Controller\MultipleController(), 'processAction');

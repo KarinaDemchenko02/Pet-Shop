@@ -30,6 +30,19 @@ class ProductService
 		return new ProductDto($product);
 	}
 
+	public static function getProductsByTag(int $tagId, int $page = 1): array
+	{
+		$products = ProductRepositoryImpl::getByTag($tagId, $page);
+
+		$productsDto = [];
+		foreach ($products as $product)
+		{
+			$productsDto[] = new ProductDto($product);
+		}
+
+		return $productsDto;
+	}
+
 	public static function getProductByTitle(string $title, int $page): array
 	{
 		$title = strtolower(trim($title));

@@ -5,15 +5,15 @@ namespace Up\Entity;
 class ShoppingSession implements Entity
 {
 	readonly ?int $id;
-	readonly ?User $user;
+	readonly ?int $userId;
 	private array $products;
 	readonly ?string $createdAt;
 	readonly ?string $updatedAt;
 
-	public function __construct(?int $id, ?User $user, array $products, ?string $createdAt, ?string $updatedAt)
+	public function __construct(?int $id, ?int $userId, array $products, ?string $createdAt, ?string $updatedAt)
 	{
 		$this->id = $id;
-		$this->user = $user;
+		$this->userId = $userId;
 		$this->products = $products;
 		$this->createdAt = $createdAt;
 		$this->updatedAt = $updatedAt;

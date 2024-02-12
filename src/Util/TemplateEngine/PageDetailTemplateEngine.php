@@ -12,6 +12,7 @@ class PageDetailTemplateEngine implements TemplateEngine
         $formBuyProduct = new Template('components/detail/formBuyProduct', [
             'title' => $productDto->title,
             'price' => $productDto->price,
+			'id' => $productDto->id,
 			'imagePath' => $productDto->imagePath,
         ]);
         $basket = new Template('components/main/basket');
