@@ -23,7 +23,6 @@ class AuthController extends BaseController
 	{
 		if (isset($_POST['logOut']))
 		{
-			echo "HELLO";
 			$this->logOut();
 		}
 		if (isset($_POST['logIn']))
