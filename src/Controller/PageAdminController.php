@@ -4,7 +4,6 @@ namespace Up\Controller;
 
 use Up\Repository\Product\ProductRepositoryImpl;
 use Up\Service\ProductService\ProductService;
-use Up\Service\TagService\TagService;
 use Up\Util\TemplateEngine\PageAdminTemplateEngine;
 
 class PageAdminController extends BaseController
@@ -14,6 +13,21 @@ class PageAdminController extends BaseController
 		$this->engine = new PageAdminTemplateEngine();
 	}
 
+	public function indexAction()
+	{
+		if ($this->isLogInAdmin())
+		{
+			$this->showProductsAction();
+		}
+		else
+		{
+			$this->logInAction();
+		}
+	}
+	public function logInAction()
+	{
+		$this->engine->getAuthPageTemplate()->display();
+	}
 	public function showProductsAction()
 	{
 		$page = 1;
@@ -21,7 +35,6 @@ class PageAdminController extends BaseController
 		{
 			$page = (int)$_GET['page'];
 		}
-
 		$products = ProductService::getAllProductsForAdmin($page);
 		$columnsProducts = ProductRepositoryImpl::getColumn();
 

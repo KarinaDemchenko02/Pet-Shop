@@ -22,4 +22,14 @@ abstract class BaseController
 		}
 		return false;
 	}
+
+	protected function isLogInAdmin(): bool
+	{
+		if (!Session::get('logIn'))
+		{
+			return false;
+		}
+		self::$user = Session::get('user');
+		return !is_null(self::$user) && self::$user->roleTitle === 'Администратор';
+	}
 }

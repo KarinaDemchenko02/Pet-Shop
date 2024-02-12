@@ -10,13 +10,13 @@ class UserDto implements Dto
 	public readonly string $id;
 	public readonly string $email;
 	public readonly string $password;
-	public readonly string $roleId;
+	public readonly string $roleTitle;
 	public function __construct(User $user)
 	{
 		$this->id = $user->id;
 		$this->email = $user->email;
 		$this->password = $user->password;
-		$this->roleId = $user->role;
+		$this->roleTitle = $user->role;
 	}
 	public static function from(Entity $entity): void
 	{
