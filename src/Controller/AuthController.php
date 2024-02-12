@@ -35,7 +35,6 @@ class AuthController extends BaseController
 		}
 
 		$this->errors = array_merge($this->errors, $this->authService->getErrors());
-
 		header("Location: {$_SERVER['REQUEST_URI']}");
 	}
 
@@ -64,9 +63,9 @@ class AuthController extends BaseController
 		$user = new UserAddingDto(
 			$_POST['name'],
 			$_POST['surname'],
-			$_POST['phone'],
 			$_POST['email'],
 			$_POST['password'],
+			$_POST['phone'],
 			'Пользователь',
 		);
 

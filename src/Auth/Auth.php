@@ -31,6 +31,8 @@ class Auth
 
 	public function registerUser(UserAddingDto $user): bool
 	{
+		echo '<pre>';
+		var_dump($user);
 		if(!preg_match("/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/", $user->email))
 		{
 			$this->errors[] = "Неправильно введён Email";
