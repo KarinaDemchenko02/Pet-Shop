@@ -54,7 +54,7 @@ class PageMainTemplateEngine implements TemplateEngine
 				'price' => $item->info->price,
 				'id' => $item->info->id,
 				'imagePath' => $item->info->imagePath,
-				'quantity' => $item->quantity,
+				'quantity' => $item->getQuantity(),
 			]);
 		}
 		return new Template('components/main/basket', ['items' => $basketItemsTemplates]);

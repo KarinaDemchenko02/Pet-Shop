@@ -9,7 +9,7 @@
 					<h2 class="product__heading"><?= $this->getVariable('title') ?></h2>
 					<p class="product__price"><?= $this->getVariable('price') ?> ₽</p>
 				</div>
-				<form method="post" action="/">
+				<form method="post" action="/addToBasket/<?= $this->getVariable('id') ?>/">
 					<button class="product__buy">
 						<i class="material-icons product__icon-buy">add_shopping_cart</i>
 					</button>
