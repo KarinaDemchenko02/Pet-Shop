@@ -67,7 +67,4 @@
 	<section class="basket">
 		<?php $this->getVariable('basket')->display(); ?>
 	</section>
-	<section class="success">
-		<?php $this->getVariable('success')->display(); ?>
-	</section>
 </div>

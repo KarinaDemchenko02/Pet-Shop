@@ -17,15 +17,15 @@
 		<form class="form-product__main-form" method="post" action="/product/<?=$this->getVariable('id')?>/">
 			<div class="form-product__container-input">
 				<label class="form-product__label" for="name">Имя</label>
-				<input class="form-product__input" id="name" name="name" type="text">
+				<input class="form-product__input" id="name" name="name" type="text" required>
 			</div>
 			<div class="form-product__container-input">
 				<label class="form-product__label" for="surname">Фамилия</label>
-				<input class="form-product__input" id="surname" name="surname" type="text">
+				<input class="form-product__input" id="surname" name="surname" type="text" required>
 			</div>
 			<div class="form-product__container-input">
 				<label class="form-product__label" for="address">Адрес доставки</label>
-				<input class="form-product__input" id="address" name="address" type="text">
+				<input class="form-product__input" id="address" name="address" type="text" required>
 			</div>
 			<button class="form-product__submit" type="submit">Купить</button>
 		</form>

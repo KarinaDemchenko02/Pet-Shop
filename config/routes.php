@@ -15,3 +15,5 @@ Router::post('/admin/logIn/', new \Up\Controller\AuthController(), 'logInAdminAc
 Router::post('/admin/', new \Up\Controller\MultipleController(), 'processAction');
 
 Router::post('/product/:id/', new \Up\Controller\PageDetailController(), 'buyProductAction');
+
+Router::get('/success/', new \Up\Controller\PageDetailController(), 'showModalSuccess');

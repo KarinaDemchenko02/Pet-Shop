@@ -22,32 +22,6 @@
 			integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
 			crossorigin="anonymous"></script>
 	<script defer src="/js/index.js" type="module"></script>
-	<script>
-		$(document).ready(function () {
-			$("#formAuthorization").submit(function (e) {
-				e.preventDefault();
-				let form = $(this);
-				let messages = $("#information");
-				$.ajax({
-					url: '/',
-					type: 'POST',
-					data: form.serialize(),
-					success: function (data) {
-						messages.text(data)
-					},
-					beforeSend: function () {
-						$('#login').prop("disabled", true);
-						$('.form__spinner').show();
-					},
-					error: function () {
-						$('#login').prop("disabled", false);
-						$('.form__spinner').hide();
-						messages.text('Ошибка')
-					}
-				})
-			})
-		})
-	</script>
 </head>
 <body class="body">
 <header class="header" id="header">
