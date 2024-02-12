@@ -4,7 +4,7 @@
 		<i class="basket__delete-icon material-icons">close</i>
 	</button>
 	</form>
-	<img class="basket__images" src="/../images/productImages.png" alt="product">
+	<img class="basket__images" src="<?=$this->getVariable('imagePath')?>" alt="product">
 	<h2 class="basket__heading-product"><?=$this->getVariable('title')?></h2>
 	<div class="basket__quantity">
 		<button class="basket__btn-quantity basket__plus-btn">

@@ -24,10 +24,11 @@ class PageAdminController extends BaseController
 			$this->logInAction();
 		}
 	}
-	public function logInAction()
+	private function logInAction()
 	{
 		$this->engine->getAuthPageTemplate()->display();
 	}
+
 	public function showProductsAction()
 	{
 		$page = 1;
