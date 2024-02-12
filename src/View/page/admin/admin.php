@@ -21,6 +21,6 @@
 <body>
 	<?php $this->getVariable('header')->display(); ?>
 	<main>
-		<?php $this->getVariable('table')->display(); ?>
+		<?php $this->getVariable('content')->display(); ?>
 	</main>
 </body>

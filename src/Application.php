@@ -2,6 +2,8 @@
 
 namespace Up;
 
+use Up\Auth\Auth;
+use Up\Dto\UserAddingDto;
 use Up\Entity\ShoppingSession;
 use Up\Repository\ShoppingSession\ShoppingSessionRepositoryImpl;
 use Up\Repository\User\UserRepositoryImpl;
@@ -22,7 +24,6 @@ class Application
 		{
 			Session::set('shoppingSession', new ShoppingSession(null, null, [], null, null));
 		}
-
 
 		$route = \Up\Routing\Router::find($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
 

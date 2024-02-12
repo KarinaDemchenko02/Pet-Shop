@@ -13,7 +13,7 @@ class PageAdminTemplateEngine implements TemplateEngine
 		$form = new Template('components/admin/form');
 		$delete = new Template('components/admin/delete');
 
-		$table = new Template('components/admin/table', [
+		$content = new Template('components/admin/table', [
 			'columnsProducts' => $columnsProducts,
 			'products' => $this->getProductsSectionTemplate($products),
 			'form' => $form,
@@ -22,7 +22,16 @@ class PageAdminTemplateEngine implements TemplateEngine
 
 		return (new Template('page/admin/admin', [
 			'header' => $header,
-			'table' => $table
+			'content' => $content
+		]));
+	}
+	public function getAuthPageTemplate(): Template
+	{
+		$header = new Template('components/admin/header');
+		$content = new Template('components/admin/formAuthorization');
+		return (new Template('page/admin/admin', [
+			'header' => $header,
+			'content' => $content,
 		]));
 	}
 	public function getProductsSectionTemplate(array $products): array

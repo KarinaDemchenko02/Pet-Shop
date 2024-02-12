@@ -1,4 +1,4 @@
-<form method="post" action="/">
+<form method="post" action="/logging/">
 	<button name="logOut" id="logOut" type="submit" class="header__come-out">
 		<svg width="30px" height="30px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 			<path d="M2.00098 11.999L16.001 11.999M16.001 11.999L12.501 8.99902M16.001 11.999L12.501 14.999"

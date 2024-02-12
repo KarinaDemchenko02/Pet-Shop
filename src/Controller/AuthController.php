@@ -21,13 +21,15 @@ class AuthController extends BaseController
 	}
 	public function authAction()
 	{
+		var_dump($_POST);
 		if (isset($_POST['logOut']))
 		{
+			echo "HELLO";
 			$this->logOut();
 		}
 		if (isset($_POST['logIn']))
 		{
-			$this->logIn();
+			$this->logInAction();
 		}
 		if (isset($_POST['register']))
 		{
@@ -35,10 +37,10 @@ class AuthController extends BaseController
 		}
 
 		$this->errors = array_merge($this->errors, $this->authService->getErrors());
-		header("Location: {$_SERVER['REQUEST_URI']}");
+		header('Location: /');
 	}
 
-	private function logIn(): void
+	private function logInAction(): void
 	{
 		try
 		{
@@ -55,6 +57,27 @@ class AuthController extends BaseController
 			Session::set('logIn', true);
 			Session::set('user', $user);
 			Session::set('shoppingSession', ShoppingSessionRepositoryImpl::getByUser($user->id));
+		}
+	}
+
+	public function logInAdminAction(): void
+	{
+		try
+		{
+			$user = UserService::getUserByEmail($_POST['email']);
+			if ($this->authService->verifyUser($user, $_POST['password']))
+			{
+				Session::set('logIn', true);
+				Session::set('user', $user);
+			}
+		}
+		catch (UserNotFound)
+		{
+			$this->errors[] = 'Неправильно введён Email';
+		}
+		finally
+		{
+			header('Location: /admin/');
 		}
 	}
 
