@@ -21,7 +21,6 @@ class AuthController extends BaseController
 	}
 	public function authAction()
 	{
-		var_dump($_POST);
 		if (isset($_POST['logOut']))
 		{
 			echo "HELLO";

@@ -4,32 +4,28 @@ namespace Up\Controller;
 
 class MultipleController
 {
-	public function processAction(): bool
+	public function processAction(): void
 	{
-		if (isset($_POST['action'])) {
+		if (isset($_POST['action']))
+		{
 			if ($_POST['action'] === 'disable')
 			{
 				$disable = new DisableController();
 				$disable->disableAction();
-
-				return true;
 			}
 
-			if ($_POST['action'] === 'change') {
+			if ($_POST['action'] === 'change')
+			{
 				$change = new ChangeController();
 				$change->changeAction();
-
-				return true;
 			}
 
-			if ($_POST['action'] === 'add') {
+			if ($_POST['action'] === 'add')
+			{
 				$add = new AddController();
 				$add->addAction();
-
-				return true;
 			}
 		}
-
-		return true;
+		header('Location: /admin/');
 	}
 }

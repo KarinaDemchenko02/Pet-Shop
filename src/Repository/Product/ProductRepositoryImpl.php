@@ -23,6 +23,24 @@ class ProductRepositoryImpl implements ProductRepository
 				from up_item
 				inner join up_image on up_item.id = item_id
 	            inner join up_item_tag on up_item.id = up_item_tag.id_item
+				WHERE up_item.is_active = 1
+	            LIMIT {$limit} OFFSET {$offset}";
+
+		$result = QueryResult::getQueryResult($sql);
+
+		return self::createProductList($result);
+	}
+
+	public static function getAllForAdmin(int $page = 1): array
+	{
+		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
+		$offset = $limit * ($page - 1);
+
+		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive,
+                added_at as addedAt, edited_at as editedAt, up_image.id as imageId, path
+				from up_item
+				inner join up_image on up_item.id = item_id
+	            inner join up_item_tag on up_item.id = up_item_tag.id_item
 	            LIMIT {$limit} OFFSET {$offset}";
 
 		$result = QueryResult::getQueryResult($sql);
@@ -38,7 +56,7 @@ class ProductRepositoryImpl implements ProductRepository
 				from up_item
 	            inner join up_item_tag on up_item.id = up_item_tag.id_item
 				inner join up_image on up_item.id = item_id
-	            where up_item.id = {$id}";
+	            where up_item.id = {$id} AND up_item.is_active = 1";
 
 		$result = QueryResult::getQueryResult($sql);
 
@@ -87,7 +105,7 @@ class ProductRepositoryImpl implements ProductRepository
 				from up_item
 				inner join up_image on up_item.id = item_id
 	            inner join up_item_tag on up_item.id = up_item_tag.id_item
-				WHERE up_item.name LIKE '%{$escapedTitle}%'
+				WHERE up_item.name LIKE '%{$escapedTitle}%' AND up_item.is_active = 1
 				LIMIT {$limit} OFFSET {$offset}";
 
 		$result = QueryResult::getQueryResult($sql);
@@ -107,6 +125,13 @@ class ProductRepositoryImpl implements ProductRepository
 			$addNewProductSQL = "INSERT INTO up_item (name, description, price) 
 				VALUES ('{$escapedTitle}', '{$escapedDescription}', {$productAddingDto->price})";
 			QueryResult::getQueryResult($addNewProductSQL);
+			$lastItem = mysqli_insert_id($connection);
+			$addImgNewProductSQL = "INSERT INTO up_image (path, item_id) VALUES ('{$productAddingDto->imagePath}', {$lastItem})";
+			QueryResult::getQueryResult($addImgNewProductSQL);
+			TagRepositoryImpl::add($productAddingDto->tag);
+			$lastTag = mysqli_insert_id($connection);
+			$addTagNewProductSQL = "INSERT INTO up_item_tag (id_item, id_tag) VALUES ({$lastItem}, {$lastTag})";
+			QueryResult::getQueryResult($addTagNewProductSQL);
 //			$last = mysqli_insert_id($connection);
 //			foreach ($tags as $tag)
 //			{
@@ -203,7 +228,7 @@ class ProductRepositoryImpl implements ProductRepository
 				from up_item
 				inner join up_image on up_item.id = item_id
 	            inner join up_item_tag it on up_item.id = it.id_item
-				WHERE it.id_tag = {$tagId}
+				WHERE it.id_tag = {$tagId} AND up_item.is_active = 1
 				LIMIT {$limit} OFFSET {$offset}";
 
 		$result = QueryResult::getQueryResult($sql);
@@ -223,8 +248,8 @@ class ProductRepositoryImpl implements ProductRepository
                 added_at as addedAt, edited_at as editedAt, up_image.id as imageId, path
 				from up_item
 				inner join up_image on up_item.id = item_id
-	            inner join up_item_tag on up_item.id = up_item_tag.id_item
-				WHERE it.id_tag IN (" . implode(",", $tagIds) . ")
+	            inner join up_item_tag it on up_item.id = it.id_item
+				WHERE it.id_tag IN (" . implode(",", $tagIds) . ") AND up_item.is_active = 1
 				LIMIT {$limit} OFFSET {$offset}";
 
 		$result = QueryResult::getQueryResult($sql);

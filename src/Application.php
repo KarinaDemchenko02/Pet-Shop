@@ -2,11 +2,7 @@
 
 namespace Up;
 
-use Up\Auth\Auth;
-use Up\Dto\UserAddingDto;
 use Up\Entity\ShoppingSession;
-use Up\Repository\ShoppingSession\ShoppingSessionRepositoryImpl;
-use Up\Repository\User\UserRepositoryImpl;
 use Up\Util\Session;
 
 class Application

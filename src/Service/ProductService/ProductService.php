@@ -59,7 +59,7 @@ class ProductService
 
 	public static function getAllProductsForAdmin(int $page = 1): array
 	{
-		$products = ProductRepositoryImpl::getAll($page);
+		$products = ProductRepositoryImpl::getAllForAdmin($page);
 
 		$productsDto = [];
 		foreach ($products as $product)

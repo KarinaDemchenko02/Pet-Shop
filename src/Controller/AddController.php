@@ -18,8 +18,7 @@ class AddController extends BaseController
 	{
 		if (isset($_POST['add']))
 		{
-			$this->addService->addProduct($_POST['title'], $_POST['desc'], $_POST['price']);
-			echo 'add Product';
+			$this->addService->addProduct($_POST['title'], $_POST['desc'], $_POST['price'], $_POST['tag']);
 		}
 
 		foreach ($this->addService->getErrors() as $error)
