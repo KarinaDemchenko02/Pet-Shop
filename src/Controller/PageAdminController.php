@@ -3,6 +3,7 @@
 namespace Up\Controller;
 
 use Up\Repository\Product\ProductRepositoryImpl;
+use Up\Service\OrderService\OrderService;
 use Up\Service\ProductService\ProductService;
 use Up\Util\TemplateEngine\PageAdminTemplateEngine;
 
@@ -37,11 +38,16 @@ class PageAdminController extends BaseController
 			$page = (int)$_GET['page'];
 		}
 		$products = ProductService::getAllProductsForAdmin($page);
-		$columnsProducts = ProductRepositoryImpl::getColumn();
+		$columnsProducts = ProductService::getColumn();
+
+		$orders = OrderService::getAllOrder();
+		$columnsOrders = OrderService::gelColumn();
 
 		$template = $this->engine->getPageTemplate([
 			'products' => $products,
-			'columnsProducts' => $columnsProducts
+			'orders' => $orders,
+			'columnsProducts' => $columnsProducts,
+			'columnsOrders' => $columnsOrders
 		]);
 
 		$template->display();

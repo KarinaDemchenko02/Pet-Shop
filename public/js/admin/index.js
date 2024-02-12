@@ -12,38 +12,44 @@ const inputFormId = document.getElementById('idProduct');
 const inputFormIdDisabled = document.getElementById('idProductDisable');
 
 const inputAction = document.querySelector('.form__input-action');
-buttonFormOpen.forEach(btn => {
-	btn.addEventListener('click', (event) => {
 
-		buttonAdd.style.display = 'none';
-		buttonEdit.style.display = 'block';
+if (buttonFormOpen) {
+	buttonFormOpen.forEach(btn => {
+		btn.addEventListener('click', (event) => {
 
-		inputAction.value = 'change';
+			buttonAdd.style.display = 'none';
+			buttonEdit.style.display = 'block';
 
-		formContent.classList.add('open');
+			inputAction.value = 'change';
 
-		const searchArea = event.target.parentNode.parentNode;
+			formContent.classList.add('open');
 
-		const inputTitle = searchArea.querySelector('.table__th_title');
+			const searchArea = event.target.parentNode.parentNode;
 
-		const inputDesc = searchArea.querySelector('.table__th_desc');
+			const inputTitle = searchArea.querySelector('.table__th_title');
 
-		const inputPrice = searchArea.querySelector('.table__th_price');
+			const inputDesc = searchArea.querySelector('.table__th_desc');
 
-		const inputId = searchArea.querySelector('.table__th_id');
+			const inputPrice = searchArea.querySelector('.table__th_price');
 
-		inputFormTitle.value = inputTitle.textContent;
-		inputFormDesc.value = inputDesc.textContent;
-		inputFormPrice.value = inputPrice.textContent;
-		inputFormId.value = inputId.textContent;
+			const inputId = searchArea.querySelector('.table__th_id');
+
+			inputFormTitle.value = inputTitle.textContent;
+			inputFormDesc.value = inputDesc.textContent;
+			inputFormPrice.value = inputPrice.textContent;
+			inputFormId.value = inputId.textContent;
+		})
 	})
-})
+}
 
-buttonFormClose.forEach(btn => {
-	btn.addEventListener('click', () => {
-		formContent.classList.remove('open');
+if (buttonFormClose) {
+	buttonFormClose.forEach(btn => {
+		btn.addEventListener('click', () => {
+			formContent.classList.remove('open');
+		})
 	})
-})
+}
+
 
 const buttonDeleteOpen = document.querySelectorAll('.table__button_delete');
 const buttonDeleteClose = document.querySelectorAll('.delete__button-no');
@@ -65,18 +71,21 @@ buttonDeleteClose.forEach(btn => {
 	})
 })
 
-const buttonAddOpen = document.querySelector('.table__button-add');
+if (document.querySelector('.table__button-add')) {
+	const buttonAddOpen = document.querySelector('.table__button-add');
 
-buttonAddOpen.addEventListener('click', () => {
-	formContent.classList.add('open');
+	buttonAddOpen.addEventListener('click', () => {
+		formContent.classList.add('open');
 
-	buttonEdit.style.display = 'none';
-	buttonAdd.style.display = 'block';
+		buttonEdit.style.display = 'none';
+		buttonAdd.style.display = 'block';
 
-	inputAction.value = 'add';
+		inputAction.value = 'add';
 
-	inputFormTitle.value = '';
-	inputFormDesc.value = '';
-	inputFormPrice.value = '';
-	inputFormId.value = '';
-})
+		inputFormTitle.value = '';
+		inputFormDesc.value = '';
+		inputFormPrice.value = '';
+		inputFormId.value = '';
+	})
+}
+

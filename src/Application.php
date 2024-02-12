@@ -10,7 +10,7 @@ class Application
 	public function run()
 	{
 		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
-		Util\Database\Migration::migrate($connection);
+		//Util\Database\Migration::migrate($connection);
 
 		Session::init();
 		$user = Session::get('user');
@@ -20,6 +20,19 @@ class Application
 		{
 			Session::set('shoppingSession', new ShoppingSession(null, null, [], null, null));
 		}
+
+//		$auth = new Auth();
+//		if ($auth->registerUser(new UserAddingDto(
+//			'Karina',
+//			'Demchenko',
+//			'klnkklnk@icloud.com',
+//			'Test12345678',
+//			'+79825346312',
+//			'Администратор',
+//		)))
+//		{
+//			echo "GOOD";
+//		}
 
 		$route = \Up\Routing\Router::find($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
 

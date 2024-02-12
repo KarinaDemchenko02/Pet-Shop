@@ -4,21 +4,22 @@ namespace Up\Dto;
 
 use Up\Entity\Entity;
 
-class OrderAddingDto implements Dto
+class OrderAddingAdminDto implements Dto
 {
-
 	public function __construct(
+		public readonly ?int $id,
+		public readonly int $productId,
 		public readonly ?int $userId,
-		public readonly string $name,
-		public readonly string $surname,
 		public readonly string $deliveryAddress,
 		public readonly string $createdAt,
-		public readonly int $productId,
+		public readonly string $name,
+		public readonly string $surname,
+
+
 		public readonly int $statusId = 2
 	)
 	{
 	}
-
 	public static function from(Entity $entity): void
 	{
 		// TODO: Implement from() method.

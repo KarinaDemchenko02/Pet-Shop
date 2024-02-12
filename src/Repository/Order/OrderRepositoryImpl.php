@@ -14,7 +14,7 @@ class OrderRepositoryImpl implements OrderRepository
 
 	public static function getAll(): array
 	{
-		$sql = "select up_order.id, item_id, user_id, delivery_address, created_at ,title as status
+		$sql = "select up_order.id, item_id, user_id, delivery_address, created_at , title as status, name, surname
 				from up_order inner join up_order_item uoi on up_order.id = uoi.order_id
 				inner join up_status us on up_order.status_id = us.id";
 
@@ -119,5 +119,22 @@ class OrderRepositoryImpl implements OrderRepository
 			mysqli_rollback($connection);
 			throw new OrderNotCompleted();
 		}
+	}
+
+	public static function getColumn(): array
+	{
+		$sql = "SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+                WHERE TABLE_NAME = 'up_order';";
+
+		$result = QueryResult::getQueryResult($sql);
+
+		$columns = [];
+
+		while ($column = mysqli_fetch_column($result))
+		{
+			$columns[] = $column;
+		}
+
+		return $columns;
 	}
 }

@@ -85,4 +85,9 @@ class ProductService
 		ProductRepositoryImpl::add($productAddingDto);
 	}
 
+	public static function getColumn()
+	{
+		return ProductRepositoryImpl::getColumn();
+	}
+
 }
