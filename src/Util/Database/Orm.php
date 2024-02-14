@@ -24,7 +24,7 @@ class Orm
 		$this->db->set_charset(self::encoding);
 		if ($this->db->errno)
 		{
-			throw new \RuntimeException("Mysql error: " . $this->db->error);
+			throw new \RuntimeException("Mysql encoding error: " . $this->db->error);
 		}
 	}
 
@@ -32,7 +32,7 @@ class Orm
 	{
 	}
 
-	private function __wakeup()
+	public function __wakeup()
 	{
 	}
 
@@ -80,8 +80,8 @@ class Orm
 	{
 		$columns = implode(', ', array_keys($data));
 		$values = implode(', ', array_map([$this, 'escapeString'], array_values($data)));
+		$query = "INSERT INTO $table ($columns) VALUES ($values)";
 
-		$query = "INSERT INTO $table ($columns), VALUES ($values)";
 
 		$result = $this->db->query($query);
 		if ($error = $this->db->error)
@@ -125,6 +125,19 @@ class Orm
 		return $result;
 	}
 
+	public function execute($sql): void
+	{
+		$this->db->multi_query($sql);
+		do
+		{
+			if ($error = $this->db->error)
+			{
+				throw new \RuntimeException($error);
+			}
+		}
+		while ($this->db->next_result());
+	}
+
 	public function begin()
 	{
 		$this->db->begin_transaction();
@@ -147,6 +160,6 @@ class Orm
 			return $string;
 		}
 
-		return $this->db->real_escape_string($string);
+		return "'{$this->db->real_escape_string($string)}'";
 	}
 }
