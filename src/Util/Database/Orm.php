@@ -46,13 +46,19 @@ class Orm
 		return self::$instance;
 	}
 
-	public function select($table, $columns = '*', $where = '', $orderBy = '', $limit = '', $joins = [])
+	public function select($table, $columns = '*', $where = '', $orderBy = '', $limit = '', $offset='', $joins = [])
 	{
+		if (!is_string($columns))
+			{
+				$columns = implode(', ', $columns);
+			}
 		$query = "SELECT $columns FROM $table";
 
-		foreach ($joins as $join => $condition)
+		foreach ($joins as $join => $joinData)
 		{
-			$query .= " LEFT JOIN $join ON $condition";
+			$joinType = $joinData['type'];
+			$condition = $joinData['condition'];
+			$query .= " $joinType JOIN $join ON $condition";
 		}
 
 		if (!empty($where))
@@ -67,13 +73,17 @@ class Orm
 		{
 			$query .= " LIMIT $limit";
 		}
+		if (!empty(!$offset))
+		{
+			$query .= " OFFSET $offset";
+		}
 		$stmt = $this->db->query($query);
 		if ($error = $this->db->error)
 		{
 			throw new \RuntimeException($error);
 		}
 
-		return $stmt->fetch_all();
+		return $stmt;
 	}
 
 	public function insert(string $table, array $data): int

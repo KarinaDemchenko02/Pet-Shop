@@ -9,6 +9,7 @@ use Up\Entity\Product;
 use Up\Entity\Tag;
 use Up\Repository\Tag\TagRepositoryImpl;
 use Up\Util\Database\Connector;
+use Up\Util\Database\Orm;
 use Up\Util\Database\QueryResult;
 
 class ProductRepositoryImpl implements ProductRepository
@@ -18,17 +19,33 @@ class ProductRepositoryImpl implements ProductRepository
 		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
 		$offset = $limit * ($page - 1);
 
-		$sql = "select up_item.id, up_item.name, up_item.description, price, id_tag as tagId, is_active as isActive,
+/*		$sql = "select up_item.id, up_item.name, up_item.description, price, id_tag as tagId, is_active as isActive,
                 added_at as addedAt, edited_at as editedAt, up_image.id as imageId, path
 				from up_item
 				inner join up_image on up_item.id = item_id
 	            inner join up_item_tag on up_item.id = up_item_tag.id_item
 				WHERE up_item.is_active = 1
-	            LIMIT {$limit} OFFSET {$offset}";
+	            LIMIT {$limit} OFFSET {$offset}";*/
 
-		$result = QueryResult::getQueryResult($sql);
+		$result = Orm::getInstance()->select(
+			'up_item', [
+						 'up_item.id',
+						 'up_item.name',
+						 'up_item.description',
+						 'price',
+						 'id_tag as tagId',
+						 'is_active as isActive',
+						 'added_at as addedAt',
+						 'edited_at as editedAt',
+						 'up_image.id as ImageId',
+						 'path',
+					 ], where: 'up_item.is_active = 1', limit: $limit, offset: $offset, joins: [
+				'up_image' => ['type' => 'INNER', 'condition' => 'up_item.id=item_id'],
+				'up_item_tag' => ['type' => 'INNER', 'condition' => 'up_item.id=up_item_tag.id_item'],
+			]
+		);
 
-		return self::createProductList($result);
+		return self::CreateProductList($result);
 	}
 
 	public static function getAllForAdmin(int $page = 1): array
@@ -86,6 +103,7 @@ class ProductRepositoryImpl implements ProductRepository
 				$imagePath = $row['path'];
 			}
 		}
+
 		return new Product(
 			$id, $name, $description, $price, $tags, $isActive, $addedAt, $editedAt, $imagePath
 		);
@@ -237,12 +255,14 @@ class ProductRepositoryImpl implements ProductRepository
 
 		return self::createProductList($result);
 	}
+
 	public static function getByTags(array $tags, int $page = 1): array
 	{
 		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
 		$offset = $limit * ($page - 1);
 
-		foreach ($tags as $tag) {
+		foreach ($tags as $tag)
+		{
 			$tagIds[] = $tag->id;
 		}
 
@@ -302,6 +322,7 @@ class ProductRepositoryImpl implements ProductRepository
 		{
 			return [];
 		}
+
 		return $products;
 	}
 

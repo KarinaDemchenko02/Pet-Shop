@@ -11,7 +11,7 @@ class Migration
 		$lastFileTimestamp = 0;
 		try
 		{
-			$migration = $orm->select('migration', 'NAME')[0][0];
+			$migration = $orm->select('migration', 'NAME')->fetch_column();
 			$lastFileTimestamp = self::getTimestampFromFileName($migration);
 
 		}
