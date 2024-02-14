@@ -18,7 +18,7 @@ class ProductRepositoryImpl implements ProductRepository
 		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
 		$offset = $limit * ($page - 1);
 
-		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive,
+		$sql = "select up_item.id, up_item.name, up_item.description, price, id_tag as tagId, is_active as isActive,
                 added_at as addedAt, edited_at as editedAt, up_image.id as imageId, path
 				from up_item
 				inner join up_image on up_item.id = item_id
@@ -124,6 +124,8 @@ class ProductRepositoryImpl implements ProductRepository
 
 			$addNewProductSQL = "INSERT INTO up_item (name, description, price) 
 				VALUES ('{$escapedTitle}', '{$escapedDescription}', {$productAddingDto->price})";
+			$last = mysqli_insert_id($connection);
+			$addLinkToImageSQL = "INSERT INTO up_image (path, item_id) VALUES ('path', {$last})";
 			QueryResult::getQueryResult($addNewProductSQL);
 			$lastItem = mysqli_insert_id($connection);
 			$addImgNewProductSQL = "INSERT INTO up_image (path, item_id) VALUES ('{$productAddingDto->imagePath}', {$lastItem})";
@@ -132,12 +134,12 @@ class ProductRepositoryImpl implements ProductRepository
 			$lastTag = mysqli_insert_id($connection);
 			$addTagNewProductSQL = "INSERT INTO up_item_tag (id_item, id_tag) VALUES ({$lastItem}, {$lastTag})";
 			QueryResult::getQueryResult($addTagNewProductSQL);
-//			$last = mysqli_insert_id($connection);
-//			foreach ($tags as $tag)
-//			{
-//				$addLinkToTagSQL = "INSERT INTO up_item_tag (id_item, id_tag) VALUES ({$last}, {$tag})";
-//				QueryResult::getQueryResult($addLinkToTagSQL);
-//			}
+			$last = mysqli_insert_id($connection);
+			// foreach ($productAddingDto->tags as $tag)
+			// {
+			// 	$addLinkToTagSQL = "INSERT INTO up_item_tag (id_item, id_tag) VALUES ({$last}, {$tag})";
+			// 	QueryResult::getQueryResult($addLinkToTagSQL);
+			// }
 			mysqli_commit($connection);
 		}
 		catch (\Throwable $e)
