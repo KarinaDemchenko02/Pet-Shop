@@ -7,6 +7,7 @@ use Up\Dto\ProductChangeDto;
 use Up\Entity\Image;
 use Up\Entity\Product;
 use Up\Entity\Tag;
+use Up\Exceptions\Service\AdminService\ProductNotDisable;
 use Up\Repository\Tag\TagRepositoryImpl;
 use Up\Util\Database\Connector;
 use Up\Util\Database\QueryResult;
@@ -181,22 +182,23 @@ class ProductRepositoryImpl implements ProductRepository
 		}*/
 
 	/**
-	 * @throws \Throwable
+	 * @throws ProductNotDisable
 	 */
 	public static function disable($id): void
 	{
 		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
 		try
 		{
-			mysqli_begin_transaction($connection);
 			$disableProductSQL = "UPDATE up_item SET is_active=0 where id = {$id}";
-			QueryResult::getQueryResult($disableProductSQL);
-			mysqli_commit($connection);
+			$result = QueryResult::getQueryResult($disableProductSQL);
+			if (mysqli_affected_rows($connection) === 0)
+			{
+				throw new ProductNotDisable();
+			}
 		}
-		catch (\Throwable $e)
+		catch (\Throwable)
 		{
-			mysqli_rollback($connection);
-			throw $e;
+			throw new ProductNotDisable();
 		}
 	}
 

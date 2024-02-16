@@ -1,6 +1,6 @@
 <?php
 
-namespace Up\Compression;
+namespace Up\Util\Compression;
 
 use Up\Exceptions\Service\ImagesService\ImageNotCopy;
 use Up\Exceptions\Service\ImagesService\ImageNotResize;

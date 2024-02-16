@@ -6,6 +6,7 @@ use Up\Dto\ProductAddingDto;
 use Up\Dto\ProductChangeDto;
 use Up\Dto\ProductDto;
 use Up\Dto\ProductDtoAdmin;
+use Up\Exceptions\Service\AdminService\ProductNotDisable;
 use Up\Repository\Product\ProductRepositoryImpl;
 
 
@@ -75,6 +76,9 @@ class ProductService
 		ProductRepositoryImpl::change($productChangeDto);
 	}
 
+	/**
+	 * @throws ProductNotDisable
+	 */
 	public static function disableProduct(int $id): void
 	{
 		ProductRepositoryImpl::disable($id);

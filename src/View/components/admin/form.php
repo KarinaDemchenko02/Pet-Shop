@@ -2,8 +2,7 @@
 	<button class="form__close">
 		<i class="form__close-icon material-icons">close</i>
 	</button>
-	<form id="form" class="form" method="post" action="/admin/action/">
-
+	<form id="form" class="form">
 		<input id="action" class="form__input-action" type="hidden" name="action" value="">
 		<input id="idProduct" value="" class="form__input" name="id" type="hidden" readonly>
 

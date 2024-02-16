@@ -2,8 +2,6 @@
 
 namespace Up;
 
-use Up\Auth\Auth;
-use Up\Dto\UserAddingDto;
 use Up\Entity\ShoppingSession;
 use Up\Util\Session;
 
@@ -14,7 +12,7 @@ class Application
 		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
 		//Util\Database\Migration::migrate($connection);
 
-		$imagesCompressed = new \Up\Compression\CompressionImages
+		$imagesCompressed = new Util\Compression\CompressionImages
 		(
 			ROOT . '/public/images/',
 			ROOT . '/public/compressImages/'

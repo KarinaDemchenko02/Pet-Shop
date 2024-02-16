@@ -10,7 +10,8 @@ class Disable
 	private array $errors = [];
 	public function disableProduct(int $id): bool
 	{
-		try {
+		try
+		{
 			ProductService::disableProduct($id);
 			return true;
 		}
