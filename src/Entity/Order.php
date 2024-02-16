@@ -6,7 +6,7 @@ class Order implements Entity
 {
 	public readonly int $id;
 	public readonly array $products;
-	public readonly User $user;
+	public readonly ?User $user;
 	public readonly string $deliveryAddress;
 	public readonly int $createdAt;
 	public readonly string $status;
@@ -14,7 +14,7 @@ class Order implements Entity
 	public function __construct(
 		int    $id,
 		array  $products,
-		User   $user,
+		?User   $user,
 		string $deliveryAddress,
 		string $createdAt,
 		string $status

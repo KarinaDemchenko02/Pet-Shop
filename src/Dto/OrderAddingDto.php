@@ -9,11 +9,11 @@ class OrderAddingDto implements Dto
 
 	public function __construct(
 		public readonly ?int $userId,
-		public readonly string $name,
+		public readonly ?string $name,
 		public readonly string $surname,
 		public readonly string $deliveryAddress,
-		public readonly string $createdAt,
 		public readonly int $productId,
+		public readonly int $createdAt,
 		public readonly int $statusId = 2
 	)
 	{

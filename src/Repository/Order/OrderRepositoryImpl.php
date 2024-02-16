@@ -60,25 +60,19 @@ class OrderRepositoryImpl implements OrderRepository
 	private static function createOrderList(\mysqli_result $result): array
 	{
 		$orders = [];
-		!$isFirstLine = true;
 		while ($row = mysqli_fetch_assoc($result))
 		{
 			if (!isset($orders[$row['id']]))
 			{
-				if (!$isFirstLine)
-				{
-					$orders[$id] = new Entity\Order(
-						$id, $products, $user, $deliveryAddress, $createdAt, $status,
-					);
-				}
 				$id = $row['id'];
 				$products = [ProductRepositoryImpl::getById($row['item_id'])];
-				$user = UserRepositoryImpl::getById($row['user_id']);
+				$user = $row['user_id'] !== null ? UserRepositoryImpl::getById($row['user_id']) : null;
 				$deliveryAddress = $row['delivery_address'];
 				$createdAt = $row['created_at'];
 				$status = $row['status'];
-
-				$isFirstLine = false;
+				$orders[$id] = new Entity\Order(
+					$id, $products, $user, $deliveryAddress, $createdAt, $status,
+				);
 			}
 			else
 			{

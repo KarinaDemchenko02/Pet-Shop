@@ -25,13 +25,13 @@ class OrderService
 		foreach ($orders as $order)
 		{
 			$ordersDto[] = new OrderAddingDto(
-				$order->user->id,
-				$order->user->name,
+				is_null($order->user) ? null : $order->user->id,
+				is_null($order->user) ? null : $order->user->name,
 				'surname',
 				$order->deliveryAddress,
 				$order->products[0]->id,
+				$order->createdAt,
 				(int) $order->status,
-				$order->createdAt
 			);
 		}
 
