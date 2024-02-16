@@ -7,9 +7,8 @@ use Up\Entity\Entity;
 class ProductQuantity implements Entity
 {
 
-	readonly Product $info;
+	public readonly Product $info;
 	private int $quantity;
-
 
 	public function __construct(Product $info, $quantity)
 	{

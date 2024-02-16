@@ -4,9 +4,7 @@ namespace Up\Repository\Product;
 
 use Up\Dto\ProductAddingDto;
 use Up\Dto\ProductChangeDto;
-use Up\Entity\Image;
 use Up\Entity\Product;
-use Up\Entity\Tag;
 use Up\Repository\Tag\TagRepositoryImpl;
 use Up\Util\Database\Connector;
 use Up\Util\Database\QueryResult;
@@ -19,11 +17,11 @@ class ProductRepositoryImpl implements ProductRepository
 
 		$offset = $limit * ($page - 1);
 
-		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive,
-                added_at as addedAt, edited_at as editedAt, up_image.id as imageId, path
+		$sql = "select up_item.id, up_item.name, description, price, id_tag, is_active,
+                added_at, edited_at, up_image.id as imageId, path
 				from up_item
-				inner join up_image on up_item.id = item_id
-	            inner join up_item_tag on up_item.id = up_item_tag.id_item
+				left join up_image on up_item.id = item_id
+	            left join up_item_tag on up_item.id = up_item_tag.id_item
 				WHERE up_item.is_active = 1
 	            LIMIT {$limit} OFFSET {$offset}";
 
@@ -35,11 +33,11 @@ class ProductRepositoryImpl implements ProductRepository
 	public static function getAllProducts(): array
 	{
 
-		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive,
-                added_at as addedAt, edited_at as editedAt, up_image.id as imageId, path
+		$sql = "select up_item.id, up_item.name, description, price, id_tag, is_active,
+                added_at, edited_at, up_image.id as imageId, path
 				from up_item
-				inner join up_image on up_item.id = item_id
-	            inner join up_item_tag on up_item.id = up_item_tag.id_item
+				left join up_image on up_item.id = item_id
+	            left join up_item_tag on up_item.id = up_item_tag.id_item
 				WHERE up_item.is_active = 1
 	           ";
 
@@ -53,11 +51,11 @@ class ProductRepositoryImpl implements ProductRepository
 		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
 		$offset = $limit * ($page - 1);
 
-		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive,
-                added_at as addedAt, edited_at as editedAt, up_image.id as imageId, path
+		$sql = "select up_item.id, up_item.name, description, price, id_tag, is_active,
+                added_at, edited_at, up_image.id as imageId, path
 				from up_item
-				inner join up_image on up_item.id = item_id
-	            inner join up_item_tag on up_item.id = up_item_tag.id_item
+				left join up_image on up_item.id = item_id
+	            left join up_item_tag on up_item.id = up_item_tag.id_item
 	            LIMIT {$limit} OFFSET {$offset}";
 
 		$result = QueryResult::getQueryResult($sql);
@@ -68,11 +66,11 @@ class ProductRepositoryImpl implements ProductRepository
 	public static function getById(int $id): Product
 	{
 
-		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive, 
-                added_at as addedAt, edited_at as editedAt, up_image.id as imageId, path
+		$sql = "select up_item.id, up_item.name, description, price, id_tag, is_active,
+                added_at, edited_at, up_image.id as imageId, path
 				from up_item
-	            inner join up_item_tag on up_item.id = up_item_tag.id_item
-				inner join up_image on up_item.id = item_id
+	            left join up_item_tag on up_item.id = up_item_tag.id_item
+				left join up_image on up_item.id = item_id
 	            where up_item.id = {$id} AND up_item.is_active = 1";
 
 		$result = QueryResult::getQueryResult($sql);
@@ -80,33 +78,24 @@ class ProductRepositoryImpl implements ProductRepository
 		$isFirstLine = true;
 		while ($row = mysqli_fetch_assoc($result))
 		{
-			if ($isFirstLine)
+			if (!isset($product))
 			{
-				$id = $row['id'];
-			}
-			if ($isFirstLine)
-			{
-				$name = $row['name'];
-				$description = $row['description'];
-				$price = $row['price'];
-				$tags = [TagRepositoryImpl::getById($row['tagId'])];
-				$isActive = $row['isActive'];
-				$addedAt = $row['addedAt'];
-				$editedAt = $row['editedAt'];
-				$imagePath = $row['path'];
-
-				$isFirstLine = false;
+				$product = self::createProductEntity($row);
 			}
 			else
 			{
-				$tags[] = TagRepositoryImpl::getById($row['tagId']);
-				$imagePath = $row['path'];
+				if (!is_null($row['id_tag']))
+				{
+					$product->addTag(TagRepositoryImpl::getById($row['id_tag']));
+				}
+				// if (!is_null($row['imageId']))
+				// {
+				// 	$product->addImage(new Image($row['imageId'], $row['path'], 'main'));
+				// }
 			}
 		}
-		return new Product(
-			$id, $name, $description, $price, $tags, $isActive, $addedAt, $editedAt, $imagePath
-		);
 
+		return $product;
 	}
 
 	public static function getByTitle(string $title, int $page = 1): array
@@ -117,11 +106,11 @@ class ProductRepositoryImpl implements ProductRepository
 		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
 		$offset = $limit * ($page - 1);
 
-		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive,
-                added_at as addedAt, edited_at as editedAt, up_image.id as imageId, path
+		$sql = "select up_item.id, up_item.name, description, price, id_tag, is_active,
+                added_at, edited_at, up_image.id as imageId, path
 				from up_item
-				inner join up_image on up_item.id = item_id
-	            inner join up_item_tag on up_item.id = up_item_tag.id_item
+				left join up_image on up_item.id = item_id
+	            left join up_item_tag on up_item.id = up_item_tag.id_item
 				WHERE up_item.name LIKE '%{$escapedTitle}%' AND up_item.is_active = 1
 				LIMIT {$limit} OFFSET {$offset}";
 
@@ -149,12 +138,12 @@ class ProductRepositoryImpl implements ProductRepository
 			$lastTag = mysqli_insert_id($connection);
 			$addTagNewProductSQL = "INSERT INTO up_item_tag (id_item, id_tag) VALUES ({$lastItem}, {$lastTag})";
 			QueryResult::getQueryResult($addTagNewProductSQL);
-//			$last = mysqli_insert_id($connection);
-//			foreach ($tags as $tag)
-//			{
-//				$addLinkToTagSQL = "INSERT INTO up_item_tag (id_item, id_tag) VALUES ({$last}, {$tag})";
-//				QueryResult::getQueryResult($addLinkToTagSQL);
-//			}
+			//			$last = mysqli_insert_id($connection);
+			//			foreach ($tags as $tag)
+			//			{
+			//				$addLinkToTagSQL = "INSERT INTO up_item_tag (id_item, id_tag) VALUES ({$last}, {$tag})";
+			//				QueryResult::getQueryResult($addLinkToTagSQL);
+			//			}
 			mysqli_commit($connection);
 		}
 		catch (\Throwable $e)
@@ -240,11 +229,11 @@ class ProductRepositoryImpl implements ProductRepository
 		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
 		$offset = $limit * ($page - 1);
 
-		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive,
-                added_at as addedAt, edited_at as editedAt, up_image.id as imageId, path
+		$sql = "select up_item.id, up_item.name, description, price, id_tag, is_active,
+                added_at, edited_at, up_image.id as imageId, path
 				from up_item
-				inner join up_image on up_item.id = item_id
-	            inner join up_item_tag it on up_item.id = it.id_item
+				left join up_image on up_item.id = item_id
+	            left join up_item_tag it on up_item.id = it.id_item
 				WHERE it.id_tag = {$tagId} AND up_item.is_active = 1
 				LIMIT {$limit} OFFSET {$offset}";
 
@@ -252,20 +241,22 @@ class ProductRepositoryImpl implements ProductRepository
 
 		return self::createProductList($result);
 	}
+
 	public static function getByTags(array $tags, int $page = 1): array
 	{
 		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
 		$offset = $limit * ($page - 1);
 
-		foreach ($tags as $tag) {
+		foreach ($tags as $tag)
+		{
 			$tagIds[] = $tag->id;
 		}
 
-		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive,
-                added_at as addedAt, edited_at as editedAt, up_image.id as imageId, path
+		$sql = "select up_item.id, up_item.name, description, price, id_tag, is_active,
+                added_at, edited_at, up_image.id as imageId, path
 				from up_item
-				inner join up_image on up_item.id = item_id
-	            inner join up_item_tag it on up_item.id = it.id_item
+				left join up_image on up_item.id = item_id
+	            left join up_item_tag it on up_item.id = it.id_item
 				WHERE it.id_tag IN (" . implode(",", $tagIds) . ") AND up_item.is_active = 1
 				LIMIT {$limit} OFFSET {$offset}";
 
@@ -277,47 +268,56 @@ class ProductRepositoryImpl implements ProductRepository
 	private static function createProductList(\mysqli_result $result): array
 	{
 		$products = [];
-		try
+
+		while ($row = mysqli_fetch_assoc($result))
 		{
-			$isFirstLine = true;
-			while ($row = mysqli_fetch_assoc($result))
+			if (!isset($products[$row['id']]))
 			{
-				if (!isset($products[$row['id']]))
-				{
-					if (!$isFirstLine)
-					{
-						$products[$id] = new Product(
-							$id, $name, $description, $price, $tags, $isActive, $addedAt, $editedAt, $imagePath
-						);
-					}
-					$id = $row['id'];
-					$name = $row['name'];
-					$description = $row['description'];
-					$price = $row['price'];
-					$tags = [TagRepositoryImpl::getById($row['tagId'])];
-					$isActive = $row['isActive'];
-					$addedAt = $row['addedAt'];
-					$editedAt = $row['editedAt'];
-					$imagePath = $row['path'];
-
-					$isFirstLine = false;
-				}
-				else
-				{
-					$imagePath = $row['path'];
-					$tags[] = TagRepositoryImpl::getById($row['tagId']);
-				}
+				$products[$row['id']] = self::createProductEntity($row);
 			}
+			else
+			{
+				if (!is_null($row['id_tag']))
+				{
+					$products[$row['id']]->addTag(TagRepositoryImpl::getById($row['id_tag']));
+				}
+				// if (!is_null($row['imageId']))
+				// {
+				// 	$products[$row['id']]->addImage(new Image($row['imageId'], $row['path'], 'main'));
+				// }
+			}
+		}
 
-			$products[] = new Product(
-				@$id, @$name, @$description, @$price, @$tags, @$isActive, @$addedAt, @$editedAt, @$imagePath
-			);
-		}
-		catch (\TypeError)
-		{
-			return [];
-		}
 		return $products;
+	}
+
+	private static function createProductEntity(array $row): Product
+	{
+		$tag = [];
+		// $image = [new Image(404, '/images/imgNotFound.png', 'main')];
+		$imagePath = '/images/imgNotFound.png';
+
+		if (!is_null($row['id_tag']))
+		{
+			$tag = [TagRepositoryImpl::getById($row['id_tag'])];
+		}
+		if (!is_null($row['imageId']))
+		{
+			// $image = [new Image($row['imageId'], $row['path'], 'main')];
+			$imagePath = $row['path'];
+		}
+
+		return new Product(
+			$row['id'],
+			$row['name'],
+			$row['description'],
+			$row['price'],
+			$tag,
+			$row['is_active'],
+			$row['added_at'],
+			$row['edited_at'],
+			$imagePath
+		);
 	}
 
 	public static function getColumn(): array

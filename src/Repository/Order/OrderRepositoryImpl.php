@@ -32,29 +32,19 @@ class OrderRepositoryImpl implements OrderRepository
 
 		$result = QueryResult::getQueryResult($sql);
 
-		$isFirstLine = true;
 		while ($row = mysqli_fetch_assoc($result))
 		{
-			if ($isFirstLine)
+			if (!isset($order))
 			{
-				$id = $row['id'];
-				$products = [ProductRepositoryImpl::getById($row['item_id'])];
-				$user = UserRepositoryImpl::getById($row['user_id']);
-				$deliveryAddress = $row['delivery_address'];
-				$createdAt = $row['created_at'];
-				$status = $row['status'];
-
-				$isFirstLine = false;
+				$order = self::createOrderEntity($row);
 			}
 			else
 			{
-				$products[] = ProductRepositoryImpl::getById($row['item_id']);
+				$order->addProduct(ProductRepositoryImpl::getById($row['item_id']));
 			}
 		}
 
-		return new Entity\Order(
-			$id, $products, $user, $deliveryAddress, $createdAt, $status,
-		);
+		return $order;
 	}
 
 	private static function createOrderList(\mysqli_result $result): array
@@ -64,27 +54,27 @@ class OrderRepositoryImpl implements OrderRepository
 		{
 			if (!isset($orders[$row['id']]))
 			{
-				$id = $row['id'];
-				$products = [ProductRepositoryImpl::getById($row['item_id'])];
-				$user = $row['user_id'] !== null ? UserRepositoryImpl::getById($row['user_id']) : null;
-				$deliveryAddress = $row['delivery_address'];
-				$createdAt = $row['created_at'];
-				$status = $row['status'];
-				$orders[$id] = new Entity\Order(
-					$id, $products, $user, $deliveryAddress, $createdAt, $status,
-				);
+				$orders[$row['id']] = self::createOrderEntity($row);
 			}
 			else
 			{
-				$products[] = ProductRepositoryImpl::getById($row['item_id']);
+				$orders[$row['id']]->addProduct(ProductRepositoryImpl::getById($row['item_id']));
 			}
 		}
 
-		$orders[$id] = new Entity\Order(
-			$id, $products, $user, $deliveryAddress, $createdAt, $status,
-		);
-
 		return $orders;
+	}
+
+	private static function createOrderEntity(array $row): Entity\Order
+	{
+		return new Entity\Order(
+			$row['id'],
+			[ProductRepositoryImpl::getById($row['item_id'])],
+			$row['user_id'] !== null ? UserRepositoryImpl::getById($row['user_id']) : null,
+			$row['delivery_address'],
+			$row['created_at'],
+			$row['status'],
+		);
 	}
 
 	/**
