@@ -21,5 +21,6 @@
 				<?php $product->display() ?>
 			<?php endforeach; ?>
 		</ul>
+		<?php $this->getVariable('pagination')->display() ?>
 	</section>
 </div>

@@ -199,11 +199,6 @@ button {
 	color: #1c7430;
 }
 
-.main {
-	display: flex;
-	margin-bottom: 15px;
-}
-
 .main__container {
 	display: flex;
 	padding: 0 30px;
@@ -215,6 +210,7 @@ button {
 
 .product__wrapper {
 	position: relative;
+	min-width: 320px;
 	width: 33%;
 	min-height: 500px;
 	overflow: hidden;
@@ -463,6 +459,7 @@ button {
 .product__list {
 	display: flex;
 	flex-wrap: wrap;
+	margin-bottom: 20px;
 }
 
 .footer {
@@ -1275,6 +1272,68 @@ button {
 	background-color: #2ca02c;
 	color: #ffffff;
 	border-radius: 5px;
+}
+
+.pagination {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.pagination__button {
+	margin-right: 5px;
+	padding: 6px 11px;
+	background-color: transparent;
+	border: 1px solid #1c7430;
+	color: #000000;
+	border-radius: 5px;
+	cursor: pointer;
+	transition: all .3s ease-in-out;
+}
+
+.pagination__button_next {
+	margin-right: 5px;
+}
+
+.pagination__button_prev {
+	margin-right: 5px;
+}
+
+.pagination__button-switch {
+	padding: 10px 15px;
+	border-radius: 5px;
+	border: 1px solid #1c7430;
+	background-color: transparent;
+	color: #1c7430;
+	cursor: pointer;
+	transition: all .3s ease-in-out;
+}
+
+.pagination__button_return {
+	margin-right: 5px;
+	background-color: #1c7430;
+	color: #ffffff;
+	transition: background-color .3s ease-in-out;
+}
+
+.pagination__button-switch:hover, .pagination__button:hover {
+	background-color: #1c7430;
+	color: #ffffff;
+}
+
+.pagination__button_return:hover {
+	background-color: #2ca02c;
+}
+
+.disabled {
+	opacity: 0.5;
+	pointer-events: none;
+	cursor: default;
+}
+
+.is-active {
+	background-color: #1c7430;
+	color: #ffffff;
 }
 
 .open {

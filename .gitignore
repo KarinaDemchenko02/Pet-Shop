@@ -1,4 +1,4 @@
 .idea
 config/local.config.php
 vendor
-.editorconfig
+/.editorconfig

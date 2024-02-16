@@ -1,5 +1,5 @@
 <div class="header__top-menu">
-	<img class="header__logo" src="/../images/logoMadagascar.png" alt="logo">
+	<img class="header__logo" src="/../compressImages/logoMadagascar.png" alt="logo">
 	<div class="header__form">
 		<form class="header__main-form" action="/" method="get">
 			<label class="header__label">

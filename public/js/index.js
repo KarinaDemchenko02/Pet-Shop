@@ -1,6 +1,9 @@
 import AddBasket from './AddBasket.js';
 import Tabs from './Tabs.js';
 import Form from "./Form.js";
+import pagination from "./pagination.js";
+
+pagination();
 
 if (document.querySelector('.details__buy')) {
 	const buttonBuyOpen = document.querySelector('.details__buy');

@@ -75,23 +75,29 @@ class PageAdminTemplateEngine implements TemplateEngine
 
 	public function createdDataTable($variables): Template
 	{
-		if (isset($_GET['entity']))  {
-			if ($_GET['entity'] === 'orders') {
+		if (isset($_GET['entity']))
+		{
+			if ($_GET['entity'] === 'orders')
+			{
 				$columns = $variables['columnsOrders'];
 				$data = $this->getOrdersSectionTemplate($variables['orders']);
 				$title = 'Заказы';
 			}
-			else {
+			else
+			{
 				$columns = $variables['columnsProducts'];
 				$data = $this->getProductsSectionTemplate($variables['products']);
 				$title = 'Товары';
 			}
-		} else {
+		}
+		else
+		{
 			$columns = $variables['columnsProducts'];
 			$data = $this->getProductsSectionTemplate($variables['products']);
 			$title = 'Товары';
 		}
 
-		return new Template('components/admin/dataTable', ['data' => $data, 'columns' => $columns, 'title' => $title]);
+		return new Template('components/admin/dataTable',
+			['data' => $data, 'columns' => $columns, 'title' => $title]);
 	}
 }

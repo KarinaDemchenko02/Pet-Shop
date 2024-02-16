@@ -16,6 +16,7 @@ class ProductRepositoryImpl implements ProductRepository
 	public static function getAll(int $page = 1): array
 	{
 		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
+
 		$offset = $limit * ($page - 1);
 
 		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive,
@@ -25,6 +26,22 @@ class ProductRepositoryImpl implements ProductRepository
 	            inner join up_item_tag on up_item.id = up_item_tag.id_item
 				WHERE up_item.is_active = 1
 	            LIMIT {$limit} OFFSET {$offset}";
+
+		$result = QueryResult::getQueryResult($sql);
+
+		return self::createProductList($result);
+	}
+
+	public static function getAllProducts(): array
+	{
+
+		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive,
+                added_at as addedAt, edited_at as editedAt, up_image.id as imageId, path
+				from up_item
+				inner join up_image on up_item.id = item_id
+	            inner join up_item_tag on up_item.id = up_item_tag.id_item
+				WHERE up_item.is_active = 1
+	           ";
 
 		$result = QueryResult::getQueryResult($sql);
 
