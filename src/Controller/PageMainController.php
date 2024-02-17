@@ -36,10 +36,11 @@ class PageMainController extends BaseController
 		{
 			$products = ProductService::getAllProducts($page);
 		}
+
 		$template = $this->engine->getPageTemplate([
 			'products' => $products,
 			'tags' => $tags,
-			'countPage' => ProductService::getCountPage(),
+			'nextPage' => ProductService::getAllProducts($page + 1),
 			'isLogIn' => $this->isLogIn(),
 			]);
 

@@ -89,12 +89,4 @@ class ProductService
 	{
 		return ProductRepositoryImpl::getColumn();
 	}
-
-	public static function getCountPage()
-	{
-		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
-		$products = ProductRepositoryImpl::getAllProducts();
-
-		return ceil(count($products) / $limit);
-	}
 }

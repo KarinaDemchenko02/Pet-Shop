@@ -11,14 +11,15 @@ class PageMainTemplateEngine implements TemplateEngine
 		$products = $variables['products'];
 		$tags = $variables['tags'];
 		$isLogIn = $variables['isLogIn'];
-		$countPage = $variables['countPage'];
+		$nextPage = $variables['nextPage'];
 
 		$footer = new Template('components/main/footer');
 		$header = $this->getHeaderTemplate($isLogIn);
 		$form = new Template('components/main/formAuthorization');
 		$basket = $this->getBasketTemplate(Session::get('shoppingSession')->getProducts());
 		$pagination = new Template('components/main/pagination', [
-			'countPage' => $countPage
+			'products' => $products,
+			'nextPage' => $nextPage
 		]);
 
 		$mainPageTemplate = new Template('page/main/main', [

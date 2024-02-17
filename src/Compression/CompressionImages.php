@@ -74,7 +74,7 @@ class CompressionImages
 						{
 							$this->errors[] = 'Something went wrong';
 						}
-				}
+					}
 			}
 		}
 

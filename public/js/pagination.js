@@ -5,7 +5,7 @@ export default function pagination()
 	const url = new URL(url_string);
 	const paramValue = url.searchParams.get("page");
 	buttonPagination.forEach(btn => {
-		if (paramValue === null) {
+		if (paramValue === null || parseInt(paramValue) < 1) {
 			if (parseInt(btn.textContent) === 1)
 			{
 				btn.classList.add('is-active');
