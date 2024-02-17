@@ -41,11 +41,9 @@ class UserRepositoryImpl implements UserRepository
 
 		$row = mysqli_fetch_assoc($result);
 
-		$user = new User(
+		return new User(
 			$row['id'], $row['name'], $row['tel'], $row['email'], $row['password'], $row['role']
 		);
-
-		return $user;
 	}
 
 	public static function getByEmail(string $email): ?User
@@ -69,7 +67,6 @@ class UserRepositoryImpl implements UserRepository
 		);
 	}
 
-
 	/**
 	 * @throws UserAdding
 	 * @throws \Exception
@@ -86,7 +83,6 @@ class UserRepositoryImpl implements UserRepository
 			throw new \RuntimeException('This role was not found');
 		}
 		$roleId = $row['id'];
-
 
 		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
 		$escapedUserName = mysqli_real_escape_string($connection, $user->name);

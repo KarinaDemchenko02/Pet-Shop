@@ -42,6 +42,6 @@ class TagRepositoryImpl implements TagRepository
 
 		$result = QueryResult::getQueryResult($sql);
 
-		return True;
+		return true;
 	}
 }

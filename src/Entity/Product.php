@@ -8,7 +8,7 @@ class Product implements Entity
 	public readonly string $title;
 	public readonly string $description;
 	public readonly float $price;
-	public readonly array $tags;
+	private array $tags;
 	public readonly bool $isActive;
 	public readonly int $addedAt;
 	public readonly int $editedAt;
@@ -36,4 +36,28 @@ class Product implements Entity
 		$this->editedAt = strtotime($editedAt);
 		$this->imagePath = $imagePath;
 	}
+
+	public function addTag(Tag $tag)
+	{
+		if (!in_array($tag, $this->tags, true))
+		{
+			$this->tags[] = $tag;
+		}
+	}
+	// public function addImage(Image $image)
+	// {
+	// 	if (!in_array($image, $this->images, true))
+	// 	{
+	// 		$this->images[]=$image;
+	// 	}
+	// }
+	public function getTags(): array
+	{
+		return $this->tags;
+	}
+
+	// public function getImages(): array
+	// {
+	// 	return $this->images;
+	// }
 }

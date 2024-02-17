@@ -4,11 +4,11 @@ namespace Up\Entity;
 
 class ShoppingSession implements Entity
 {
-	readonly ?int $id;
-	readonly ?int $userId;
+	public readonly ?int $id;
+	public readonly ?int $userId;
 	private array $products;
-	readonly ?string $createdAt;
-	readonly ?string $updatedAt;
+	public readonly ?string $createdAt;
+	public readonly ?string $updatedAt;
 
 	public function __construct(?int $id, ?int $userId, array $products, ?string $createdAt, ?string $updatedAt)
 	{
@@ -60,11 +60,3 @@ class ShoppingSession implements Entity
 	}
 
 }
-
-/*
-$shoppingSession->id
-$shoppingSession->user : User
-
-$shoppingSession->products[i]->info : Product
-$shoppingSession->products[i]->quantity : int
- */
