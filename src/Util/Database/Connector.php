@@ -8,13 +8,14 @@ class Connector
 	private const encoding = 'utf8';
 	private static ?Connector $instance = null;
 
-	protected function __construct()
+	private function __construct()
 	{
+		$configuration = \Up\Util\Configuration::getInstance();
 		$this->createConnection(
-			\Up\Util\Configuration::getInstance()->option('DB_HOST'),
-			\Up\Util\Configuration::getInstance()->option('DB_USER'),
-			\Up\Util\Configuration::getInstance()->option('DB_PASSWORD'),
-			\Up\Util\Configuration::getInstance()->option('DB_NAME')
+			$configuration->option('DB_HOST'),
+			$configuration->option('DB_USER'),
+			$configuration->option('DB_PASSWORD'),
+			$configuration->option('DB_NAME')
 		);
 	}
 

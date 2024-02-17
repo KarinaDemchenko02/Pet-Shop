@@ -6,21 +6,14 @@ class Migration
 {
 	protected const  migrationPattern = "/\d{4}_(\d{2}_){4}/";
 
-	public static function migrate($connection): void
+	public static function migrate(): void
 	{
 		$lastFileTimestamp = 0;
+		$queryResult = QueryResult::getInstance();
 		try
 		{
-			$result = mysqli_query(
-				$connection,
-				'SELECT NAME FROM migration'
-			);
-			if (!$result)
-			{
-				throw new \RuntimeException(mysqli_error($connection));
-			}
+			$result = $queryResult->getQueryResult('SELECT NAME FROM migration');
 			$lastFileTimestamp = self::getTimestampFromFileName($result->fetch_column());
-
 		}
 		catch (\mysqli_sql_exception $e)
 		{
@@ -31,7 +24,7 @@ class Migration
 		}
 		finally
 		{
-			self::doMigrations($connection, $lastFileTimestamp);
+			self::doMigrations($lastFileTimestamp);
 		}
 	}
 
@@ -43,15 +36,15 @@ class Migration
 		return (int)\DateTime::createFromFormat('Y_m_d_H_i', $lastFileDate)->getTimestamp();
 	}
 
-	private static function doMigrations($connection, $timeStamp = 0): void
+	private static function doMigrations($timeStamp = 0): void
 	{
+		$queryResult = QueryResult::getInstance();
 		$dir = ROOT . '/Migration';
 		$lastFile = null;
 		if (!is_dir($dir))
 		{
 			throw new \RuntimeException("migration dir is not exists");
 		}
-
 		$dh = opendir($dir);
 		while (($file = readdir($dh)) !== false)
 		{
@@ -64,44 +57,21 @@ class Migration
 				continue;
 			}
 			$migration = file_get_contents($dir . '/' . $file);
-			mysqli_multi_query($connection, $migration);
-			do
-			{
-				if ($error = mysqli_error($connection))
-				{
-					throw new \RuntimeException($error);
-				}
-			}
-			while (mysqli_next_result($connection));
+			$queryResult->execute($migration);
 			$lastFile = $file;
 		}
-
 		closedir($dh);
 		if ($lastFile)
 		{
-			self::updateLastMigration($connection, $timeStamp === 0, $lastFile);
+			self::updateLastMigration($timeStamp === 0, $lastFile);
 		}
 	}
 
-	private static function updateLastMigration($connection, bool $isFirstTime, $lastFile): void
+	private static function updateLastMigration(bool $isFirstTime, $lastFile): void
 	{
-		if ($isFirstTime)
-		{
-			$result = mysqli_query(
-				$connection,
-				"INSERT INTO migration (NAME) VALUES ('$lastFile')"
-			);
-		}
-		else
-		{
-			$result = mysqli_query(
-				$connection,
-				"UPDATE migration SET NAME='$lastFile' WHERE ID =1;"
-			);
-		}
-		if (!$result)
-		{
-			throw new \RuntimeException(mysqli_error($connection));
-		}
+		$queryResult = QueryResult::getInstance();
+		$sql = $isFirstTime ? "INSERT INTO migration (NAME) VALUES ('$lastFile')"
+			: "UPDATE migration SET NAME='$lastFile' WHERE ID =1;";
+		$queryResult->getQueryResult($sql);
 	}
 }
