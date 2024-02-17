@@ -9,14 +9,13 @@ use Up\Util\Database\Query;
 
 class UserRepositoryImpl implements UserRepository
 {
+	private const SELECT_SQL = "select up_users.id, email, password, up_role.title as role, tel, name
+				from up_users inner join up_role on up_users.role_id = up_role.id ";
 
 	public static function getAll(): array
 	{
 		$query = Query::getInstance();
-		$sql = "select up_users.id, email, password, up_role.title as role, tel, name
-				from up_users inner join up_role on up_users.role_id = up_role.id;";
-
-		$result = $query->getQueryResult($sql);
+		$result = $query->getQueryResult(self::SELECT_SQL);
 
 		$users = [];
 
@@ -35,9 +34,7 @@ class UserRepositoryImpl implements UserRepository
 	public static function getById(int $id): User
 	{
 		$query = Query::getInstance();
-		$sql = "select up_users.id, email, password, up_role.title as role, tel, name
-				from up_users inner join up_role on up_users.role_id = up_role.id
-				where up_users.id = {$id};";
+		$sql = self::SELECT_SQL . "where up_users.id = {$id};";
 
 		$result = $query->getQueryResult($sql);
 
@@ -53,9 +50,7 @@ class UserRepositoryImpl implements UserRepository
 	public static function getByEmail(string $email): ?User
 	{
 		$query = Query::getInstance();
-		$sql = "select up_users.id, up_users.email, up_users.password, up_role.title as role, up_users.tel, up_users.name
-				from up_users inner join up_role on up_users.role_id = up_role.id
-				where up_users.email = '{$email}'";
+		$sql = self::SELECT_SQL . "where up_users.email = '{$email}'";
 
 		$result = $query->getQueryResult($sql);
 
