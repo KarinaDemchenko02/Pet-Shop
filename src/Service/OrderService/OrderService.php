@@ -2,6 +2,7 @@
 
 namespace Up\Service\OrderService;
 
+use Up\Dto\OrderAddingAdminDto;
 use Up\Dto\OrderAddingDto;
 use Up\Exceptions\Service\OrderService\OrderNotCompleted;
 use Up\Repository\Order\OrderRepositoryImpl;
@@ -19,20 +20,24 @@ class OrderService
 
 	public static function getAllOrder(): array
 	{
-		$orders =  OrderRepositoryImpl::getAll();
+		$orders = OrderRepositoryImpl::getAll();
 
 		$ordersDto = [];
 		foreach ($orders as $order)
 		{
-			$ordersDto[] = new OrderAddingDto(
-				is_null($order->user) ? null : $order->user->id,
-				is_null($order->user) ? null : $order->user->name,
-				'surname',
-				$order->deliveryAddress,
-				$order->products[0]->id,
-				$order->createdAt,
-				(int) $order->status,
-			);
+			foreach ($order->getProducts() as $product)
+			{
+				$ordersDto[] = new OrderAddingAdminDto(
+					$order->id,
+					$product->id,
+					is_null($order->user) ? null : $order->user->id,
+					$order->deliveryAddress,
+					$order->createdAt,
+					is_null($order->user) ? null : $order->user->name,
+					'surname',
+					(int)$order->status,
+				);
+			}
 		}
 
 		return $ordersDto;

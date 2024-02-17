@@ -13,7 +13,6 @@ class OrderAddingDto implements Dto
 		public readonly string $surname,
 		public readonly string $deliveryAddress,
 		public readonly int $productId,
-		public readonly int $createdAt,
 		public readonly int $statusId = 2
 	)
 	{

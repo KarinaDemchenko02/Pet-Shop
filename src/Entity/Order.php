@@ -5,11 +5,13 @@ namespace Up\Entity;
 class Order implements Entity
 {
 	public readonly int $id;
-	public readonly array $products;
+	private array $products;
 	public readonly ?User $user;
 	public readonly string $deliveryAddress;
 	public readonly int $createdAt;
 	public readonly string $status;
+	public readonly ?string $name;
+	public readonly ?string $surname;
 
 	public function __construct(
 		int    $id,
@@ -17,7 +19,9 @@ class Order implements Entity
 		?User   $user,
 		string $deliveryAddress,
 		string $createdAt,
-		string $status
+		string $status,
+		?string $name,
+		?string $surname
 	)
 	{
 		$this->id = $id;
@@ -26,6 +30,18 @@ class Order implements Entity
 		$this->deliveryAddress = $deliveryAddress;
 		$this->createdAt = strtotime($createdAt);
 		$this->status = $status;
+		$this->name = $name;
+		$this->surname = $surname;
+	}
+
+	public function addProduct(Product $product)
+	{
+		$this->products[$product->id]=$product;
+	}
+
+	public function getProducts(): array
+	{
+		return $this->products;
 	}
 
 }
