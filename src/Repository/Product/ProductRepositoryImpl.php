@@ -20,8 +20,8 @@ class ProductRepositoryImpl implements ProductRepository
 		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive,
                 added_at as addedAt, edited_at as editedAt, up_image.id as imageId, path
 				from up_item
-				inner join up_image on up_item.id = item_id
-	            inner join up_item_tag on up_item.id = up_item_tag.id_item
+				left join up_image on up_item.id = item_id
+	            left join up_item_tag on up_item.id = up_item_tag.id_item
 				WHERE up_item.is_active = 1
 	            LIMIT {$limit} OFFSET {$offset}";
 
@@ -36,8 +36,8 @@ class ProductRepositoryImpl implements ProductRepository
 		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive,
                 added_at as addedAt, edited_at as editedAt, up_image.id as imageId, path
 				from up_item
-				inner join up_image on up_item.id = item_id
-	            inner join up_item_tag on up_item.id = up_item_tag.id_item
+				left join up_image on up_item.id = item_id
+	            left join up_item_tag on up_item.id = up_item_tag.id_item
 				WHERE up_item.is_active = 1
 	           ";
 
@@ -283,47 +283,27 @@ class ProductRepositoryImpl implements ProductRepository
 	private static function createProductList(\mysqli_result $result): array
 	{
 		$products = [];
-		try
+		while ($row = mysqli_fetch_assoc($result))
 		{
-			$isFirstLine = true;
-			while ($row = mysqli_fetch_assoc($result))
+			if (!isset($products[$row['id']]))
 			{
-				if (!isset($products[$row['id']]))
-				{
-					if (!$isFirstLine)
-					{
-						$products[$id] = new Product(
-							$id, $name, $description, $price, $tags, $isActive, $addedAt, $editedAt, $imagePath
-						);
-					}
-					$id = $row['id'];
-					$name = $row['name'];
-					$description = $row['description'];
-					$price = $row['price'];
-					$tags = [TagRepositoryImpl::getById($row['tagId'])];
-					$isActive = $row['isActive'];
-					$addedAt = $row['addedAt'];
-					$editedAt = $row['editedAt'];
-					$imagePath = $row['path'];
-
-					$isFirstLine = false;
-				}
-				else
-				{
-					$imagePath = $row['path'];
-					$tags[] = TagRepositoryImpl::getById($row['tagId']);
-				}
+				$products[$row['id']] = new Product(
+					$row['id'],
+					$row['name'],
+					$row['description'],
+					$row['price'],
+					[],
+					$row['isActive'],
+					$row['addedAt'],
+					$row['editedAt'],
+					$row['path']
+				);
 			}
-
-			$products[] = new Product(
-				@$id, @$name, @$description, @$price, @$tags, @$isActive, @$addedAt, @$editedAt, @$imagePath
-			);
+			if (!is_null($row['tagId']))
+			{
+				$products[$row['id']]->addTag(TagRepositoryImpl::getById($row['tagId']));
+			}
 		}
-		catch (\TypeError)
-		{
-			return [];
-		}
-
 		return $products;
 	}
 
