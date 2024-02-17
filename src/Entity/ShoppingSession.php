@@ -26,37 +26,15 @@ class ShoppingSession implements Entity
 
 	public function addProduct(Product $product, int $quantity): void
 	{
-		$index = $this->getIndexProduct($product->id);
-		if (is_null($index))
-		{
-			$this->products[] = new ProductQuantity($product, $quantity);
-		}
-		else
-		{
-			$this->products[$index]->setQuantity($quantity);
-		}
+		$this->products[$product->id] = new ProductQuantity($product, $quantity);
 	}
 
 	public function deleteProduct(Product $product)
 	{
-		$index = $this->getIndexProduct($product->id);
-		if (!is_null($index))
+		if (isset($this->products[$product->id]))
 		{
-			unset($this->products[$index]);
+			unset($this->products[$product->id]);
 		}
-	}
-
-	private function getIndexProduct(int $id): int|null
-	{
-		foreach ($this->products as $key => $product)
-		{
-			if ($product->info->id === $id)
-			{
-				return $key;
-			}
-		}
-
-		return null;
 	}
 
 }

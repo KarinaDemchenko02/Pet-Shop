@@ -11,19 +11,20 @@ use Up\Util\Database\Query;
 
 class ProductRepositoryImpl implements ProductRepository
 {
+
+	private const SELECT_SQL = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive,
+                added_at as addedAt, edited_at as editedAt, up_image.id as imageId, path
+				from up_item
+				left join up_image on up_item.id = item_id
+	            left join up_item_tag on up_item.id = up_item_tag.id_item ";
+
 	public static function getAll(int $page = 1): array
 	{
 		$query = Query::getInstance();
 		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
 		$offset = $limit * ($page - 1);
 
-		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive,
-                added_at as addedAt, edited_at as editedAt, up_image.id as imageId, path
-				from up_item
-				left join up_image on up_item.id = item_id
-	            left join up_item_tag on up_item.id = up_item_tag.id_item
-				WHERE up_item.is_active = 1
-	            LIMIT {$limit} OFFSET {$offset}";
+		$sql = self::SELECT_SQL . "WHERE up_item.is_active = 1 LIMIT {$limit} OFFSET {$offset}";
 
 		$result = $query->getQueryResult($sql);
 
@@ -33,13 +34,7 @@ class ProductRepositoryImpl implements ProductRepository
 	public static function getAllProducts(): array
 	{
 		$query = Query::getInstance();
-		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive,
-                added_at as addedAt, edited_at as editedAt, up_image.id as imageId, path
-				from up_item
-				left join up_image on up_item.id = item_id
-	            left join up_item_tag on up_item.id = up_item_tag.id_item
-				WHERE up_item.is_active = 1
-	           ";
+		$sql = self::SELECT_SQL . "WHERE up_item.is_active = 1";
 
 		$result = $query->getQueryResult($sql);
 
@@ -52,12 +47,7 @@ class ProductRepositoryImpl implements ProductRepository
 		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
 		$offset = $limit * ($page - 1);
 
-		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive,
-                added_at as addedAt, edited_at as editedAt, up_image.id as imageId, path
-				from up_item
-				inner join up_image on up_item.id = item_id
-	            inner join up_item_tag on up_item.id = up_item_tag.id_item
-	            LIMIT {$limit} OFFSET {$offset}";
+		$sql = self::SELECT_SQL . "LIMIT {$limit} OFFSET {$offset}";
 
 		$result = $query->getQueryResult($sql);
 
@@ -67,14 +57,10 @@ class ProductRepositoryImpl implements ProductRepository
 	public static function getById(int $id): Product
 	{
 		$query = Query::getInstance();
-		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive, 
-                added_at as addedAt, edited_at as editedAt, up_image.id as imageId, path
-				from up_item
-	            inner join up_item_tag on up_item.id = up_item_tag.id_item
-				inner join up_image on up_item.id = item_id
-	            where up_item.id = {$id} AND up_item.is_active = 1";
+		$sql = self::SELECT_SQL . "where up_item.id = {$id} AND up_item.is_active = 1";
 
 		$result = $query->getQueryResult($sql);
+
 		return self::createProductList($result)[$id];
 
 	}
@@ -87,12 +73,7 @@ class ProductRepositoryImpl implements ProductRepository
 		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
 		$offset = $limit * ($page - 1);
 
-		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive,
-                added_at as addedAt, edited_at as editedAt, up_image.id as imageId, path
-				from up_item
-				inner join up_image on up_item.id = item_id
-	            inner join up_item_tag on up_item.id = up_item_tag.id_item
-				WHERE up_item.name LIKE '%{$escapedTitle}%' AND up_item.is_active = 1
+		$sql = self::SELECT_SQL . "WHERE up_item.name LIKE '%{$escapedTitle}%' AND up_item.is_active = 1
 				LIMIT {$limit} OFFSET {$offset}";
 
 		$result = $query->getQueryResult($sql);
@@ -197,12 +178,7 @@ class ProductRepositoryImpl implements ProductRepository
 		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
 		$offset = $limit * ($page - 1);
 
-		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive,
-                added_at as addedAt, edited_at as editedAt, up_image.id as imageId, path
-				from up_item
-				inner join up_image on up_item.id = item_id
-	            inner join up_item_tag it on up_item.id = it.id_item
-				WHERE it.id_tag = {$tagId} AND up_item.is_active = 1
+		$sql = self::SELECT_SQL . "WHERE it.id_tag = {$tagId} AND up_item.is_active = 1
 				LIMIT {$limit} OFFSET {$offset}";
 
 		$result = $query->getQueryResult($sql);
@@ -221,12 +197,7 @@ class ProductRepositoryImpl implements ProductRepository
 			$tagIds[] = $tag->id;
 		}
 
-		$sql = "select up_item.id, up_item.name, description, price, id_tag as tagId, is_active as isActive,
-                added_at as addedAt, edited_at as editedAt, up_image.id as imageId, path
-				from up_item
-				inner join up_image on up_item.id = item_id
-	            inner join up_item_tag it on up_item.id = it.id_item
-				WHERE it.id_tag IN (" . implode(",", $tagIds) . ") AND up_item.is_active = 1
+		$sql = self::SELECT_SQL . "WHERE it.id_tag IN (" . implode(",", $tagIds) . ") AND up_item.is_active = 1
 				LIMIT {$limit} OFFSET {$offset}";
 
 		$result = $query->getQueryResult($sql);
@@ -258,6 +229,7 @@ class ProductRepositoryImpl implements ProductRepository
 				$products[$row['id']]->addTag(TagRepositoryImpl::getById($row['tagId']));
 			}
 		}
+
 		return $products;
 	}
 

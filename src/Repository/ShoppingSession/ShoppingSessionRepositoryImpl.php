@@ -2,60 +2,31 @@
 
 namespace Up\Repository\ShoppingSession;
 
-use Up\Entity\ProductQuantity;
 use Up\Entity\ShoppingSession;
 use Up\Repository\Product\ProductRepositoryImpl;
 use Up\Util\Database\Query;
 
 class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
 {
+	private const SELECT_SQL = "select id, user_id, item_id, quantities ,created_at, updated_at
+				from up_shopping_session
+				left join up_shopping_session_item on id = up_shopping_session_item.shopping_session_id ";
 
 	public static function getById(int $id): ShoppingSession
 	{
 		$query = Query::getInstance();
-		$sql = "select id, user_id, item_id, quantities ,created_at, updated_at
-				from up_shopping_session
-				left join up_shopping_session_item on id = up_shopping_session_item.shopping_session_id
-				where id = {$id};";
+		$sql = self::SELECT_SQL . "where id = {$id}";
 
 		$result = $query->getQueryResult($sql);
-		$products = [];
 
-		$isFirstLine = true;
-		while ($row = mysqli_fetch_assoc($result))
-		{
-			if ($isFirstLine)
-			{
-				$userId = $row['user_id'];
-				$createdAt = $row['created_at'];
-				$updatedAt = $row['updated_at'];
-				$isFirstLine = false;
-			}
-
-			if ($row['item_id'] === null)
-			{
-				continue;
-			}
-
-			$products[$row['item_id']] = new ProductQuantity(
-				ProductRepositoryImpl::getById($row['item_id']), $row['quantities']
-			);
-
-		}
-
-		return new ShoppingSession(
-			$id, $userId, $products, $createdAt, $updatedAt
-		);
+		return self::createShoppingSessionList($result);
 	}
 
 	public static function getAll(): array
 	{
 		$query = Query::getInstance();
-		$sql = "select id, user_id, item_id, quantities ,created_at, updated_at
-				from up_shopping_session
-				inner join up_shopping_session_item on id = up_shopping_session_item.shopping_session_id";
 
-		$result = $query->getQueryResult($sql);
+		$result = $query->getQueryResult(self::SELECT_SQL);
 
 		return self::createShoppingSessionList($result);
 	}
@@ -63,87 +34,39 @@ class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
 	public static function getByUser($id)
 	{
 		$query = Query::getInstance();
-		$sql = "select id, user_id, item_id, quantities ,created_at, updated_at
-				from up_shopping_session
-				left join up_shopping_session_item on id = up_shopping_session_item.shopping_session_id
-				where user_id = {$id};";
+		$sql = self::SELECT_SQL . "where user_id = {$id};";
 
 		$result = $query->getQueryResult($sql);
-		$products = [];
 
-		$isFirstLine = true;
-		while ($row = mysqli_fetch_assoc($result))
-		{
-			if ($isFirstLine)
-			{
-				$userId = $row['user_id'];
-				$createdAt = $row['created_at'];
-				$updatedAt = $row['updated_at'];
-				$isFirstLine = false;
-			}
-
-			if ($row['item_id'] === null)
-			{
-				continue;
-			}
-
-			$products[$row['item_id']] = new ProductQuantity(
-				ProductRepositoryImpl::getById($row['item_id']), $row['quantities']
-			);
-
-		}
-		if ($isFirstLine)
-		{
-			self::add($id, []);
-
-			return self::getByUser($id);
-		}
-
-		return new ShoppingSession(
-			$id, $userId, $products, $createdAt, $updatedAt
-		);
+		return self::createShoppingSessionList($result);
 	}
 
-	private static function createShoppingSessionList(\mysqli_result $result): array
+	private static function createShoppingSessionList(\mysqli_result $result): array|ShoppingSession
 	{
-		$ShoppingSessions = [];
-		!$isFirstLine = true;
+		$shoppingSessions = [];
 		while ($row = mysqli_fetch_assoc($result))
 		{
-			if (!isset($ShoppingSessions[$row['id']]))
+			if (!isset($shoppingSessions[$row['id']]))
 			{
-				$products = [];
-
-				if (!$isFirstLine)
-				{
-					$ShoppingSessions[$id] = new ShoppingSession(
-						$id, $userId, $products, $createdAt, $updatedAt
-					);
-				}
 				$id = $row['id'];
-				$products[$row['item_id']] = new ProductQuantity(
-					ProductRepositoryImpl::getById($row['item_id']), $row['quantities']
+				$shoppingSessions[$id] = new ShoppingSession(
+					$id, $row['user_id'], [], $row['created_at'], $row['updated_at']
 				);
-
-				$userId = $row['user_id'];
-				$createdAt = $row['created_at'];
-				$updatedAt = $row['updated_at'];
-
-				$isFirstLine = false;
 			}
-			else
+			if (!is_null($row['item_id']))
 			{
-				$products[$row['item_id']] = new ProductQuantity(
-					ProductRepositoryImpl::getById($row['item_id']), $row['quantities']
+				$shoppingSessions[$row['id']]->addProduct(
+					ProductRepositoryImpl::getById($row['item_id']),
+					$row['quantities']
 				);
 			}
 		}
+		if (count($shoppingSessions) === 1)
+		{
+			return $shoppingSessions[$id];
+		}
 
-		$ShoppingSessions[$id] = new ShoppingSession(
-			$id, $userId, $products, $createdAt, $updatedAt
-		);
-
-		return $ShoppingSessions;
+		return $shoppingSessions;
 	}
 
 	public static function add($userId, array $productsQuantities)

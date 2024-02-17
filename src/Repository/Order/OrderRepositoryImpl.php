@@ -11,15 +11,14 @@ use Up\Util\Database\Query;
 
 class OrderRepositoryImpl implements OrderRepository
 {
-
+	private const SELECT_SQL = "select up_order.id, item_id, user_id, delivery_address, created_at , title as status, name, surname
+				from up_order inner join up_order_item uoi on up_order.id = uoi.order_id
+				left join up_status us on up_order.status_id = us.id";
 	public static function getAll(): array
 	{
 		$query = Query::getInstance();
-		$sql = "select up_order.id, item_id, user_id, delivery_address, created_at , title as status, name, surname
-				from up_order inner join up_order_item uoi on up_order.id = uoi.order_id
-				left join up_status us on up_order.status_id = us.id";
 
-		$result = $query->getQueryResult($sql);
+		$result = $query->getQueryResult(self::SELECT_SQL);
 
 		return self::createOrderList($result);
 	}
@@ -29,7 +28,7 @@ class OrderRepositoryImpl implements OrderRepository
 		$query = Query::getInstance();
 		$sql = "select up_order.id, item_id, user_id, delivery_address, created_at ,title as status
 				from up_order inner join up_order_item uoi on up_order.id = uoi.order_id
-				inner join up_status us on up_order.status_id = us.id
+				left join up_status us on up_order.status_id = us.id
 				where up_order.id = {$id}";
 		$result = $query->getQueryResult($sql);
 
