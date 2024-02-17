@@ -75,37 +75,7 @@ class ProductRepositoryImpl implements ProductRepository
 	            where up_item.id = {$id} AND up_item.is_active = 1";
 
 		$result = $query->getQueryResult($sql);
-
-		$isFirstLine = true;
-		while ($row = mysqli_fetch_assoc($result))
-		{
-			if ($isFirstLine)
-			{
-				$id = $row['id'];
-			}
-			if ($isFirstLine)
-			{
-				$name = $row['name'];
-				$description = $row['description'];
-				$price = $row['price'];
-				$tags = [TagRepositoryImpl::getById($row['tagId'])];
-				$isActive = $row['isActive'];
-				$addedAt = $row['addedAt'];
-				$editedAt = $row['editedAt'];
-				$imagePath = $row['path'];
-
-				$isFirstLine = false;
-			}
-			else
-			{
-				$tags[] = TagRepositoryImpl::getById($row['tagId']);
-				$imagePath = $row['path'];
-			}
-		}
-
-		return new Product(
-			$id, $name, $description, $price, $tags, $isActive, $addedAt, $editedAt, $imagePath
-		);
+		return self::createProductList($result)[$id];
 
 	}
 
@@ -164,22 +134,6 @@ class ProductRepositoryImpl implements ProductRepository
 			throw $e;
 		}
 	}
-
-	/*	public static function delete($id): void
-		{
-			$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
-			try
-			{
-				mysqli_begin_transaction($connection);
-				$query->getQueryResult($addNewProductSQL);
-				mysqli_commit($connection);
-			}
-			catch (\Throwable $e)
-			{
-				mysqli_rollback($connection);
-				throw $e;
-			}
-		}*/
 
 	/**
 	 * @throws ProductNotDisable
