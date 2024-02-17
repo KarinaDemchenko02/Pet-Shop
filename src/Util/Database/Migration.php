@@ -9,7 +9,7 @@ class Migration
 	public static function migrate(): void
 	{
 		$lastFileTimestamp = 0;
-		$queryResult = QueryResult::getInstance();
+		$queryResult = Query::getInstance();
 		try
 		{
 			$result = $queryResult->getQueryResult('SELECT NAME FROM migration');
@@ -38,7 +38,7 @@ class Migration
 
 	private static function doMigrations($timeStamp = 0): void
 	{
-		$queryResult = QueryResult::getInstance();
+		$queryResult = Query::getInstance();
 		$dir = ROOT . '/Migration';
 		$lastFile = null;
 		if (!is_dir($dir))
@@ -69,7 +69,7 @@ class Migration
 
 	private static function updateLastMigration(bool $isFirstTime, $lastFile): void
 	{
-		$queryResult = QueryResult::getInstance();
+		$queryResult = Query::getInstance();
 		$sql = $isFirstTime ? "INSERT INTO migration (NAME) VALUES ('$lastFile')"
 			: "UPDATE migration SET NAME='$lastFile' WHERE ID =1;";
 		$queryResult->getQueryResult($sql);

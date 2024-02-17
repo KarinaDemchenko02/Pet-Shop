@@ -3,17 +3,17 @@
 namespace Up\Repository\Tag;
 
 use Up\Entity\Tag;
-use Up\Util\Database\QueryResult;
+use Up\Util\Database\Query;
 
 class TagRepositoryImpl implements TagRepository
 {
 
 	public static function getAll(): array
 	{
-
+		$query = Query::getInstance();
 		$sql = "select * from up_tags;";
 
-		$result = QueryResult::getQueryResult($sql);
+		$result = $query->getQueryResult($sql);
 
 		$tags = [];
 
@@ -27,9 +27,10 @@ class TagRepositoryImpl implements TagRepository
 
 	public static function getById(int $id): Tag
 	{
+		$query = Query::getInstance();
 		$sql = "select * from up_tags where id = {$id};";
 
-		$result = QueryResult::getQueryResult($sql);
+		$result = $query->getQueryResult($sql);
 
 		$row = mysqli_fetch_assoc($result);
 
@@ -38,10 +39,9 @@ class TagRepositoryImpl implements TagRepository
 
 	public static function add(string $title): bool
 	{
+		$query = Query::getInstance();
 		$sql = "INSERT INTO up_tags (name) VALUES ('{$title}');";
 
-		$result = QueryResult::getQueryResult($sql);
-
-		return True;
+		return $query->getQueryResult($sql);
 	}
 }

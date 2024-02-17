@@ -5,17 +5,18 @@ namespace Up\Repository\User;
 use Up\Dto\UserAddingDto;
 use Up\Entity\User;
 use Up\Exceptions\Service\UserService\UserAdding;
-use Up\Util\Database\QueryResult;
+use Up\Util\Database\Query;
 
 class UserRepositoryImpl implements UserRepository
 {
 
 	public static function getAll(): array
 	{
+		$query = Query::getInstance();
 		$sql = "select up_users.id, email, password, up_role.title as role, tel, name
 				from up_users inner join up_role on up_users.role_id = up_role.id;";
 
-		$result = QueryResult::getQueryResult($sql);
+		$result = $query->getQueryResult($sql);
 
 		$users = [];
 
@@ -33,11 +34,12 @@ class UserRepositoryImpl implements UserRepository
 
 	public static function getById(int $id): User
 	{
+		$query = Query::getInstance();
 		$sql = "select up_users.id, email, password, up_role.title as role, tel, name
 				from up_users inner join up_role on up_users.role_id = up_role.id
 				where up_users.id = {$id};";
 
-		$result = QueryResult::getQueryResult($sql);
+		$result = $query->getQueryResult($sql);
 
 		$row = mysqli_fetch_assoc($result);
 
@@ -50,12 +52,12 @@ class UserRepositoryImpl implements UserRepository
 
 	public static function getByEmail(string $email): ?User
 	{
-
+		$query = Query::getInstance();
 		$sql = "select up_users.id, up_users.email, up_users.password, up_role.title as role, up_users.tel, up_users.name
 				from up_users inner join up_role on up_users.role_id = up_role.id
 				where up_users.email = '{$email}'";
 
-		$result = QueryResult::getQueryResult($sql);
+		$result = $query->getQueryResult($sql);
 
 		$row = mysqli_fetch_assoc($result);
 
@@ -69,16 +71,16 @@ class UserRepositoryImpl implements UserRepository
 		);
 	}
 
-
 	/**
 	 * @throws UserAdding
 	 * @throws \Exception
 	 */
 	public static function add(UserAddingDto $user): void
 	{
+		$query = Query::getInstance();
 		$sql = "select id from up_role where title = '{$user->roleTitle}';";
 
-		$result = QueryResult::getQueryResult($sql);
+		$result = $query->getQueryResult($sql);
 
 		$row = mysqli_fetch_assoc($result);
 		if (is_null($row))
@@ -87,22 +89,16 @@ class UserRepositoryImpl implements UserRepository
 		}
 		$roleId = $row['id'];
 
-
-		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
-		$escapedUserName = mysqli_real_escape_string($connection, $user->name);
-		$escapedUserPassword = mysqli_real_escape_string($connection, $user->password);
+		$escapedUserName = $query->escape($user->name);
+		$escapedUserPassword = $query->escape($user->password);
 		try
 		{
-			mysqli_begin_transaction($connection);
 			$sql = "INSERT INTO up_users (email, password, role_id, tel, name) 
 				VALUES ('{$user->email}', '{$escapedUserPassword}', {$roleId}, '{$user->phoneNumber}', '{$escapedUserName}');";
-
-			QueryResult::getQueryResult($sql);
-			mysqli_commit($connection);
+			$query->getQueryResult($sql);
 		}
 		catch (\Throwable $e)
 		{
-			mysqli_rollback($connection);
 			throw new UserAdding('Failed to add a user');
 		}
 	}

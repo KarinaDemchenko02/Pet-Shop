@@ -2,10 +2,10 @@
 
 namespace Up\Util\Database;
 
-class QueryResult
+class Query
 {
 
-	private static ?QueryResult $instance = null;
+	private static ?Query $instance = null;
 	private \mysqli $connection;
 
 	private function __construct()
@@ -26,7 +26,8 @@ class QueryResult
 	}
 
 	public function execute($sql): void
-	{;
+	{
+		;
 		mysqli_multi_query($this->connection, $sql);
 		do
 		{
@@ -38,7 +39,37 @@ class QueryResult
 		while (mysqli_next_result($this->connection));
 	}
 
-	public static function getInstance(): QueryResult
+	public function begin(): void
+	{
+		mysqli_begin_transaction($this->connection);
+	}
+
+	public function commit(): void
+	{
+		mysqli_commit($this->connection);
+	}
+
+	public function rollback(): void
+	{
+		mysqli_rollback($this->connection);
+	}
+
+	public function last(): int|string
+	{
+		return mysqli_insert_id($this->connection);
+	}
+
+	public function escape(string $string): string
+	{
+		return mysqli_real_escape_string($this->connection, $string);
+	}
+
+	public function affectedRows(): int|string
+	{
+		return mysqli_affected_rows($this->connection);
+	}
+
+	public static function getInstance(): Query
 	{
 		if (static::$instance)
 		{

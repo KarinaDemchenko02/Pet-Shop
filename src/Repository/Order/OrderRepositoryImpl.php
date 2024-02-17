@@ -7,30 +7,31 @@ use Up\Entity;
 use Up\Exceptions\Service\OrderService\OrderNotCompleted;
 use Up\Repository\Product\ProductRepositoryImpl;
 use Up\Repository\User\UserRepositoryImpl;
-use Up\Util\Database\QueryResult;
+use Up\Util\Database\Query;
 
 class OrderRepositoryImpl implements OrderRepository
 {
 
 	public static function getAll(): array
 	{
+		$query = Query::getInstance();
 		$sql = "select up_order.id, item_id, user_id, delivery_address, created_at , title as status, name, surname
 				from up_order inner join up_order_item uoi on up_order.id = uoi.order_id
 				inner join up_status us on up_order.status_id = us.id";
 
-		$result = QueryResult::getQueryResult($sql);
+		$result = $query->getQueryResult($sql);
 
 		return self::createOrderList($result);
 	}
 
 	public static function getById(int $id): Entity\Order
 	{
+		$query = Query::getInstance();
 		$sql = "select up_order.id, item_id, user_id, delivery_address, created_at ,title as status
 				from up_order inner join up_order_item uoi on up_order.id = uoi.order_id
 				inner join up_status us on up_order.status_id = us.id
 				where up_order.id = {$id}";
-
-		$result = QueryResult::getQueryResult($sql);
+		$result = $query->getQueryResult($sql);
 
 		$isFirstLine = true;
 		while ($row = mysqli_fetch_assoc($result))
@@ -92,38 +93,40 @@ class OrderRepositoryImpl implements OrderRepository
 	 */
 	public static function add(OrderAddingDto $order): void
 	{
-		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
+		$query = Query::getInstance();
 		try
 		{
 			$userId = $order->userId ?? 'null';
+			$query->begin();
 
-			mysqli_begin_transaction($connection);
 			$addNewShoppingSessionSQL = "INSERT INTO up_order (up_order.user_id, up_order.delivery_address, up_order.status_id, up_order.created_at, up_order.name, up_order.surname) 
 				VALUES ($userId, '{$order->deliveryAddress}', {$order->statusId}, CURRENT_TIMESTAMP, '{$order->name}', '{$order->surname}')";
-			QueryResult::getQueryResult($addNewShoppingSessionSQL);
-			$last = mysqli_insert_id($connection);
+
+			$query->getQueryResult($addNewShoppingSessionSQL);
+			$last = $query->last();
 			$price = ProductRepositoryImpl::getById($order->productId)->price;
+
 			$addLinkToItemSQL = "INSERT INTO up_order_item (order_id, item_id, quantities, price)
 									VALUES ({$last}, {$order->productId}, 1, {$price})";
-			QueryResult::getQueryResult($addLinkToItemSQL);
-			mysqli_commit($connection);
+
+			$query->getQueryResult($addLinkToItemSQL);
+			$query->commit();
 		}
 		catch (\Throwable)
 		{
-			mysqli_rollback($connection);
+			$query->rollback();
 			throw new OrderNotCompleted();
 		}
 	}
 
 	public static function getColumn(): array
 	{
+		$query = Query::getInstance();
 		$sql = "SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
                 WHERE TABLE_NAME = 'up_order';";
 
-		$result = QueryResult::getQueryResult($sql);
-
+		$result = $query->getQueryResult($sql);
 		$columns = [];
-
 		while ($column = mysqli_fetch_column($result))
 		{
 			$columns[] = $column;
