@@ -39,11 +39,25 @@ class Product implements Entity
 
 	public function addTag(Tag $tag)
 	{
-		$this->tags[] = $tag;
+		if (!in_array($tag, $this->tags, true))
+		{
+			$this->tags[] = $tag;
+		}
 	}
-
-	public function getTags()
+	// public function addImage(Image $image)
+	// {
+	// 	if (!in_array($image, $this->images, true))
+	// 	{
+	// 		$this->images[]=$image;
+	// 	}
+	// }
+	public function getTags(): array
 	{
 		return $this->tags;
 	}
+
+	// public function getImages(): array
+	// {
+	// 	return $this->images;
+	// }
 }

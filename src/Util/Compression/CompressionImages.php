@@ -9,7 +9,6 @@ class CompressionImages
 {
 	private string $path;
 	private string $destination;
-	private array $errors = [];
 
 	public function __construct(string $path, string $destination)
 	{
@@ -31,9 +30,10 @@ class CompressionImages
 			{
 				$this->resizeImage($this->getDestination() . $image, $this->getDestination(), $image);
 			}
-			catch (ImageNotResize)
+			catch (ImageNotResize $e)
 			{
-				$this->errors[] = 'Something went wrong';
+				echo $e->getMessage();
+				return false;
 			}
 		}
 
@@ -45,7 +45,7 @@ class CompressionImages
 		return true;
 	}
 
-	private function getImages(string $path): array
+	private function getImages(string $path): bool | array
 	{
 		$imagesName = [];
 
@@ -70,11 +70,12 @@ class CompressionImages
 							$imagesName[] = basename($newPath);
 							copy($newPath, $this->getDestination() . basename($newPath));
 						}
-						catch (ImageNotCopy)
+						catch (ImageNotCopy $e)
 						{
-							$this->errors[] = 'Something went wrong';
+							echo $e->getMessage();
+							return false;
 						}
-				}
+					}
 			}
 		}
 
@@ -111,9 +112,5 @@ class CompressionImages
 	public function getPath(): string
 	{
 		return $this->path;
-	}
-	public function getErrors(): array
-	{
-		return $this->errors;
 	}
 }

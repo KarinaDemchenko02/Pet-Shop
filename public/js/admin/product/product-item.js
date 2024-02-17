@@ -9,8 +9,9 @@ export class ProductItem
 	isActive;
 	editButtonHandler;
 	removeButtonHandler;
+	restoreButtonHandler;
 
-	constructor({ id, title, description, price, addedAt, editedAt, isActive, editButtonHandler, removeButtonHandler })
+	constructor({ id, title, description, price, addedAt, editedAt, isActive, editButtonHandler, removeButtonHandler, restoreButtonHandler })
 	{
 		this.id = Number(id);
 		this.title = String(title);
@@ -28,6 +29,11 @@ export class ProductItem
 		if (typeof removeButtonHandler === 'function')
 		{
 			this.removeButtonHandler = removeButtonHandler;
+		}
+
+		if (typeof restoreButtonHandler === 'function')
+		{
+			this.restoreButtonHandler = restoreButtonHandler;
 		}
 	}
 
@@ -64,35 +70,46 @@ export class ProductItem
 		isActiveColumn.classList.add('table__th');
 		isActiveColumn.innerText = this.isActive;
 
+
+		const spinnerRemove = document.createElement('div');
+		spinnerRemove.classList.add('spinner-border', 'text-light', 'spinner-action');
+		const spinnerLoadingRemove = document.createElement('span');
+		spinnerLoadingRemove.innerText = 'Loading...';
+		spinnerLoadingRemove.classList.add('visually-hidden');
+		spinnerRemove.append(spinnerLoadingRemove);
+
+		const spinnerRestore = document.createElement('div');
+		spinnerRestore.classList.add('spinner-border', 'text-light', 'spinner-action');
+		const spinnerLoadingRestore = document.createElement('span');
+		spinnerLoadingRestore.innerText = 'Loading...';
+		spinnerLoadingRestore.classList.add('visually-hidden');
+		spinnerRestore.append(spinnerLoadingRestore);
+
 		const removeButton = document.createElement('button');
 		removeButton.classList.add('table__button', 'table__button_delete');
+		removeButton.id = String(this.id) + 'remove';
 		removeButton.innerText = 'Удалить';
 		removeButton.addEventListener('click', this.handleRemoveButtonClick.bind(this));
+		removeButton.append(spinnerRemove);
 
 		const editButton = document.createElement('button')
 		editButton.classList.add('table__button', 'table__button_edit')
 		editButton.innerText = 'Редактировать';
 		editButton.addEventListener('click', this.handleEditButtonClick.bind(this));
 
+		const restoreButton = document.createElement('button');
+		restoreButton.classList.add('table__button', 'table__button_restore');
+		restoreButton.id = String(this.id) + 'restore';
+		restoreButton.innerText = 'Восстановить';
+		restoreButton.append(spinnerRestore);
+		restoreButton.addEventListener('click', this.handleRestoreButtonClick.bind(this));
+
 		const actionsColumn = document.createElement('td');
 		actionsColumn.classList.add('table__th', 'table__th_button');
-		actionsColumn.append(editButton, removeButton);
+		actionsColumn.append(editButton, removeButton, restoreButton);
 
 		trProduct.append(idColumn, titleColumn, descColumn, priceColumn, addedAtColumn, editedAtColumn, isActiveColumn, actionsColumn);
 		return trProduct;
-		/*
-		const removeButton = document.createElement('button');
-		removeButton.classList.add('btn', 'btn-danger');
-		removeButton.innerText = 'remove';
-		removeButton.addEventListener('click', this.handleRemoveButtonClick.bind(this))
-
-		const actionsColumn = document.createElement('div');
-		actionsColumn.classList.add('col-3');
-		actionsColumn.append(removeButton);
-
-		row.append(titleColumn, descriptionColumn, priceColumn, actionsColumn)
-
-		return row;*/
 	}
 
 	handleRemoveButtonClick()
@@ -108,6 +125,14 @@ export class ProductItem
 		if (this.editButtonHandler)
 		{
 			this.editButtonHandler(this);
+		}
+	}
+
+	handleRestoreButtonClick()
+	{
+		if (this.restoreButtonHandler)
+		{
+			this.restoreButtonHandler(this);
 		}
 	}
 }

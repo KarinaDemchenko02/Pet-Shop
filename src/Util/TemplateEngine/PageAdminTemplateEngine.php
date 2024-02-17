@@ -12,7 +12,8 @@ class PageAdminTemplateEngine implements TemplateEngine
 		$delete = new Template('components/admin/delete');
 
 		$content = new Template('components/admin/table', [
-			'data' => $this->createdDataTable($variables),
+			'products' => $variables['products'],
+			'columnsProducts' => $variables['columnsProducts'],
 			'form' => $form,
 			'delete' => $delete
 		]);
@@ -36,7 +37,7 @@ class PageAdminTemplateEngine implements TemplateEngine
 		$productTemplates = [];
 		foreach ($products as $product)
 		{
-			$productTemplates[] = new Template('components/admin/dataTableProducts',
+			$productTemplates[] = new Template('components/admin/table',
 				[
 					'title' => $product->title,
 					'desc' => $product->description,
@@ -73,31 +74,31 @@ class PageAdminTemplateEngine implements TemplateEngine
 		return $orderTemplates;
 	}
 
-	public function createdDataTable($variables): Template
-	{
-		if (isset($_GET['entity']))
-		{
-			if ($_GET['entity'] === 'orders')
-			{
-				$columns = $variables['columnsOrders'];
-				$data = $this->getOrdersSectionTemplate($variables['orders']);
-				$title = 'Заказы';
-			}
-			else
-			{
-				$columns = $variables['columnsProducts'];
-				$data = $this->getProductsSectionTemplate($variables['products']);
-				$title = 'Товары';
-			}
-		}
-		else
-		{
-			$columns = $variables['columnsProducts'];
-			$data = $this->getProductsSectionTemplate($variables['products']);
-			$title = 'Товары';
-		}
-
-		return new Template('components/admin/dataTable',
-			['data' => $data, 'columns' => $columns, 'title' => $title]);
-	}
+//	public function createdDataTable($variables): Template
+//	{
+//		if (isset($_GET['entity']))
+//		{
+//			if ($_GET['entity'] === 'orders')
+//			{
+//				$columns = $variables['columnsOrders'];
+//				$data = $this->getOrdersSectionTemplate($variables['orders']);
+//				$title = 'Заказы';
+//			}
+//			else
+//			{
+//				$columns = $variables['columnsProducts'];
+//				$data = $this->getProductsSectionTemplate($variables['products']);
+//				$title = 'Товары';
+//			}
+//		}
+//		else
+//		{
+//			$columns = $variables['columnsProducts'];
+//			$data = $this->getProductsSectionTemplate($variables['products']);
+//			$title = 'Товары';
+//		}
+//
+//		return new Template('components/admin/dataTable',
+//			['data' => $data, 'columns' => $columns, 'title' => $title]);
+//	}
 }

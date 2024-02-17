@@ -4,11 +4,11 @@ namespace Up\Entity;
 
 class ShoppingSession implements Entity
 {
-	readonly ?int $id;
-	readonly ?int $userId;
+	public readonly ?int $id;
+	public readonly ?int $userId;
 	private array $products;
-	readonly ?string $createdAt;
-	readonly ?string $updatedAt;
+	public readonly ?string $createdAt;
+	public readonly ?string $updatedAt;
 
 	public function __construct(?int $id, ?int $userId, array $products, ?string $createdAt, ?string $updatedAt)
 	{
@@ -26,23 +26,37 @@ class ShoppingSession implements Entity
 
 	public function addProduct(Product $product, int $quantity): void
 	{
-		$this->products[$product->id] = new ProductQuantity($product, $quantity);
+		$index = $this->getIndexProduct($product->id);
+		if (is_null($index))
+		{
+			$this->products[] = new ProductQuantity($product, $quantity);
+		}
+		else
+		{
+			$this->products[$index]->setQuantity($quantity);
+		}
 	}
 
 	public function deleteProduct(Product $product)
 	{
-		if (isset($this->products[$product->id]))
+		$index = $this->getIndexProduct($product->id);
+		if (!is_null($index))
 		{
-			unset($this->products[$product->id]);
+			unset($this->products[$index]);
 		}
 	}
 
+	private function getIndexProduct(int $id): int|null
+	{
+		foreach ($this->products as $key => $product)
+		{
+			if ($product->info->id === $id)
+			{
+				return $key;
+			}
+		}
+
+		return null;
+	}
+
 }
-
-/*
-$shoppingSession->id
-$shoppingSession->user : User
-
-$shoppingSession->products[i]->info : Product
-$shoppingSession->products[i]->quantity : int
- */

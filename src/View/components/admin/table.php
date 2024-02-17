@@ -1,9 +1,29 @@
-<?php $productList = $this->getVariable('data'); ?>
+<?php
+
+use Up\Util\TemplateEngine\Template;
+
+$products = $this->getVariable('products');
+$columns = $this->getVariable('columnsProducts');
+
+$productList = [];
+foreach ($products as $product)
+{
+	$productList[] =
+		[
+			'title' => $product->title,
+			'description' => $product->description,
+			'price' => $product->price,
+			'id' => $product->id,
+			'isActive' => (int) $product->isActive,
+			'addedAt' => $product->addedAt,
+			'editedAt' => $product->editedAt
+		];
+
+}
+?>
 
 <div class="table__container">
-	<div id="item-list">
-		<?php $this->getVariable('data')->display(); ?>
-	</div>
+	<div id="item-list"></div>
 	<div class="form__box">
 		<?php $this->getVariable('form')->display(); ?>
 	</div>
@@ -17,8 +37,10 @@
 
 	const mainProductList = new ProductList({
 		attachToNodeId: 'item-list',
-		items: <?= \Up\Util\Json::encode($productList) ?>
+		items: <?= \Up\Util\Json::encode($productList) ?>,
+		columns: <?= \Up\Util\Json::encode($columns) ?>,
 	});
 
 	mainProductList.render();
 </script>
+

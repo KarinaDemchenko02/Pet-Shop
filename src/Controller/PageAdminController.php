@@ -41,14 +41,14 @@ class PageAdminController extends BaseController
 		$products = ProductService::getAllProductsForAdmin($page);
 		$columnsProducts = ProductService::getColumn();
 
-		$orders = OrderService::getAllOrder();
-		$columnsOrders = OrderService::gelColumn();
+//		$orders = OrderService::getAllOrder();
+//		$columnsOrders = OrderService::gelColumn();
 
 		$template = $this->engine->getPageTemplate([
 			'products' => $products,
-			'orders' => $orders,
+//			'orders' => $orders,
 			'columnsProducts' => $columnsProducts,
-			'columnsOrders' => $columnsOrders
+//			'columnsOrders' => $columnsOrders
 		]);
 
 		$template->display();

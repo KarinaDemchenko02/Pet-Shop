@@ -6,7 +6,8 @@ export class ProductList
 	rootNode;
 	itemsContainer;
 	items = [];
-	constructor({ attachToNodeId = '', items })
+	columns= [];
+	constructor({ attachToNodeId = '', items, columns })
 	{
 		if (attachToNodeId === '')
 		{
@@ -24,13 +25,17 @@ export class ProductList
 			return this.createItem(itemData)
 		})
 
+		this.columns = columns;
+
 		this.createItemsContainer()
 	}
+
 
 	createItem(itemData)
 	{
 		itemData.removeButtonHandler = this.handleRemoveButtonClick.bind(this);
 		itemData.editButtonHandler = this.handleEditButtonClick.bind(this);
+		itemData.restoreButtonHandler = this.handleRestoreButtonClick.bind(this);
 		return new ProductItem(itemData);
 	}
 
@@ -49,6 +54,7 @@ export class ProductList
 	handleRemoveButtonClick(item)
 	{
 		const itemIndex = this.items.indexOf(item);
+
 		if (itemIndex > -1)
 		{
 			const shouldRemove = confirm(`Are you sure you want to delete this product: ${item.title}?`)
@@ -77,7 +83,7 @@ export class ProductList
 				.then((response) => {
 					if (response.result === 'Y')
 					{
-						this.items.splice(itemIndex, 1);
+						this.items[itemIndex].isActive = false;
 						this.render();
 					}
 					else
@@ -88,36 +94,93 @@ export class ProductList
 				.catch((error) => {
 					console.error('Error while deleting item.');
 				})
+				.finally()
+				{
+					const buttonRemove = document.getElementById(item.id + 'remove');
+					buttonRemove.disabled = true;
+				}
+
+		}
+	}
+
+	handleRestoreButtonClick(item)
+	{
+		const itemIndex = this.items.indexOf(item);
+		if (itemIndex > -1)
+		{
+			const shouldRemove = confirm(`Are you sure you want to restore this product: ${item.title}?`)
+			if (!shouldRemove)
+			{
+				return;
+			}
+
+			const removeParams = {
+				id: item.id,
+			}
+
+			fetch(
+				'/admin/restore/',
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json;charset=utf-8'
+					},
+					body: JSON.stringify(removeParams),
+				}
+			)
+				.then((response) => {
+					return response.json();
+				})
+				.then((response) => {
+					if (response.result === 'Y')
+					{
+						this.items[itemIndex].isActive = true;
+						this.render();
+					}
+					else
+					{
+						console.error('Error while deleting item.');
+					}
+				})
+				.catch((error) => {
+					console.error('Error while deleting item.');
+				})
+				.finally()
+				{
+					const buttonRestore = document.getElementById(item.id + 'restore');
+					buttonRestore.disabled = true;
+				}
 		}
 	}
 	render()
 	{
 		this.itemsContainer.innerHTML = '';
 
-		const row = document.createElement('div');
-		row.classList.add('row', 'product__row');
+		const table = document.createElement('table');
+		table.classList.add('table');
 
-		const titleColumn = document.createElement('div');
-		titleColumn.classList.add('col-3');
-		titleColumn.innerText = 'Title';
+		const containerColumn = document.createElement('tr');
+		containerColumn.classList.add('table__tr');
 
-		const descriptionColumn = document.createElement('div');
-		descriptionColumn.classList.add('col-3');
-		descriptionColumn.innerText = 'Description';
+		this.columns.forEach(column => {
+			const tableColumn = document.createElement('th');
+			tableColumn.classList.add('table__th', 'table__th-heading');
+			tableColumn.innerText = column;
 
-		const priceColumn = document.createElement('div');
-		priceColumn.classList.add('col-3');
-		priceColumn.innerText = 'Price';
+			containerColumn.append(tableColumn);
+		})
 
-		const actionsColumn = document.createElement('div');
-		actionsColumn.classList.add('col-3');
-		actionsColumn.innerText = 'Actions';
+		const columnAction = document.createElement('th');
+		columnAction.classList.add('table__th', 'table__th-heading');
+		columnAction.innerText = 'действие';
 
-		row.append(titleColumn, descriptionColumn, priceColumn, actionsColumn)
-		this.itemsContainer.append(row);
+		containerColumn.append(columnAction);
+		table.append(containerColumn);
+
+		this.itemsContainer.append(table);
 
 		this.items.forEach((item) => {
-			this.itemsContainer.append(item.render());
+			table.append(item.render());
 		})
 	}
 }
