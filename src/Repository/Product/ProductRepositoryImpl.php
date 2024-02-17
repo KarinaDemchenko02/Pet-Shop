@@ -296,7 +296,7 @@ class ProductRepositoryImpl implements ProductRepository
 					$row['isActive'],
 					$row['addedAt'],
 					$row['editedAt'],
-					$row['path']
+					"/images/productImages/productImages.png",
 				);
 			}
 			if (!is_null($row['tagId']))
