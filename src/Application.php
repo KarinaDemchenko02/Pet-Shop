@@ -12,7 +12,7 @@ class Application
 	public function run()
 	{
 		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
-		//Util\Database\Migration::migrate($connection);
+		Util\Database\Migration::migrate($connection);
 
 		$imagesCompressed = new \Up\Compression\CompressionImages
 		(
