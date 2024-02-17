@@ -85,6 +85,11 @@ class ProductService
 		ProductRepositoryImpl::add($productAddingDto);
 	}
 
+	public static function restoreProduct(int $id): void
+	{
+		ProductRepositoryImpl::restore($id);
+	}
+
 	public static function getColumn()
 	{
 		return ProductRepositoryImpl::getColumn();
