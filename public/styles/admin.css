@@ -56,7 +56,7 @@ td {
 }
 
 .table {
-	width: 80%;
+	width: 100%;
 }
 
 .table__th_button {
@@ -70,20 +70,35 @@ td {
 }
 
 .table__button {
-	padding: 5px 10px;
+	position: relative;
+	padding: 5px 26px !important;
 	border: none;
 	border-radius: 3px;
 	color: #ffffff;
 	cursor: pointer;
 }
 
+.table__button:disabled {
+	opacity: 0.5;
+	pointer-events: none;
+}
+
+.table__button:disabled .spinner-action {
+	display: inline-block;
+}
+
 .table__button_edit {
 	margin-right: 15px;
-	background-color: #2ca02c;
+	background-color: #2ca02c !important;
 }
 
 .table__button_delete {
-	background-color: #a40000;
+	margin-right: 15px;
+	background-color: #a40000 !important;
+}
+
+.table__button_restore {
+	background-color: #005cbf !important;
 }
 
 .table__heading {
@@ -248,4 +263,20 @@ td {
 
 .table__button-add:hover {
 	background-color: #2ca02c;
+}
+
+#item-list {
+	width: 100%;
+}
+
+.table>:not(caption)>*>* {
+	background-color: initial;
+}
+
+.spinner-action {
+	position: absolute;
+	margin-left: 5px;
+	width: 15px;
+	height: 15px;
+	display: none;
 }

@@ -12,7 +12,9 @@ Router::post('/deleteFromBasket/:id/', new \Up\Controller\BasketController(), 'd
 Router::get('/admin/', new \Up\Controller\PageAdminController(), 'indexAction');
 Router::post('/admin/logIn/', new \Up\Controller\AuthController(), 'logInAdminAction');
 
-Router::post('/admin/action/', new \Up\Controller\MultipleController(), 'processAction');
+//Router::post('/admin/action/', new \Up\Controller\MultipleController(), 'processAction');
+Router::post('/admin/remove/', new \Up\Controller\DisableController(), 'disableAction');
+Router::post('/admin/restore/', new \Up\Controller\RestoreController(), 'restoreAction');
 
 Router::post('/product/:id/', new \Up\Controller\PageDetailController(), 'buyProductAction');
 

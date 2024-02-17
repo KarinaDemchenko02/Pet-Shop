@@ -189,6 +189,23 @@ class ProductRepositoryImpl implements ProductRepository
 		}
 	}
 
+	public static function restore($id): void
+	{
+		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
+		try
+		{
+			mysqli_begin_transaction($connection);
+			$disableProductSQL = "UPDATE up_item SET is_active=1 where id = {$id}";
+			QueryResult::getQueryResult($disableProductSQL);
+			mysqli_commit($connection);
+		}
+		catch (\Throwable $e)
+		{
+			mysqli_rollback($connection);
+			throw $e;
+		}
+	}
+
 	public static function change(ProductChangeDto $productChangeDto): void
 	{
 		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
