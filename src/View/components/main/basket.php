@@ -6,4 +6,7 @@
 	<ul class="basket__list">
 		<?php foreach ($this->getVariable('items') as $item) {$item->display();} ?>
 	</ul>
+	<form method="post" action="/createOrder/">
+		<button class="basket__buy">Купить</button>
+	</form>
 </div>

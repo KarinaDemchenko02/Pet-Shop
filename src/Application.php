@@ -24,7 +24,7 @@ class Application
 
 		if (!isset($shoppingSession) && is_null($user))
 		{
-			Session::set('shoppingSession', new ShoppingSession(null, null, [], null, null));
+			Session::set('shoppingSession', new ShoppingSession(null, null, []));
 		}
 
 		$route = \Up\Routing\Router::find($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);

@@ -19,3 +19,7 @@ Router::post('/admin/restore/', new \Up\Controller\RestoreController(), 'restore
 Router::post('/product/:id/', new \Up\Controller\PageDetailController(), 'buyProductAction');
 
 Router::get('/success/', new \Up\Controller\PageDetailController(), 'showModalSuccess');
+
+Router::post('/upload/', new \Up\Controller\PageAdminController(), 'uploadAction');
+
+Router::post('/createOrder/', new \Up\Controller\OrderController(), 'createOrder');

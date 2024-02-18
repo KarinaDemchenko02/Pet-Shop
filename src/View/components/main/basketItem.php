@@ -16,5 +16,4 @@
 		</button>
 	</div>
 	<span class="basket__price"><?=$this->getVariable('price')?>₽</span>
-	<button class="basket__buy">Купить</button>
 </li>
