@@ -29,7 +29,7 @@ class OrderService
 			{
 				$ordersDto[] = new OrderAddingAdminDto(
 					$order->id,
-					$product->id,
+					$product->info->id,
 					is_null($order->user) ? null : $order->user->id,
 					$order->deliveryAddress,
 					$order->createdAt,

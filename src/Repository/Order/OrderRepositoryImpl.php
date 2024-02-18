@@ -11,9 +11,10 @@ use Up\Util\Database\Query;
 
 class OrderRepositoryImpl implements OrderRepository
 {
-	private const SELECT_SQL = "select up_order.id, item_id, user_id, delivery_address, created_at , title as status, name, surname
+	private const SELECT_SQL = "select up_order.id, item_id, user_id, delivery_address, created_at, edited_at , title as status, name, surname, quantities
 				from up_order inner join up_order_item uoi on up_order.id = uoi.order_id
-				left join up_status us on up_order.status_id = us.id";
+				left join up_status us on up_order.status_id = us.id ";
+
 	public static function getAll(): array
 	{
 		$query = Query::getInstance();
@@ -26,10 +27,7 @@ class OrderRepositoryImpl implements OrderRepository
 	public static function getById(int $id): Entity\Order
 	{
 		$query = Query::getInstance();
-		$sql = "select up_order.id, item_id, user_id, delivery_address, created_at ,title as status
-				from up_order inner join up_order_item uoi on up_order.id = uoi.order_id
-				left join up_status us on up_order.status_id = us.id
-				where up_order.id = {$id}";
+		$sql =  self::SELECT_SQL . "where up_order.id = {$id}";
 		$result = $query->getQueryResult($sql);
 
 		return self::createOrderList($result)[$id];
@@ -49,6 +47,7 @@ class OrderRepositoryImpl implements OrderRepository
 					$user,
 					$row['delivery_address'],
 					$row['created_at'],
+					$row['edited_at'],
 					$row['status'],
 					$row['name'],
 					$row['surname']
@@ -56,7 +55,7 @@ class OrderRepositoryImpl implements OrderRepository
 			}
 			if (!is_null($row['item_id']))
 			{
-				$orders[$row['id']]->addProduct(ProductRepositoryImpl::getById($row['item_id']));
+				$orders[$row['id']]->addProduct(new Entity\ProductQuantity(ProductRepositoryImpl::getById($row['item_id']), $row['quantities']));
 			}
 		}
 
@@ -94,6 +93,55 @@ class OrderRepositoryImpl implements OrderRepository
 		}
 	}
 
+	public static function delete($id)
+	{
+		$query = Query::getInstance();
+		try
+		{
+			$query->begin();
+			$deleteLinkOrderSQL = "DELETE FROM up_order_item WHERE order_id=$id";
+			$query->getQueryResult($deleteLinkOrderSQL);
+			$deleteOrderSQL = "DELETE FROM up_order WHERE id=$id";
+			$query->getQueryResult($deleteOrderSQL);
+			$query->commit();
+		}
+		catch (\Throwable $e)
+		{
+			$query->rollback();
+			throw $e;
+		}
+	}
+
+	public static function change(Entity\Order $order)
+	{
+		$query = Query::getInstance();
+		$time = new \DateTime();
+		$now = $time->format('Y-m-d H:i:s');
+		$itemIds = implode(", ", self::getItemsIds($order->getProducts()));
+		try
+		{
+			$query->begin();
+			$changeOrderSQL = "UPDATE up_order SET edited_at='{$now}' WHERE id={$order->id}";
+			$query->getQueryResult($changeOrderSQL);
+			$deleteItemLinkSQL = "DELETE FROM up_order_item WHERE item_id NOT IN ($itemIds)";
+			$query->getQueryResult($deleteItemLinkSQL);
+			foreach ($order->getProducts() as $item)
+			{
+				$addLinkToItemSQL = "INSERT IGNORE INTO up_order_item (order_id, item_id, quantities, price)
+									VALUES ({$order->id}, {$item->info->id}, {$item->getQuantity()}, {$item->info->price})";
+				$query->getQueryResult($addLinkToItemSQL);
+			}
+			$query->commit();
+
+		}
+		catch (\Throwable $e)
+		{
+			$query->rollback();
+			throw $e;
+		}
+
+	}
+
 	public static function getColumn(): array
 	{
 		$query = Query::getInstance();
@@ -108,5 +156,16 @@ class OrderRepositoryImpl implements OrderRepository
 		}
 
 		return $columns;
+	}
+
+	private static function getItemsIds(array $items)
+	{
+		$itemIds = [];
+		foreach ($items as $item)
+		{
+			$itemIds[] = $item->info->id;
+		}
+
+		return $itemIds;
 	}
 }

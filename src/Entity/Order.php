@@ -9,6 +9,7 @@ class Order implements Entity
 	public readonly ?User $user;
 	public readonly string $deliveryAddress;
 	public readonly int $createdAt;
+	public readonly int $editedAt;
 	public readonly string $status;
 	public readonly ?string $name;
 	public readonly ?string $surname;
@@ -19,6 +20,7 @@ class Order implements Entity
 		?User   $user,
 		string $deliveryAddress,
 		string $createdAt,
+		string $editedAt,
 		string $status,
 		?string $name,
 		?string $surname
@@ -29,14 +31,15 @@ class Order implements Entity
 		$this->user = $user;
 		$this->deliveryAddress = $deliveryAddress;
 		$this->createdAt = strtotime($createdAt);
+		$this->editedAt = strtotime($editedAt);
 		$this->status = $status;
 		$this->name = $name;
 		$this->surname = $surname;
 	}
 
-	public function addProduct(Product $product)
+	public function addProduct(ProductQuantity $product)
 	{
-		$this->products[$product->id]=$product;
+		$this->products[$product->info->id] = $product;
 	}
 
 	public function getProducts(): array
