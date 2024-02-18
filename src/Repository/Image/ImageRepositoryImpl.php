@@ -26,6 +26,13 @@ class ImageRepositoryImpl implements ImageRepository
 		return self::createImageList($result);
 	}
 
+	public static function delete($id)
+	{
+		$query = Query::getInstance();
+		$deleteImageSQL = "DELETE FROM up_image WHERE id={$id}";
+		$query->getQueryResult($deleteImageSQL);
+	}
+
 	private static function createImageList(\mysqli_result $result): array
 	{
 		$images = [];

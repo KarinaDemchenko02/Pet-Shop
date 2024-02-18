@@ -3,12 +3,14 @@
 namespace Up\Controller;
 
 use Up\Dto\OrderAddingDto;
+use Up\Entity\ProductQuantity;
+use Up\Entity\ShoppingSession;
 use Up\Exceptions\Service\OrderService\OrderNotCompleted;
+use Up\Repository\Product\ProductRepositoryImpl;
 use Up\Service\OrderService\OrderService;
 use Up\Service\ProductService\ProductService;
 use Up\Util\Session;
 use Up\Util\TemplateEngine\PageDetailTemplateEngine;
-use Up\Util\TemplateEngine\Template;
 
 class PageDetailController extends BaseController
 {
@@ -16,14 +18,17 @@ class PageDetailController extends BaseController
 	{
 		$this->engine = new PageDetailTemplateEngine();
 	}
+
 	public function showProductAction(int $id)
 	{
 		$product = ProductService::getProductById($id);
 		$template = $this->engine->getPageTemplate(['productDto' => $product, 'isLogIn' => $this->isLogIn()]);
 		$template->display();
 	}
+
 	public function buyProductAction(int $id)
 	{
+		$product = ProductRepositoryImpl::getById($id);
 		try
 		{
 			if ($this->isLogIn())
@@ -36,11 +41,9 @@ class PageDetailController extends BaseController
 			}
 
 			$orderDto = new OrderAddingDto(
-				$userId,
-				$_POST['name'],
-				$_POST['surname'],
-				$_POST['address'],
-				$id,
+				new ShoppingSession(
+					null, $userId, [new ProductQuantity($product, 1)]
+				), $_POST['name'], $_POST['surname'], $_POST['address'],
 			);
 			OrderService::buyProduct($orderDto);
 			header('Location: /success/');
@@ -50,7 +53,9 @@ class PageDetailController extends BaseController
 			echo "fail";
 		}
 	}
-	public function showModalSuccess(): void {
+
+	public function showModalSuccess(): void
+	{
 		$this->engine->viewModalSuccess()->display();
 	}
 }

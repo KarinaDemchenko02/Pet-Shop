@@ -50,7 +50,7 @@ class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
 			{
 				$id = $row['id'];
 				$shoppingSessions[$id] = new ShoppingSession(
-					$id, $row['user_id'], [], $row['created_at'], $row['updated_at']
+					$id, $row['user_id'], []
 				);
 			}
 			if (!is_null($row['item_id']))
@@ -113,6 +113,25 @@ class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
 					VALUES ({$item->info->id}, {$shoppingSession->id}, {$item->getQuantity()})";
 				$query->getQueryResult($addLinkToTagSQL);
 			}
+			$query->commit();
+		}
+		catch (\Throwable $e)
+		{
+			$query->rollback();
+			throw $e;
+		}
+	}
+
+	public static function delete($id)
+	{
+		$query = Query::getInstance();
+		try
+		{
+			$query->begin();
+			$deleteLinkShoppingSessionSQL = "DELETE FROM up_shopping_session_item WHERE shopping_session_id=$id";
+			$query->getQueryResult($deleteLinkShoppingSessionSQL);
+			$deleteShoppingSessionSQL = "DELETE FROM up_shopping_session WHERE id=$id";
+			$query->getQueryResult($deleteShoppingSessionSQL);
 			$query->commit();
 		}
 		catch (\Throwable $e)

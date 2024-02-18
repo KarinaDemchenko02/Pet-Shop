@@ -7,16 +7,12 @@ class ShoppingSession implements Entity
 	readonly ?int $id;
 	readonly ?int $userId;
 	private array $products;
-	readonly ?string $createdAt;
-	readonly ?string $updatedAt;
 
-	public function __construct(?int $id, ?int $userId, array $products, ?string $createdAt, ?string $updatedAt)
+	public function __construct(?int $id, ?int $userId, array $products)
 	{
 		$this->id = $id;
 		$this->userId = $userId;
 		$this->products = $products;
-		$this->createdAt = $createdAt;
-		$this->updatedAt = $updatedAt;
 	}
 
 	public function getProducts(): array
@@ -36,7 +32,6 @@ class ShoppingSession implements Entity
 			unset($this->products[$product->id]);
 		}
 	}
-
 }
 
 /*

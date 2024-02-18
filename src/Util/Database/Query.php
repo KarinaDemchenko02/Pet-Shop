@@ -69,6 +69,11 @@ class Query
 		return mysqli_affected_rows($this->connection);
 	}
 
+	public function getError()
+	{
+		return mysqli_error($this->connection);
+	}
+
 	public static function getInstance(): Query
 	{
 		if (static::$instance)

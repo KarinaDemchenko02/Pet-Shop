@@ -27,7 +27,7 @@ class OrderRepositoryImpl implements OrderRepository
 	public static function getById(int $id): Entity\Order
 	{
 		$query = Query::getInstance();
-		$sql =  self::SELECT_SQL . "where up_order.id = {$id}";
+		$sql = self::SELECT_SQL . "where up_order.id = {$id}";
 		$result = $query->getQueryResult($sql);
 
 		return self::createOrderList($result)[$id];
@@ -55,7 +55,9 @@ class OrderRepositoryImpl implements OrderRepository
 			}
 			if (!is_null($row['item_id']))
 			{
-				$orders[$row['id']]->addProduct(new Entity\ProductQuantity(ProductRepositoryImpl::getById($row['item_id']), $row['quantities']));
+				$orders[$row['id']]->addProduct(
+					new Entity\ProductQuantity(ProductRepositoryImpl::getById($row['item_id']), $row['quantities'])
+				);
 			}
 		}
 
@@ -78,12 +80,13 @@ class OrderRepositoryImpl implements OrderRepository
 
 			$query->getQueryResult($addNewShoppingSessionSQL);
 			$last = $query->last();
-			$price = ProductRepositoryImpl::getById($order->productId)->price;
-
-			$addLinkToItemSQL = "INSERT INTO up_order_item (order_id, item_id, quantities, price)
-									VALUES ({$last}, {$order->productId}, 1, {$price})";
-
-			$query->getQueryResult($addLinkToItemSQL);
+			foreach ($order->products as $product)
+			{
+				$addLinkToItemSQL = "INSERT INTO up_order_item (order_id, item_id, quantities, price)
+									VALUES ({$last}, {$product->info->id},
+											{$product->getQuantity()}, {$product->info->price})";
+				$query->getQueryResult($addLinkToItemSQL);
+			}
 			$query->commit();
 		}
 		catch (\Throwable)
