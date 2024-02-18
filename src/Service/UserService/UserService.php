@@ -23,11 +23,32 @@ class UserService
 		return new UserDto($user);
 	}
 
+	public static function getUserById(int $id): UserDto
+	{
+		$user = UserRepositoryImpl::getById($id);
+
+		return new UserDto($user);
+	}
+
 	/**
 	 * @throws UserAdding
 	 */
 	public static function addUser(UserAddingDto $userAddingDto): void
 	{
 		UserRepositoryImpl::add($userAddingDto);
+	}
+
+	public static function changeUser($id, $name, $email, $phoneNumber, $password): void
+	{
+		if (empty($password))
+		{
+			$password =  self::getUserById($id)->password;
+		}
+		else
+		{
+			$password = password_hash($password, PASSWORD_DEFAULT);
+		}
+
+		UserRepositoryImpl::change($id, $name, $email, $phoneNumber, $password);
 	}
 }
