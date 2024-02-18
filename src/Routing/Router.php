@@ -34,7 +34,15 @@ class Router
 	}
 	public static function put(string $uri, object $controller, string $action)
 	{
-		self::add('POST', $uri, $controller, $action);
+		self::add('PUT', $uri, $controller, $action);
+	}
+	public static function patch(string $uri, object $controller, string $action)
+	{
+		self::add('PATCH', $uri, $controller, $action);
+	}
+	public static function delete(string $uri, object $controller, string $action)
+	{
+		self::add('DELETE', $uri, $controller, $action);
 	}
 	public static function find(string $REQUEST_METHOD, string $REQUEST_URI): Route|false
 	{

@@ -5,8 +5,8 @@ namespace Up\Auth;
 
 use Up\Dto\UserAddingDto;
 use Up\Dto\UserDto;
-use Up\Exceptions\Service\UserService\UserAdding;
-use Up\Exceptions\Service\UserService\UserNotFound;
+use Up\Exceptions\User\UserAdding;
+use Up\Exceptions\User\UserNotFound;
 use Up\Service\UserService\UserService;
 
 class Auth

@@ -1,6 +1,6 @@
 <?php
 
-namespace Up\Exceptions\Service\AdminService;
+namespace Up\Exceptions\Admin;
 class ProductNotAdd extends \Exception
 {
 

@@ -1,10 +1,12 @@
 import { ProductItem } from "./product-item.js";
+import {ChangeForm} from "./change-form.js";
 
 export class ProductList
 {
 	attachToNodeId = '';
 	rootNode;
 	itemsContainer;
+	form;
 	items = [];
 	columns= [];
 	constructor({ attachToNodeId = '', items, columns })
@@ -28,13 +30,15 @@ export class ProductList
 		this.columns = columns;
 
 		this.createItemsContainer()
+
+		this.createFormBox();
 	}
 
 
 	createItem(itemData)
 	{
 		itemData.removeButtonHandler = this.handleRemoveButtonClick.bind(this);
-		itemData.editButtonHandler = this.handleEditButtonClick.bind(this);
+		itemData.openEditButtonHandler = this.handleOpenEditButtonClick.bind(this);
 		itemData.restoreButtonHandler = this.handleRestoreButtonClick.bind(this);
 		return new ProductItem(itemData);
 	}
@@ -47,10 +51,91 @@ export class ProductList
 		this.rootNode.append(this.itemsContainer);
 	}
 
-	handleEditButtonClick(item)
+	handleOpenEditButtonClick(item)
 	{
-		console.log(1);
+		this.form.formBox.style.display = 'block';
 	}
+
+	handleAcceptEditButtonClick(item)
+	{
+
+		const itemIndex = this.items.indexOf(item);
+		console.log(item);
+		if (itemIndex > -1)
+		{
+			const shouldRemove = confirm(`Are you sure you want to delete this product: ${item.title}?`)
+			if (!shouldRemove)
+			{
+				return;
+			}
+
+			const title = document.getElementById('title').value;
+			const desc = document.getElementById('desc').value;
+			const price = document.getElementById('price').value;
+			const tags = document.getElementById('tags').value;
+
+			const changeParams = {
+				id: item.id,
+				title: title,
+				description: desc,
+				price: price,
+				tags: tags,
+			}
+
+			fetch(
+				'/admin/product/change/',
+				{
+					method: 'PATCH',
+					headers: {
+						'Content-Type': 'application/json;charset=utf-8'
+					},
+					body: JSON.stringify(changeParams),
+				}
+			)
+				.then((response) => {
+					return response.json();
+				})
+				.then((response) => {
+					if (response.result === true)
+					{
+						this.items[itemIndex].title = title;
+						this.items[itemIndex].description = desc;
+						this.items[itemIndex].price = price;
+						this.items[itemIndex].tags = tags;
+						this.render();
+					}
+					else
+					{
+						console.error(response.errors);
+					}
+				})
+				.catch((error) => {
+					console.error('Error while changing item.');
+				})
+				.finally()
+			{
+				const buttonRemove = document.getElementById(item.id + 'remove');
+				buttonRemove.disabled = true;
+			}
+
+		}
+	}
+
+	handleCloseEditButtonClick(item)
+	{
+		this.form.formBox.style.display = 'none';
+	}
+
+	createFormBox()
+	{
+		this.form = new ChangeForm(
+			this.handleAcceptEditButtonClick.bind(this),
+			this.handleCloseEditButtonClick.bind(this)
+		);
+		this.rootNode.append(this.form.render());
+	}
+
+
 	handleRemoveButtonClick(item)
 	{
 		const itemIndex = this.items.indexOf(item);
@@ -71,9 +156,9 @@ export class ProductList
 			buttonRemove.disabled = true;
 
 			fetch(
-				'/product/remove/',
+				'/admin/product/disable/',
 				{
-					method: 'POST',
+					method: 'PATCH',
 					headers: {
 						'Content-Type': 'application/json;charset=utf-8'
 					},
@@ -84,7 +169,7 @@ export class ProductList
 					return response.json();
 				})
 				.then((response) => {
-					if (response.result === 'Y')
+					if (response.result === true)
 					{
 						this.items[itemIndex].isActive = false;
 						buttonRemove.disabled = false;
@@ -92,7 +177,7 @@ export class ProductList
 					}
 					else
 					{
-						console.error('Error while deleting item.');
+						console.error(response.errors);
 						buttonRemove.disabled = false;
 					}
 				})
@@ -122,9 +207,9 @@ export class ProductList
 			buttonRestore.disabled = true;
 
 			fetch(
-				'/admin/restore/',
+				'/admin/product/restore/',
 				{
-					method: 'POST',
+					method: 'PATCH',
 					headers: {
 						'Content-Type': 'application/json;charset=utf-8'
 					},
@@ -135,7 +220,7 @@ export class ProductList
 					return response.json();
 				})
 				.then((response) => {
-					if (response.result === 'Y')
+					if (response.result === true)
 					{
 						this.items[itemIndex].isActive = true;
 						buttonRestore.disabled = false;
@@ -143,7 +228,7 @@ export class ProductList
 					}
 					else
 					{
-						console.error('Error while deleting item.');
+						console.error(response.errors);
 						buttonRestore.disabled = false;
 					}
 				})

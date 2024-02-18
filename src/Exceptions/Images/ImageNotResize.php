@@ -1,6 +1,7 @@
 <?php
 
-namespace Up\Exceptions\Service\ImagesService;
+namespace Up\Exceptions\Images;
+
 class ImageNotResize extends \Exception
 {
 

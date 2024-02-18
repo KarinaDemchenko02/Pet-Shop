@@ -2,8 +2,8 @@
 
 namespace Up\Util\Compression;
 
-use Up\Exceptions\Service\ImagesService\ImageNotCopy;
-use Up\Exceptions\Service\ImagesService\ImageNotResize;
+use Up\Exceptions\Images\ImageNotCopy;
+use Up\Exceptions\Images\ImageNotResize;
 
 class CompressionImages
 {

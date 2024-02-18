@@ -1,6 +1,6 @@
 <?php
 
-namespace Up\Exceptions\Service\UserService;
+namespace Up\Exceptions\User;
 
 class UserAdding extends \Exception
 {

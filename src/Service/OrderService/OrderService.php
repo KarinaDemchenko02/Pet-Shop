@@ -4,7 +4,7 @@ namespace Up\Service\OrderService;
 
 use Up\Dto\OrderAddingAdminDto;
 use Up\Dto\OrderAddingDto;
-use Up\Exceptions\Service\OrderService\OrderNotCompleted;
+use Up\Exceptions\Order\OrderNotCompleted;
 use Up\Repository\Order\OrderRepositoryImpl;
 
 class OrderService

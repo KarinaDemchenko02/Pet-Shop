@@ -1,6 +1,6 @@
 <?php
 
-namespace Up\Exceptions\Service\ImagesService;
+namespace Up\Exceptions\Images;
 class ImageNotCopy extends \Exception
 {
 

@@ -15,6 +15,7 @@ class ProductDtoAdmin implements Dto
 	public readonly bool $isActive;
 	public readonly int $addedAt;
 	public readonly int $editedAt;
+	public readonly array $tags;
 
 	public function __construct(Product $product)
 	{
@@ -25,6 +26,7 @@ class ProductDtoAdmin implements Dto
 		$this->isActive = $product->isActive;
 		$this->addedAt = $product->addedAt;
 		$this->editedAt = $product->editedAt;
+		$this->tags = $product->getTags();
 	}
 
 	public static function from(Entity $entity): void

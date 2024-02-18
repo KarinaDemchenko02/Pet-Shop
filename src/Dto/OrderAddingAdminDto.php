@@ -12,7 +12,7 @@ class OrderAddingAdminDto implements Dto
 		public readonly ?int $userId,
 		public readonly string $deliveryAddress,
 		public readonly string $createdAt,
-		public readonly string $name,
+		public readonly ?string $name,
 		public readonly string $surname,
 
 

@@ -4,7 +4,7 @@ namespace Up\Repository\Order;
 
 use Up\Dto\OrderAddingDto;
 use Up\Entity;
-use Up\Exceptions\Service\OrderService\OrderNotCompleted;
+use Up\Exceptions\Order\OrderNotCompleted;
 use Up\Repository\Product\ProductRepositoryImpl;
 use Up\Repository\User\UserRepositoryImpl;
 use Up\Util\Database\Query;
@@ -19,7 +19,7 @@ class OrderRepositoryImpl implements OrderRepository
 	{
 		$query = Query::getInstance();
 
-		$result = $query->getQueryResult(self::SELECT_SQL);
+		$result = $query::getQueryResult(self::SELECT_SQL);
 
 		return self::createOrderList($result);
 	}
@@ -27,8 +27,8 @@ class OrderRepositoryImpl implements OrderRepository
 	public static function getById(int $id): Entity\Order
 	{
 		$query = Query::getInstance();
-		$sql = self::SELECT_SQL . "where up_order.id = {$id}";
-		$result = $query->getQueryResult($sql);
+		$sql =  self::SELECT_SQL . "where up_order.id = {$id}";
+		$result = $query::getQueryResult($sql);
 
 		return self::createOrderList($result)[$id];
 	}
@@ -55,9 +55,7 @@ class OrderRepositoryImpl implements OrderRepository
 			}
 			if (!is_null($row['item_id']))
 			{
-				$orders[$row['id']]->addProduct(
-					new Entity\ProductQuantity(ProductRepositoryImpl::getById($row['item_id']), $row['quantities'])
-				);
+				$orders[$row['id']]->addProduct(new Entity\ProductQuantity(ProductRepositoryImpl::getById($row['item_id'], true), $row['quantities']));
 			}
 		}
 

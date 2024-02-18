@@ -7,11 +7,12 @@ export class ProductItem
 	addedAt;
 	editedAt;
 	isActive;
-	editButtonHandler;
+	tags;
+	openEditButtonHandler;
 	removeButtonHandler;
 	restoreButtonHandler;
 
-	constructor({ id, title, description, price, addedAt, editedAt, isActive, editButtonHandler, removeButtonHandler, restoreButtonHandler })
+	constructor({ id, title, description, price, addedAt, editedAt, isActive, tags, openEditButtonHandler, removeButtonHandler, restoreButtonHandler })
 	{
 		this.id = Number(id);
 		this.title = String(title);
@@ -20,10 +21,11 @@ export class ProductItem
 		this.addedAt = String(addedAt);
 		this.editedAt = String(editedAt);
 		this.isActive = Boolean(isActive);
+		this.tags = String(tags);
 
-		if (typeof editButtonHandler === 'function')
+		if (typeof openEditButtonHandler === 'function')
 		{
-			this.editButtonHandler = editButtonHandler;
+			this.openEditButtonHandler = openEditButtonHandler;
 		}
 
 		if (typeof removeButtonHandler === 'function')
@@ -70,6 +72,11 @@ export class ProductItem
 		isActiveColumn.classList.add('table__th');
 		isActiveColumn.innerText = this.isActive;
 
+		const tagColumn = document.createElement('td');
+		tagColumn.classList.add('table__th', 'table__th_price');
+		tagColumn.innerText = this.tags;
+
+
 		const spinnerRemove = document.createElement('div');
 		spinnerRemove.classList.add('spinner-border', 'text-light', 'spinner-action');
 		const spinnerLoadingRemove = document.createElement('span');
@@ -91,10 +98,11 @@ export class ProductItem
 		removeButton.addEventListener('click', this.handleRemoveButtonClick.bind(this));
 		removeButton.append(spinnerRemove);
 
-		const editButton = document.createElement('button')
-		editButton.classList.add('table__button', 'table__button_edit')
+		const editButton = document.createElement('button');
+		editButton.classList.add('table__button', 'table__button_edit');
+		editButton.id = String(this.id) + 'change';
 		editButton.innerText = 'Редактировать';
-		editButton.addEventListener('click', this.handleEditButtonClick.bind(this));
+		editButton.addEventListener('click', this.handleOpenEditButtonClick.bind(this));
 
 		const restoreButton = document.createElement('button');
 		restoreButton.classList.add('table__button', 'table__button_restore');
@@ -107,7 +115,7 @@ export class ProductItem
 		actionsColumn.classList.add('table__th', 'table__th_button');
 		actionsColumn.append(editButton, removeButton, restoreButton);
 
-		trProduct.append(idColumn, titleColumn, descColumn, priceColumn, addedAtColumn, editedAtColumn, isActiveColumn, actionsColumn);
+		trProduct.append(idColumn, titleColumn, descColumn, priceColumn, addedAtColumn, editedAtColumn, isActiveColumn, tagColumn, actionsColumn);
 		return trProduct;
 	}
 
@@ -119,11 +127,11 @@ export class ProductItem
 		}
 	}
 
-	handleEditButtonClick()
+	handleOpenEditButtonClick()
 	{
-		if (this.editButtonHandler)
+		if (this.openEditButtonHandler)
 		{
-			this.editButtonHandler(this);
+			this.openEditButtonHandler(this);
 		}
 	}
 

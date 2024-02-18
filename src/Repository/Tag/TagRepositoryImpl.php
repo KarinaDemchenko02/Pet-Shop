@@ -3,7 +3,7 @@
 namespace Up\Repository\Tag;
 
 use Up\Entity\Tag;
-use Up\Util\Database\QueryResult;
+use Up\Util\Database\Query;
 
 class TagRepositoryImpl implements TagRepository
 {
@@ -13,7 +13,7 @@ class TagRepositoryImpl implements TagRepository
 
 		$sql = "select * from up_tags;";
 
-		$result = QueryResult::getQueryResult($sql);
+		$result = Query::getQueryResult($sql);
 
 		$tags = [];
 
@@ -29,7 +29,7 @@ class TagRepositoryImpl implements TagRepository
 	{
 		$sql = "select * from up_tags where id = {$id};";
 
-		$result = QueryResult::getQueryResult($sql);
+		$result = Query::getQueryResult($sql);
 
 		$row = mysqli_fetch_assoc($result);
 
@@ -40,7 +40,7 @@ class TagRepositoryImpl implements TagRepository
 	{
 		$sql = "INSERT INTO up_tags (name) VALUES ('{$title}');";
 
-		$result = QueryResult::getQueryResult($sql);
+		$result = Query::getQueryResult($sql);
 
 		return true;
 	}

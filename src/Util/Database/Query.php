@@ -6,20 +6,20 @@ class Query
 {
 
 	private static ?Query $instance = null;
-	private \mysqli $connection;
+	private static \mysqli $connection;
 
 	private function __construct()
 	{
-		$this->connection = Connector::getInstance()->getDbConnection();
+		self::$connection = Connector::getInstance()->getDbConnection();
 	}
 
-	public function getQueryResult(string $sql): \mysqli_result|bool
+	public static function getQueryResult(string $sql): \mysqli_result|bool
 	{
-		$result = mysqli_query($this->connection, $sql);
+		$result = mysqli_query(self::$connection, $sql);
 
 		if (!$result)
 		{
-			throw new \RuntimeException(mysqli_error($this->connection));
+			throw new \RuntimeException(mysqli_error(self::$connection));
 		}
 
 		return $result;
@@ -27,51 +27,50 @@ class Query
 
 	public function execute($sql): void
 	{
-		;
-		mysqli_multi_query($this->connection, $sql);
+		mysqli_multi_query(self::$connection, $sql);
 		do
 		{
-			if ($error = mysqli_error($this->connection))
+			if ($error = mysqli_error(self::$connection))
 			{
 				throw new \RuntimeException($error);
 			}
 		}
-		while (mysqli_next_result($this->connection));
+		while (mysqli_next_result(self::$connection));
 	}
 
 	public function begin(): void
 	{
-		mysqli_begin_transaction($this->connection);
+		mysqli_begin_transaction(self::$connection);
 	}
 
 	public function commit(): void
 	{
-		mysqli_commit($this->connection);
+		mysqli_commit(self::$connection);
 	}
 
 	public function rollback(): void
 	{
-		mysqli_rollback($this->connection);
+		mysqli_rollback(self::$connection);
 	}
 
 	public function last(): int|string
 	{
-		return mysqli_insert_id($this->connection);
+		return mysqli_insert_id(self::$connection);
 	}
 
 	public function escape(string $string): string
 	{
-		return mysqli_real_escape_string($this->connection, $string);
+		return mysqli_real_escape_string(self::$connection, $string);
 	}
 
-	public function affectedRows(): int|string
+	public static function affectedRows(): int|string
 	{
-		return mysqli_affected_rows($this->connection);
+		return mysqli_affected_rows(self::$connection);
 	}
 
 	public function getError()
 	{
-		return mysqli_error($this->connection);
+		return mysqli_error(self::$connection);
 	}
 
 	public static function getInstance(): Query
@@ -86,4 +85,3 @@ class Query
 		return static::$instance;
 	}
 }
-

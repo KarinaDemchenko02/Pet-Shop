@@ -5,7 +5,8 @@ namespace Up\Repository\User;
 use Up\Dto\UserAddingDto;
 use Up\Dto\UserDto;
 use Up\Entity\User;
-use Up\Exceptions\Service\UserService\UserAdding;
+use Up\Exceptions\User\UserAdding;
+use Up\Util\Database\Query;
 use Up\Util\Database\QueryResult;
 
 class UserRepositoryImpl implements UserRepository
@@ -38,7 +39,7 @@ class UserRepositoryImpl implements UserRepository
 				from up_users inner join up_role on up_users.role_id = up_role.id
 				where up_users.id = {$id};";
 
-		$result = QueryResult::getQueryResult($sql);
+		$result = Query::getQueryResult($sql);
 
 		$row = mysqli_fetch_assoc($result);
 
@@ -54,7 +55,7 @@ class UserRepositoryImpl implements UserRepository
 				from up_users inner join up_role on up_users.role_id = up_role.id
 				where up_users.email = '{$email}'";
 
-		$result = QueryResult::getQueryResult($sql);
+		$result = Query::getQueryResult($sql);
 
 		$row = mysqli_fetch_assoc($result);
 
@@ -76,7 +77,7 @@ class UserRepositoryImpl implements UserRepository
 	{
 		$sql = "select id from up_role where title = '{$user->roleTitle}';";
 
-		$result = QueryResult::getQueryResult($sql);
+		$result = Query::getQueryResult($sql);
 
 		$row = mysqli_fetch_assoc($result);
 		if (is_null($row))
@@ -94,7 +95,7 @@ class UserRepositoryImpl implements UserRepository
 			$sql = "INSERT INTO up_users (email, password, role_id, tel, name) 
 				VALUES ('{$user->email}', '{$escapedUserPassword}', {$roleId}, '{$user->phoneNumber}', '{$escapedUserName}');";
 
-			QueryResult::getQueryResult($sql);
+			Query::getQueryResult($sql);
 			mysqli_commit($connection);
 		}
 		catch (\Throwable $e)

@@ -1,6 +1,6 @@
 <?php
 
-namespace Up\Exceptions\Service\OrderService;
+namespace Up\Exceptions\Order;
 
 class OrderNotCompleted extends \Exception
 {

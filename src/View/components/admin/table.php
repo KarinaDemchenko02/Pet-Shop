@@ -1,13 +1,16 @@
 <?php
 
-use Up\Util\TemplateEngine\Template;
-
 $products = $this->getVariable('products');
 $columns = $this->getVariable('columnsProducts');
 
 $productList = [];
 foreach ($products as $product)
 {
+	$tags = [];
+	foreach ($product->tags as $tag)
+	{
+		$tags[] = $tag->title;
+	}
 	$productList[] =
 		[
 			'title' => $product->title,
@@ -16,20 +19,22 @@ foreach ($products as $product)
 			'id' => $product->id,
 			'isActive' => (int) $product->isActive,
 			'addedAt' => $product->addedAt,
-			'editedAt' => $product->editedAt
+			'editedAt' => $product->editedAt,
+			'tags' =>implode(", ", $tags),
 		];
 
 }
 ?>
 
 <div class="table__container">
-	<div id="item-list"></div>
-	<div class="form__box">
-		<?php $this->getVariable('form')->display(); ?>
+
+	<div id="item-list">
 	</div>
+
 	<div class="delete__box">
 		<?php $this->getVariable('delete')->display(); ?>
 	</div>
+
 </div>
 
 <script type="module">
@@ -43,4 +48,3 @@ foreach ($products as $product)
 
 	mainProductList.render();
 </script>
-

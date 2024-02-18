@@ -3,9 +3,9 @@
 namespace Up\Controller;
 
 use Up\Dto\OrderAddingDto;
+use Up\Exceptions\Order\OrderNotCompleted;
 use Up\Entity\ProductQuantity;
 use Up\Entity\ShoppingSession;
-use Up\Exceptions\Service\OrderService\OrderNotCompleted;
 use Up\Repository\Product\ProductRepositoryImpl;
 use Up\Service\OrderService\OrderService;
 use Up\Service\ProductService\ProductService;

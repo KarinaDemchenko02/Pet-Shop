@@ -3,7 +3,7 @@
 namespace Up\AdminAction;
 
 use Up\Dto\ProductAddingDto;
-use Up\Exceptions\Service\AdminService\ProductNotAdd;
+use Up\Exceptions\Admin\ProductNotAdd;
 use Up\Service\ProductService\ProductService;
 
 class Add {
