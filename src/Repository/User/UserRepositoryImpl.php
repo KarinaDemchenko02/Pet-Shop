@@ -3,6 +3,7 @@
 namespace Up\Repository\User;
 
 use Up\Dto\UserAddingDto;
+use Up\Dto\UserDto;
 use Up\Entity\User;
 use Up\Exceptions\Service\UserService\UserAdding;
 use Up\Util\Database\QueryResult;
@@ -100,6 +101,30 @@ class UserRepositoryImpl implements UserRepository
 		{
 			mysqli_rollback($connection);
 			throw new UserAdding('Failed to add a user');
+		}
+	}
+
+	public static function change($id, $name, $email, $phoneNumber, $password): void
+	{
+		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
+
+		$escapedName = mysqli_real_escape_string($connection, $name);
+		$escapedEmail = mysqli_real_escape_string($connection, $email);
+		$escapedPhoneNumber = mysqli_real_escape_string($connection, $phoneNumber);
+		$escapedPassword = mysqli_real_escape_string($connection, $password);
+
+		try
+		{
+			mysqli_begin_transaction($connection);
+			$changeUsersSQL = "UPDATE up_users SET name='{$escapedName}', email='{$escapedEmail}', tel= '{$escapedPhoneNumber}', password = '{$escapedPassword}' where id = {$id}";
+			QueryResult::getQueryResult($changeUsersSQL);
+
+			mysqli_commit($connection);
+		}
+		catch (\Throwable $e)
+		{
+			mysqli_rollback($connection);
+			throw $e;
 		}
 	}
 }

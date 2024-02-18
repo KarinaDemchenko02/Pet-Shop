@@ -13,7 +13,7 @@ class PageMainController extends BaseController
 		$this->engine = new PageMainTemplateEngine();
 	}
 
-	public function showProductsAction()
+	public function showProductsAction(): void
 	{
 		$tags = TagService::getAllTags();
 		if (isset($_GET['page']) && is_numeric($_GET['page']) && $_GET['page'] > 0)
