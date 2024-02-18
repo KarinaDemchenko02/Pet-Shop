@@ -17,3 +17,5 @@ Router::post('/admin/remove/', new \Up\Controller\DisableController(), 'disableA
 Router::post('/product/:id/', new \Up\Controller\PageDetailController(), 'buyProductAction');
 
 Router::get('/success/', new \Up\Controller\PageDetailController(), 'showModalSuccess');
+
+Router::post('/upload/', new \Up\Controller\PageAdminController(), 'uploadAction');

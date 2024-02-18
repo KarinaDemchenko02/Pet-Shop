@@ -7,6 +7,7 @@ use Up\Service\OrderService\OrderService;
 use Up\Service\ProductService\ProductService;
 use Up\Util\Json;
 use Up\Util\TemplateEngine\PageAdminTemplateEngine;
+use Up\Util\Upload;
 
 class PageAdminController extends BaseController
 {
@@ -26,10 +27,17 @@ class PageAdminController extends BaseController
 			$this->logInAction();
 		}
 	}
+
+	public function uploadAction(): void
+	{
+		Upload::upload();
+		$this->indexAction();
+	}
 	private function logInAction()
 	{
 		$this->engine->getAuthPageTemplate()->display();
 	}
+
 
 	public function showProductsAction()
 	{
