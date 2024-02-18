@@ -33,8 +33,8 @@ class OrderService
 					is_null($order->user) ? null : $order->user->id,
 					$order->deliveryAddress,
 					$order->createdAt,
-					is_null($order->user) ? null : $order->user->name,
-					'surname',
+					$order->name,
+					$order->surname,
 					(int)$order->status,
 				);
 			}
