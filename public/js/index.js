@@ -118,9 +118,11 @@ buttonMinus.forEach(btn => {
 	})
 })
 
+
 const buttonBasketOpen = document.getElementById('buttonBasket');
 const buttonBasketClose = document.querySelector('.basket__button-close');
 const formBasket = document.querySelector('.basket');
 const objectFormBasket = new Form(buttonBasketOpen, buttonBasketClose, formBasket);
 objectFormBasket.open();
 objectFormBasket.close();
+

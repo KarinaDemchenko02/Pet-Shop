@@ -20,6 +20,8 @@ Router::post('/product/:id/', new \Up\Controller\PageDetailController(), 'buyPro
 
 Router::get('/success/', new \Up\Controller\PageDetailController(), 'showModalSuccess');
 
+Router::get('/account/', new \Up\Controller\PageAccountController(), 'indexAction');
+Router::post('/account/edit/', new \Up\Controller\ChangeController(), 'changeAction');
 Router::post('/upload/', new \Up\Controller\PageAdminController(), 'uploadAction');
 
 Router::post('/createOrder/', new \Up\Controller\OrderController(), 'createOrder');

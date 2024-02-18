@@ -70,7 +70,6 @@ export class ProductItem
 		isActiveColumn.classList.add('table__th');
 		isActiveColumn.innerText = this.isActive;
 
-
 		const spinnerRemove = document.createElement('div');
 		spinnerRemove.classList.add('spinner-border', 'text-light', 'spinner-action');
 		const spinnerLoadingRemove = document.createElement('span');

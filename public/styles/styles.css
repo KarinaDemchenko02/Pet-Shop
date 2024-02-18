@@ -1325,6 +1325,89 @@ button {
 	background-color: #2ca02c;
 }
 
+.account {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+.account__list {
+	display: flex;
+	padding: 20px;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: center;
+	background-color: #ffffff;
+	border-radius: 5px;
+	width: 100%;
+}
+
+.account__label {
+	margin-bottom: 5px;
+}
+
+.account__label-role{
+	display: block;
+	margin-bottom: 15px;
+}
+
+.account__form {
+	width: 60%;
+}
+
+.account__container-input {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	width: 60%;
+}
+
+.account__input {
+	border: none;
+	border-bottom: 1px solid #000000;
+	margin-bottom: 20px;
+	width: 100%;
+}
+
+.account__input:focus {
+	outline: none;
+	border-bottom: 1px solid #2ca02c;
+}
+
+.account__button {
+	position: relative;
+	padding: 10px 34px;
+	margin: 0 auto;
+	border-radius: 20px;
+	border: none;
+	background: linear-gradient(90deg, #1c7430, #2ca02c);
+	color: #ffffff;
+	cursor: pointer;
+}
+
+.spinner-edit {
+	position: absolute;
+	margin-left: 5px;
+	width: 15px;
+	height: 15px;
+	display: none;
+}
+
+.account__button:disabled {
+	opacity: 0.5;
+	pointer-events: none;
+}
+
+.account__button:disabled .spinner-edit {
+	display: inline-block;
+}
+
+.account__image {
+	border-radius: 50%;
+	width: 30%;
+}
+
 .disabled {
 	opacity: 0.5;
 	pointer-events: none;

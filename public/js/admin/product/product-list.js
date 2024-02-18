@@ -67,6 +67,9 @@ export class ProductList
 				id: item.id,
 			}
 
+			const buttonRemove = document.getElementById(item.id + 'remove');
+			buttonRemove.disabled = true;
+
 			fetch(
 				'/product/remove/',
 				{
@@ -84,22 +87,19 @@ export class ProductList
 					if (response.result === 'Y')
 					{
 						this.items[itemIndex].isActive = false;
+						buttonRemove.disabled = false;
 						this.render();
 					}
 					else
 					{
 						console.error('Error while deleting item.');
+						buttonRemove.disabled = false;
 					}
 				})
 				.catch((error) => {
 					console.error('Error while deleting item.');
+					buttonRemove.disabled = false;
 				})
-				.finally()
-				{
-					const buttonRemove = document.getElementById(item.id + 'remove');
-					buttonRemove.disabled = true;
-				}
-
 		}
 	}
 
@@ -118,6 +118,9 @@ export class ProductList
 				id: item.id,
 			}
 
+			const buttonRestore = document.getElementById(item.id + 'restore');
+			buttonRestore.disabled = true;
+
 			fetch(
 				'/admin/restore/',
 				{
@@ -135,21 +138,19 @@ export class ProductList
 					if (response.result === 'Y')
 					{
 						this.items[itemIndex].isActive = true;
+						buttonRestore.disabled = false;
 						this.render();
 					}
 					else
 					{
 						console.error('Error while deleting item.');
+						buttonRestore.disabled = false;
 					}
 				})
 				.catch((error) => {
 					console.error('Error while deleting item.');
+					buttonRestore.disabled = false;
 				})
-				.finally()
-				{
-					const buttonRestore = document.getElementById(item.id + 'restore');
-					buttonRestore.disabled = true;
-				}
 		}
 	}
 	render()
