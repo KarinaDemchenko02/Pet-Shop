@@ -132,7 +132,7 @@ class ProductRepositoryImpl implements ProductRepository
 		return self::createProductList($result);
 	}
 
-	public static function add(ProductAddingDto $productAddingDto): void
+	public static function add(ProductAddingDto $productAddingDto): int
 	{
 		$query = Query::getInstance();
 		try
@@ -158,6 +158,7 @@ class ProductRepositoryImpl implements ProductRepository
 			//				QueryResult::getQueryResult($addLinkToTagSQL);
 			//			}
 			$query->commit();
+			return $lastItem;
 		}
 		catch (\Throwable $e)
 		{

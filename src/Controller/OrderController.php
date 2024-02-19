@@ -48,8 +48,13 @@ class OrderController extends BaseController
 			if (!is_null($shoppingSession->id))
 			{
 				ShoppingSessionRepositoryImpl::delete($shoppingSession->id);
+				$shoppingSession = ShoppingSessionRepositoryImpl::getByUser($shoppingSession->userId);
+				Session::set("shoppingSession", $shoppingSession);
 			}
-			Session::set('shoppingSession', null);
+			else
+			{
+				Session::unset('shoppingSession');
+			}
 			header('Location: /success/');
 		}
 		catch (OrderNotCompleted)

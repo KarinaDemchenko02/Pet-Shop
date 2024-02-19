@@ -37,8 +37,14 @@ class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
 		$sql = self::SELECT_SQL . "where user_id = {$id};";
 
 		$result = $query->getQueryResult($sql);
+		$shoppingSession = self::createShoppingSessionList($result);
+		if (is_array($shoppingSession))
+		{
+			self::add($id, []);
+			return self::getByUser($id);
+		}
 
-		return self::createShoppingSessionList($result);
+		return $shoppingSession;
 	}
 
 	private static function createShoppingSessionList(\mysqli_result $result): array|ShoppingSession
