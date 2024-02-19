@@ -5,6 +5,7 @@ namespace Up\Service\OrderService;
 use Up\Dto\Order\OrderAdding;
 use Up\Dto\Order\OrderAddingAdminDto;
 use Up\Dto\Order\OrderGettingAdminDto;
+use Up\Exceptions\Admin\Order\OrderNotChanged;
 use Up\Exceptions\Admin\Order\OrderNotDeleted;
 use Up\Exceptions\Order\OrderNotCompleted;
 use Up\Repository\Order\OrderRepositoryImpl;
@@ -23,7 +24,6 @@ class OrderService
 	public static function getAllOrder(): array
 	{
 		$orders = OrderRepositoryImpl::getAll();
-
 		$ordersDto = [];
 		foreach ($orders as $order)
 		{
@@ -36,11 +36,10 @@ class OrderService
 				$order->editedAt,
 				$order->name,
 				$order->surname,
-				(int)$order->status,
+				(string)$order->status,
 			);
 
 		}
-
 		return $ordersDto;
 	}
 
@@ -55,5 +54,13 @@ class OrderService
 	public static function deleteOrder(int $id): void
 	{
 		OrderRepositoryImpl::delete($id);
+	}
+
+	/**
+	 * @throws OrderNotChanged
+	 */
+	public static function changeOrder(int $id): void
+	{
+		OrderRepositoryImpl::change($id);
 	}
 }

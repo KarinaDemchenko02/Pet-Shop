@@ -8,13 +8,12 @@ export class OrderItem
 	editedAt;
 	name;
 	surname;
-	statusId;
+	status;
 	editButtonHandler;
 	removeButtonHandler;
 
-	constructor({ id, products, user_id, deliveryAddress, createdAt, editedAt, name, surname, statusId, editButtonHandler, removeButtonHandler })
+	constructor({ id, products, user_id, deliveryAddress, createdAt, editedAt, name, surname, status, editButtonHandler, removeButtonHandler })
 	{
-		/*console.log(Number(createdAt))*/
 		this.id = Number(id);
 		this.products = products;
 		this.user_id = Number(user_id);
@@ -23,7 +22,7 @@ export class OrderItem
 		this.editedAt = new Date(Number(editedAt)*1000).toDateString();
 		this.name = String(name);
 		this.surname = String(surname);
-		this.statusId = Number(statusId);
+		this.status = String(status);
 
 		if (typeof editButtonHandler === 'function')
 		{
@@ -76,7 +75,7 @@ export class OrderItem
 
 		const statusIdColumn = document.createElement('td');
 		statusIdColumn.classList.add('table__th');
-		statusIdColumn.innerText = this.statusId;
+		statusIdColumn.innerText = this.status;
 
 		const spinnerRemove = document.createElement('div');
 		spinnerRemove.classList.add('spinner-border', 'text-light', 'spinner-action');

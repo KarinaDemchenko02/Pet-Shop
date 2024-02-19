@@ -3,18 +3,17 @@
 namespace Up\Repository\Order;
 
 use Up\Dto\Order\OrderAdding;
-use Up\Dto\Order\OrderAddingDto;
 use Up\Dto\Product\ProductAddingDto;
 use Up\Entity;
+use Up\Exceptions\Admin\Order\OrderNotChanged;
 use Up\Exceptions\Admin\Order\OrderNotDeleted;
 use Up\Exceptions\Order\OrderNotCompleted;
-use Up\Repository\Product\ProductRepositoryImpl;
 use Up\Repository\User\UserRepositoryImpl;
 use Up\Util\Database\Query;
 
 class OrderRepositoryImpl implements OrderRepository
 {
-	private const SELECT_SQL = "select up_order.id, item_id, user_id, delivery_address, created_at, edited_at , title as status, name, surname, quantities
+	private const SELECT_SQL = "select up_order.id, item_id, user_id, delivery_address, created_at, edited_at , us.title as status, name, surname, quantities
 				from up_order inner join up_order_item uoi on up_order.id = uoi.order_id
 				left join up_status us on up_order.status_id = us.id ";
 
@@ -30,7 +29,7 @@ class OrderRepositoryImpl implements OrderRepository
 	public static function getById(int $id): Entity\Order
 	{
 		$query = Query::getInstance();
-		$sql =  self::SELECT_SQL . "where up_order.id = {$id}";
+		$sql = self::SELECT_SQL . "where up_order.id = {$id}";
 		$result = $query::getQueryResult($sql);
 
 		return self::createOrderList($result)[$id];
@@ -134,6 +133,9 @@ class OrderRepositoryImpl implements OrderRepository
 		}
 	}
 
+	/**
+	 * @throws OrderNotChanged
+	 */
 	public static function change(Entity\Order $order)
 	{
 		$query = Query::getInstance();
@@ -153,15 +155,17 @@ class OrderRepositoryImpl implements OrderRepository
 									VALUES ({$order->id}, {$item->info->id}, {$item->getQuantity()}, {$item->info->price})";
 				$query::getQueryResult($addLinkToItemSQL);
 			}
+			if (Query::affectedRows() === 0)
+			{
+				throw new OrderNotChanged();
+			}
 			$query->commit();
-
 		}
-		catch (\Throwable $e)
+		catch (\Throwable)
 		{
 			$query->rollback();
-			throw $e;
+			throw new OrderNotChanged();
 		}
-
 	}
 
 	public static function getColumn(): array
@@ -174,6 +178,10 @@ class OrderRepositoryImpl implements OrderRepository
 		$columns = [];
 		while ($column = mysqli_fetch_column($result))
 		{
+			if ($column === 'status_id')
+			{
+				$column = 'status';
+			}
 			$columns[] = $column;
 		}
 

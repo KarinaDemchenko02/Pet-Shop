@@ -13,7 +13,7 @@ class OrderGettingAdminDto implements \Up\Dto\Dto
 		public readonly string $editedAt,
 		public readonly ?string $name,
 		public readonly string $surname,
-		public readonly int $statusId = 2
+		public readonly string $status,
 	)
 	{
 	}

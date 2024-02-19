@@ -79,26 +79,24 @@ export class OrderList
 			return;
 		}
 
-		const id = document.getElementById('productId').innerText;
-		const title = document.getElementById('title').value;
-		const desc = document.getElementById('desc').value;
-		const price = document.getElementById('price').value;
-		const tags = document.getElementById('tags').value;
+		const id = document.getElementById('orderId').innerText;
+		const deliveryAddress = document.getElementById('deliveryAddress').value;
+		const name = document.getElementById('name').value;
+		const surname = document.getElementById('surname').value;
 
 
 		const changeParams = {
 			id: Number(id),
-			title: title,
-			description: desc,
-			price: price,
-			tags: tags,
+			deliveryAddress: deliveryAddress,
+			name: name,
+			surname: surname,
 		}
 
 		const buttonEdit = document.getElementById(changeParams.id + 'edit');
 		buttonEdit.disabled = true;
 
 		fetch(
-			'/admin/product/change/',
+			'/admin/order/change/',
 			{
 				method: 'PATCH',
 				headers: {
@@ -116,10 +114,9 @@ export class OrderList
 					this.items.forEach(item => {
 						if (item.id === changeParams.id)
 						{
-							item.title = changeParams.title;
-							item.description = changeParams.description;
-							item.price = changeParams.price;
-							item.tags = changeParams.tags;
+							item.deliveryAddress = changeParams.deliveryAddress;
+							item.name = changeParams.name;
+							item.surname = changeParams.surname;
 							return true;
 						}
 					})
@@ -174,7 +171,7 @@ export class OrderList
 				.then((response) => {
 					if (response.result === true)
 					{
-						this.items[itemIndex].isActive = false;
+						this.items.splice(itemIndex, 1);
 						buttonRemove.disabled = false;
 						this.render();
 					}

@@ -18,6 +18,7 @@ Router::patch('/admin/product/change/', new \Up\Controller\ProductAdminControlle
 
 Router::delete('/admin/order/', new \Up\Controller\OrderAdminController(), 'deleteAction');
 Router::post('/admin/order/add/', new \Up\Controller\OrderAdminController(), 'addAction');
+Router::patch('/admin/order/change/', new \Up\Controller\OrderAdminController(), 'changeAction');
 
 Router::post('/product/:id/', new \Up\Controller\PageDetailController(), 'buyProductAction');
 

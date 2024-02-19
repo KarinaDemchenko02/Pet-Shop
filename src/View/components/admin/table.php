@@ -18,7 +18,6 @@ $columns = $this->getVariable('columns');
 <script type="module">
 	import { ProductList } from "/js/admin/product/product-list.js";
 	import { OrderList } from "/js/admin/order/order-list.js";
-	console.log('good');
 	if ('<?=$contentName?>' === 'products')
 	{
 		const mainList = new ProductList({

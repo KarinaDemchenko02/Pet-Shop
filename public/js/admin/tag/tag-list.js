@@ -1,6 +1,6 @@
-import { ProductItem } from "./product-item.js";
+import { TagItem } from "../tag/tag-item.js";
 
-export class ProductList
+export class TagList
 {
 	attachToNodeId = '';
 	rootNode;
@@ -36,7 +36,7 @@ export class ProductList
 		itemData.removeButtonHandler = this.handleRemoveButtonClick.bind(this);
 		itemData.editButtonHandler = this.handleEditButtonClick.bind(this);
 		itemData.restoreButtonHandler = this.handleRestoreButtonClick.bind(this);
-		return new ProductItem(itemData);
+		return new TagItem(itemData);
 	}
 
 	createItemsContainer()
@@ -52,13 +52,9 @@ export class ProductList
 		const formEdit = document.querySelector('.form__box');
 		const id = document.getElementById('productId');
 		const title = document.getElementById('title');
-		const desc = document.getElementById('desc');
-		const price = document.getElementById('price');
 
 		id.innerText = item['id'];
 		title.value = item['title'];
-		desc.value = item['description'];
-		price.value = item['price'];
 
 		formEdit.style.display = 'block';
 	}
@@ -71,30 +67,26 @@ export class ProductList
 
 	handleAcceptEditButtonClick()
 	{
-		const shouldRemove = confirm(`Are you sure you want to delete this product: ?`)
-		if (!shouldRemove)
+		const shouldChange = confirm(`Are you sure you want to change this tag: ?`)
+		if (!shouldChange)
 		{
 			return;
 		}
 
 		const id = document.getElementById('productId').innerText;
 		const title = document.getElementById('title').value;
-		const desc = document.getElementById('desc').value;
-		const price = document.getElementById('price').value;
 
 
 		const changeParams = {
 			id: Number(id),
 			title: title,
-			description: desc,
-			price: price,
 		}
 
 		const buttonEdit = document.getElementById(changeParams.id + 'edit');
 		buttonEdit.disabled = true;
 
 		fetch(
-			'/admin/product/change/',
+			'/admin/tag/change/',
 			{
 				method: 'PATCH',
 				headers: {
@@ -113,8 +105,6 @@ export class ProductList
 						if (item.id === changeParams.id)
 						{
 							item.title = changeParams.title;
-							item.description = changeParams.description;
-							item.price = changeParams.price;
 						}
 					})
 
@@ -139,7 +129,7 @@ export class ProductList
 
 		if (itemIndex > -1)
 		{
-			const shouldRemove = confirm(`Are you sure you want to delete this product: ${item.title}?`)
+			const shouldRemove = confirm(`Are you sure you want to delete this tag: ${item.title}?`)
 			if (!shouldRemove)
 			{
 				return;
@@ -153,9 +143,9 @@ export class ProductList
 			buttonRemove.disabled = true;
 
 			fetch(
-				'/admin/product/disable/',
+				'/admin/tag/',
 				{
-					method: 'PATCH',
+					method: 'DELETE',
 					headers: {
 						'Content-Type': 'application/json;charset=utf-8'
 					},
@@ -355,5 +345,4 @@ export class ProductList
 
 		return formBox;
 	}
-
 }

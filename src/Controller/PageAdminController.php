@@ -101,7 +101,7 @@ class PageAdminController extends BaseController
 						'editedAt' => $order->editedAt,
 						'name' => $order->name,
 						'surname' => $order->surname,
-						'statusId' => $order->statusId,
+						'status' => $order->status,
 					];
 			}
 		}
@@ -114,7 +114,10 @@ class PageAdminController extends BaseController
 				$tags = [];
 				foreach ($product->tags as $tag)
 				{
-					$tags[] = $tag->title;
+					$tags[] = [
+						'tagId' => $tag->id,
+						'tagTitle' => $tag->title,
+					];
 				}
 				$content[] =
 					[
@@ -125,7 +128,7 @@ class PageAdminController extends BaseController
 						'isActive' => (int) $product->isActive,
 						'addedAt' => $product->addedAt,
 						'editedAt' => $product->editedAt,
-						'tags' =>implode(", ", $tags),
+						'tags' => $tags,
 					];
 			}
 		}

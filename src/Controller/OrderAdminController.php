@@ -97,4 +97,39 @@ class OrderAdminController extends BaseController
 		}
 		echo Json::encode($response);
 	}
+
+	public function changeAction(): void
+	{
+		/*if (!$this->isLogInAdmin())
+		{
+			http_response_code(403);
+			return;
+		}*/
+
+		$data = Json::decode(file_get_contents("php://input"));
+		$response = [];
+		try
+		{
+			OrderService::deleteOrder((int)$data['id']);
+			$result = true;
+		}
+		catch (OrderNotDeleted)
+		{
+			$result = false;
+		}
+
+		$response['result'] = $result;
+
+		if ($result)
+		{
+			$response['errors'] = [];
+			http_response_code(200);
+		}
+		else
+		{
+			$response['errors'] = 'Order not deleted';
+			http_response_code(409);
+		}
+		echo Json::encode($response);
+	}
 }

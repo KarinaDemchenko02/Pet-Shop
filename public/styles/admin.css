@@ -352,6 +352,10 @@ td {
 	justify-content: space-between;
 }
 
+.productsRowContainer li {
+	padding: 6px;
+}
+
 .productsRowContainer .productLabel label {
 	padding: 6px;
 }
