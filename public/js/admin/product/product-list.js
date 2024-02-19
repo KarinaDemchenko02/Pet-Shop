@@ -1,12 +1,10 @@
 import { ProductItem } from "./product-item.js";
-import {ChangeForm} from "./change-form.js";
 
 export class ProductList
 {
 	attachToNodeId = '';
 	rootNode;
 	itemsContainer;
-	form;
 	items = [];
 	columns= [];
 	constructor({ attachToNodeId = '', items, columns })
@@ -30,15 +28,13 @@ export class ProductList
 		this.columns = columns;
 
 		this.createItemsContainer()
-
-		this.createFormBox();
 	}
 
 
 	createItem(itemData)
 	{
 		itemData.removeButtonHandler = this.handleRemoveButtonClick.bind(this);
-		itemData.openEditButtonHandler = this.handleOpenEditButtonClick.bind(this);
+		itemData.editButtonHandler = this.handleEditButtonClick.bind(this);
 		itemData.restoreButtonHandler = this.handleRestoreButtonClick.bind(this);
 		return new ProductItem(itemData);
 	}
@@ -51,91 +47,97 @@ export class ProductList
 		this.rootNode.append(this.itemsContainer);
 	}
 
-	handleOpenEditButtonClick(item)
+	handleEditButtonClick(item)
 	{
-		this.form.formBox.style.display = 'block';
+		const formEdit = document.querySelector('.form__box');
+		const id = document.getElementById('productId');
+		const title = document.getElementById('title');
+		const desc = document.getElementById('desc');
+		const price = document.getElementById('price');
+		const tags = document.getElementById('tags');
+
+		id.innerText = item['id'];
+		title.value = item['title'];
+		desc.value = item['description'];
+		price.value = item['price'];
+		tags.value = item['tags'];
+
+		formEdit.style.display = 'block';
 	}
 
-	handleAcceptEditButtonClick(item)
+	handleEditCloseButtonClick()
 	{
+		const formEdit = document.querySelector('.form__box');
+		formEdit.style.display = 'none';
+	}
 
-		const itemIndex = this.items.indexOf(item);
-		console.log(item);
-		if (itemIndex > -1)
+	handleAcceptEditButtonClick()
+	{
+		const shouldRemove = confirm(`Are you sure you want to delete this product: ?`)
+		if (!shouldRemove)
 		{
-			const shouldRemove = confirm(`Are you sure you want to delete this product: ${item.title}?`)
-			if (!shouldRemove)
-			{
-				return;
-			}
-
-			const title = document.getElementById('title').value;
-			const desc = document.getElementById('desc').value;
-			const price = document.getElementById('price').value;
-			const tags = document.getElementById('tags').value;
-
-			const changeParams = {
-				id: item.id,
-				title: title,
-				description: desc,
-				price: price,
-				tags: tags,
-			}
-
-			fetch(
-				'/admin/product/change/',
-				{
-					method: 'PATCH',
-					headers: {
-						'Content-Type': 'application/json;charset=utf-8'
-					},
-					body: JSON.stringify(changeParams),
-				}
-			)
-				.then((response) => {
-					return response.json();
-				})
-				.then((response) => {
-					if (response.result === true)
-					{
-						this.items[itemIndex].title = title;
-						this.items[itemIndex].description = desc;
-						this.items[itemIndex].price = price;
-						this.items[itemIndex].tags = tags;
-						this.render();
-					}
-					else
-					{
-						console.error(response.errors);
-					}
-				})
-				.catch((error) => {
-					console.error('Error while changing item.');
-				})
-				.finally()
-			{
-				const buttonRemove = document.getElementById(item.id + 'remove');
-				buttonRemove.disabled = true;
-			}
-
+			return;
 		}
+
+		const id = document.getElementById('productId').innerText;
+		const title = document.getElementById('title').value;
+		const desc = document.getElementById('desc').value;
+		const price = document.getElementById('price').value;
+		const tags = document.getElementById('tags').value;
+
+
+		const changeParams = {
+			id: Number(id),
+			title: title,
+			description: desc,
+			price: price,
+			tags: tags,
+		}
+
+		const buttonEdit = document.getElementById(changeParams.id + 'edit');
+		buttonEdit.disabled = true;
+
+		fetch(
+			'/admin/product/change/',
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json;charset=utf-8'
+				},
+				body: JSON.stringify(changeParams),
+			}
+		)
+			.then((response) => {
+				return response.json();
+			})
+			.then((response) => {
+				if (response.result === true)
+				{
+					this.items.forEach(item => {
+						if (item.id === changeParams.id)
+						{
+							item.title = changeParams.title;
+							item.description = changeParams.description;
+							item.price = changeParams.price;
+							item.tags = changeParams.tags;
+						}
+					})
+
+					buttonEdit.disabled = false;
+
+					this.render();
+				}
+				else
+				{
+					console.error(response.errors);
+					buttonEdit.disabled = false;
+				}
+			})
+			.catch((error) => {
+				console.error('Error while changing item.');
+				buttonEdit.disabled = false;
+			})
 	}
-
-	handleCloseEditButtonClick(item)
-	{
-		this.form.formBox.style.display = 'none';
-	}
-
-	createFormBox()
-	{
-		this.form = new ChangeForm(
-			this.handleAcceptEditButtonClick.bind(this),
-			this.handleCloseEditButtonClick.bind(this)
-		);
-		this.rootNode.append(this.form.render());
-	}
-
-
 	handleRemoveButtonClick(item)
 	{
 		const itemIndex = this.items.indexOf(item);
@@ -156,9 +158,9 @@ export class ProductList
 			buttonRemove.disabled = true;
 
 			fetch(
-				'/admin/product/disable/',
+				'/admin/remove/',
 				{
-					method: 'PATCH',
+					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json;charset=utf-8'
 					},
@@ -169,7 +171,7 @@ export class ProductList
 					return response.json();
 				})
 				.then((response) => {
-					if (response.result === true)
+					if (response.result === 'Y')
 					{
 						this.items[itemIndex].isActive = false;
 						buttonRemove.disabled = false;
@@ -177,7 +179,7 @@ export class ProductList
 					}
 					else
 					{
-						console.error(response.errors);
+						console.error('Error while deleting item.');
 						buttonRemove.disabled = false;
 					}
 				})
@@ -207,9 +209,9 @@ export class ProductList
 			buttonRestore.disabled = true;
 
 			fetch(
-				'/admin/product/restore/',
+				'/admin/restore/',
 				{
-					method: 'PATCH',
+					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json;charset=utf-8'
 					},
@@ -220,7 +222,7 @@ export class ProductList
 					return response.json();
 				})
 				.then((response) => {
-					if (response.result === true)
+					if (response.result === 'Y')
 					{
 						this.items[itemIndex].isActive = true;
 						buttonRestore.disabled = false;
@@ -228,7 +230,7 @@ export class ProductList
 					}
 					else
 					{
-						console.error(response.errors);
+						console.error('Error while deleting item.');
 						buttonRestore.disabled = false;
 					}
 				})
@@ -263,10 +265,94 @@ export class ProductList
 		containerColumn.append(columnAction);
 		table.append(containerColumn);
 
-		this.itemsContainer.append(table);
+
+		this.itemsContainer.append(table, this.renderForm());
 
 		this.items.forEach((item) => {
 			table.append(item.render());
 		})
 	}
+
+	renderForm()
+	{
+		const formBox = document.createElement('div');
+		formBox.classList.add('form__box');
+
+		const formContainer = document.createElement('div');
+		formContainer.classList.add('form__container');
+
+		const closeButton = document.createElement('button');
+		closeButton.classList.add('form__close');
+		closeButton.addEventListener('click', this.handleEditCloseButtonClick);
+		const closeIcon = document.createElement('i');
+		closeIcon.classList.add('form__close-icon', 'material-icons');
+		closeIcon.innerText = 'close';
+		closeButton.append(closeIcon);
+
+		const form = document.createElement('div');
+		form.classList.add('form');
+
+		const spanId = document.createElement('span');
+		spanId.id = 'productId'
+
+		const titleLabel = document.createElement('label');
+		titleLabel.classList.add('form__label');
+		titleLabel.htmlFor = 'title';
+		titleLabel.innerText = 'Название';
+
+		const titleInput = document.createElement('input');
+		titleInput.classList.add('form__input');
+		titleInput.id = 'title';
+		titleInput.type = 'text';
+		titleInput.name = 'title';
+
+		const descLabel = document.createElement('label');
+		descLabel.classList.add('form__label');
+		descLabel.htmlFor = 'desc';
+		descLabel.innerText = 'Описание';
+
+		const descInput = document.createElement('input');
+		descInput.classList.add('form__input');
+		descInput.id = 'desc';
+		descInput.type = 'text';
+		descInput.name = 'desc';
+
+		const priceLabel = document.createElement('label');
+		priceLabel.classList.add('form__label');
+		priceLabel.htmlFor = 'price';
+		priceLabel.innerText = 'Цена';
+
+		const priceInput = document.createElement('input');
+		priceInput.classList.add('form__input');
+		priceInput.id = 'price';
+		priceInput.type = 'text';
+		priceInput.name = 'price';
+
+		const tagsLabel = document.createElement('label');
+		tagsLabel.classList.add('form__label');
+		tagsLabel.htmlFor = 'tags';
+		tagsLabel.innerText = 'Теги';
+
+		const tagsInput = document.createElement('input');
+		tagsInput.classList.add('form__input');
+		tagsInput.id = 'tags';
+		tagsInput.type = 'text';
+		tagsInput.name = 'tags';
+
+		const acceptButton = document.createElement('button');
+		acceptButton.classList.add('form__button','form__button_change');
+		acceptButton.id = 'changed';
+		acceptButton.type = 'submit';
+		acceptButton.name = 'changeProduct';
+		acceptButton.innerText = 'Редактировать';
+		acceptButton.addEventListener('click', this.handleAcceptEditButtonClick.bind(this))
+
+		form.append(spanId, titleLabel, titleInput, descLabel, descInput,
+			priceLabel, priceInput, tagsLabel, tagsInput, acceptButton);
+		formContainer.append(closeButton, form);
+		formBox.append(formContainer);
+
+		return formBox;
+	}
+
 }
