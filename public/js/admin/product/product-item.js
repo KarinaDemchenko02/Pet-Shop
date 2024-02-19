@@ -4,6 +4,7 @@ export class ProductItem
 	title;
 	description;
 	price;
+	tags
 	addedAt;
 	editedAt;
 	isActive;
@@ -11,7 +12,7 @@ export class ProductItem
 	removeButtonHandler;
 	restoreButtonHandler;
 
-	constructor({ id, title, description, price, addedAt, editedAt, isActive, editButtonHandler, removeButtonHandler, restoreButtonHandler })
+	constructor({ id, title, description, tags, price, addedAt, editedAt, isActive, editButtonHandler, removeButtonHandler, restoreButtonHandler })
 	{
 		this.id = Number(id);
 		this.title = String(title);
@@ -20,6 +21,7 @@ export class ProductItem
 		this.addedAt = String(addedAt);
 		this.editedAt = String(editedAt);
 		this.isActive = Boolean(isActive);
+		this.tags = String(tags);
 
 		if (typeof editButtonHandler === 'function')
 		{
@@ -40,6 +42,7 @@ export class ProductItem
 	render()
 	{
 		const trProduct = document.createElement('tr');
+		trProduct.id = String(this.id) + 'tr';
 		trProduct.classList.add('table__tr');
 
 		const idColumn = document.createElement('td');
@@ -84,6 +87,13 @@ export class ProductItem
 		spinnerLoadingRestore.classList.add('visually-hidden');
 		spinnerRestore.append(spinnerLoadingRestore);
 
+		const spinnerEdit = document.createElement('div');
+		spinnerEdit.classList.add('spinner-border', 'text-light', 'spinner-action');
+		const spinnerLoadingEdit = document.createElement('span');
+		spinnerLoadingEdit.innerText = 'Loading...';
+		spinnerLoadingEdit.classList.add('visually-hidden');
+		spinnerEdit.append(spinnerLoadingEdit);
+
 		const removeButton = document.createElement('button');
 		removeButton.classList.add('table__button', 'table__button_delete');
 		removeButton.id = String(this.id) + 'remove';
@@ -94,7 +104,9 @@ export class ProductItem
 		const editButton = document.createElement('button')
 		editButton.classList.add('table__button', 'table__button_edit')
 		editButton.innerText = 'Редактировать';
+		editButton.id = String(this.id) + 'edit';
 		editButton.addEventListener('click', this.handleEditButtonClick.bind(this));
+		editButton.append(spinnerEdit);
 
 		const restoreButton = document.createElement('button');
 		restoreButton.classList.add('table__button', 'table__button_restore');

@@ -180,7 +180,6 @@ td {
 	color: #ffffff;
 	transition: background-color .3s ease-in-out;
 	cursor: pointer;
-	display: none;
 }
 
 .form__button:hover {

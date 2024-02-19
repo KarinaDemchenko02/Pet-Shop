@@ -15,6 +15,7 @@ Router::post('/admin/logIn/', new \Up\Controller\AuthController(), 'logInAdminAc
 //Router::post('/admin/action/', new \Up\Controller\MultipleController(), 'processAction');
 Router::post('/admin/remove/', new \Up\Controller\DisableController(), 'disableAction');
 Router::post('/admin/restore/', new \Up\Controller\RestoreController(), 'restoreAction');
+Router::post('/admin/product/change/', new \Up\Controller\PageAdminController(), 'changeAction');
 
 Router::post('/product/:id/', new \Up\Controller\PageDetailController(), 'buyProductAction');
 
