@@ -14,12 +14,13 @@ export class OrderItem
 
 	constructor({ id, products, user_id, deliveryAddress, createdAt, editedAt, name, surname, statusId, editButtonHandler, removeButtonHandler })
 	{
+		/*console.log(Number(createdAt))*/
 		this.id = Number(id);
 		this.products = products;
 		this.user_id = Number(user_id);
 		this.deliveryAddress = String(deliveryAddress);
-		this.createdAt = String(createdAt);
-		this.editedAt = String(editedAt);
+		this.createdAt = new Date(Number(createdAt)*1000).toDateString();
+		this.editedAt = new Date(Number(editedAt)*1000).toDateString();
 		this.name = String(name);
 		this.surname = String(surname);
 		this.statusId = Number(statusId);
@@ -33,7 +34,6 @@ export class OrderItem
 		{
 			this.removeButtonHandler = removeButtonHandler;
 		}
-		console.log(products);
 	}
 
 	render()
@@ -46,11 +46,13 @@ export class OrderItem
 		idColumn.classList.add('table__th', 'table__th_id');
 		idColumn.innerText = this.id;
 
-		const productsColumn = this.createProductsColumn();
 
-		const userIdColumn = document.createElement('td');
+		const productsColumn = this.createProductsColumn();
+		productsColumn.classList.add('table__th', 'table__th_products')
+
+		/*const userIdColumn = document.createElement('td');
 		userIdColumn.classList.add('table__th', 'table__th_userId');
-		userIdColumn.innerText = this.user_id;
+		userIdColumn.innerText = this.user_id;*/
 
 		const deliveryAddressColumn = document.createElement('td');
 		deliveryAddressColumn.classList.add('table__th', 'table__th_deliveryAddress');
@@ -118,7 +120,7 @@ export class OrderItem
 
 		trProduct.append(
 			idColumn,
-			userIdColumn,
+			/*userIdColumn,*/
 			deliveryAddressColumn,
 			statusIdColumn,
 			createdAtColumn,
@@ -133,7 +135,7 @@ export class OrderItem
 	createProductsColumn()
 	{
 		const productsColumn = document.createElement('td');
-		productsColumn.classList.add('table__th', 'table__th_title', 'dropdown_list');
+		productsColumn.classList.add('dropdown_list');
 
 		const dropdownButton = document.createElement('dropdown_button');
 		dropdownButton.innerText = 'Показать продукты';
@@ -142,8 +144,21 @@ export class OrderItem
 
 		const productRowContainer = document.createElement('div');
 		productRowContainer.id = String(this.id) + 'productsRowContainer';
-
 		productRowContainer.classList.add('productsRowContainer');
+
+		const labelsContainer = document.createElement('ul');
+		labelsContainer.id = 'productLabel';
+		labelsContainer.classList.add('productLabel');
+		const idProductLabel = document.createElement('label');
+		idProductLabel.innerText = 'Id продукта';
+		const quantityProductLabel = document.createElement('label');
+		quantityProductLabel.innerText = 'Количество продукта';
+		const priceProductLabel = document.createElement('label');
+		priceProductLabel.innerText = 'Цена продукта';
+
+		labelsContainer.append(idProductLabel, quantityProductLabel, priceProductLabel);
+
+		productRowContainer.append(labelsContainer);
 
 		this.products.forEach((product) => {
 			const productRow = document.createElement('ul');

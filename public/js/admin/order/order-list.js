@@ -49,19 +49,19 @@ export class OrderList
 	handleEditButtonClick(item)
 	{
 		const formEdit = document.querySelector('.form__box');
-		const id = document.getElementById('id');
+		const id = document.getElementById('orderId');
 		const deliveryAddress = document.getElementById('deliveryAddress');
 		const name = document.getElementById('name');
 		const surname = document.getElementById('surname');
-		const products = document.getElementById('products');
+		/*const products = document.getElementById('product-dropdown');*/
 
+		/*const productsDropDown = item.createProductsColumn();*/
 
 		id.innerText = item['id'];
 		deliveryAddress.value = item['deliveryAddress'];
 		name.value = item['name'];
 		surname.value = item['surname'];
-		products.value = item['products'];
-
+		/*products.append(productsDropDown);*/
 		formEdit.style.display = 'block';
 	}
 
@@ -159,9 +159,9 @@ export class OrderList
 			buttonRemove.disabled = true;
 
 			fetch(
-				'/admin/remove/',
+				'/admin/order/',
 				{
-					method: 'POST',
+					method: 'DELETE',
 					headers: {
 						'Content-Type': 'application/json;charset=utf-8'
 					},
@@ -202,6 +202,8 @@ export class OrderList
 		containerColumn.classList.add('table__tr');
 
 		this.columns.forEach(column => {
+			if (column === 'user_id')
+				return;
 			const tableColumn = document.createElement('th');
 			tableColumn.classList.add('table__th', 'table__th-heading');
 			tableColumn.innerText = column;
@@ -252,20 +254,22 @@ export class OrderList
 		spanId.id = 'orderId';
 		spanId.style.display = 'none';
 
-		const productsLabel = document.createElement('label');
+		/*const productsLabel = document.createElement('label');
 		productsLabel.classList.add('form__label');
 		productsLabel.htmlFor = 'products';
-		productsLabel.innerText = 'Продукты';
+		productsLabel.innerText = 'Продукты';*/
 
-		const dropDown = document.createElement('div');
+
+
+		/*const dropDown = document.createElement('div');
 		const dropDownButton = document.createElement('button');
 		dropDownButton.classList.add('dropbtn');
 		dropDownButton.innerText = 'Показать';
-		dropDownButton.addEventListener('click', this.handleDropdownClick.bind(dropDownButton))
+		dropDownButton.addEventListener('click', this.handleDropdownClick.bind(dropDownButton))*/
 
-		const dropDownContent = document.createElement('div');
+		/*const dropDownContent
 		dropDownContent.id = 'product-dropdown';
-		dropDownContent.classList.add('dropdown-content');
+		dropDownContent.classList.add('dropdown-content');*/
 
 
 
@@ -294,7 +298,7 @@ export class OrderList
 		const surnameLabel = document.createElement('label');
 		surnameLabel.classList.add('form__label');
 		surnameLabel.htmlFor = 'name';
-		surnameLabel.innerText = 'Имя';
+		surnameLabel.innerText = 'Фамилия';
 
 		const surnameInput = document.createElement('input');
 		surnameInput.classList.add('form__input');
@@ -312,7 +316,7 @@ export class OrderList
 
 		form.append(spanId, deliveryAddressLabel, deliveryAddressInput,
 			nameLabel, nameInput,
-			surnameLabel, surnameInput, acceptButton);
+			surnameLabel, surnameInput,/* productsLabel, dropDownContent*/ acceptButton);
 		formContainer.append(closeButton, form);
 		formBox.append(formContainer);
 

@@ -158,9 +158,9 @@ export class ProductList
 			buttonRemove.disabled = true;
 
 			fetch(
-				'/admin/remove/',
+				'/admin/product/disable/',
 				{
-					method: 'POST',
+					method: 'PATCH',
 					headers: {
 						'Content-Type': 'application/json;charset=utf-8'
 					},
@@ -171,7 +171,7 @@ export class ProductList
 					return response.json();
 				})
 				.then((response) => {
-					if (response.result === 'Y')
+					if (response.result === true)
 					{
 						this.items[itemIndex].isActive = false;
 						buttonRemove.disabled = false;
@@ -179,12 +179,12 @@ export class ProductList
 					}
 					else
 					{
-						console.error('Error while deleting item.');
+						console.error('Error while disabling item.');
 						buttonRemove.disabled = false;
 					}
 				})
 				.catch((error) => {
-					console.error('Error while deleting item.');
+					console.error('Error while disabling item.');
 					buttonRemove.disabled = false;
 				})
 		}
@@ -195,13 +195,13 @@ export class ProductList
 		const itemIndex = this.items.indexOf(item);
 		if (itemIndex > -1)
 		{
-			const shouldRemove = confirm(`Are you sure you want to restore this product: ${item.title}?`)
-			if (!shouldRemove)
+			const shouldRestore = confirm(`Are you sure you want to restore this product: ${item.title}?`)
+			if (!shouldRestore)
 			{
 				return;
 			}
 
-			const removeParams = {
+			const restoreParams = {
 				id: item.id,
 			}
 
@@ -209,20 +209,20 @@ export class ProductList
 			buttonRestore.disabled = true;
 
 			fetch(
-				'/admin/restore/',
+				'/admin/product/restore/',
 				{
-					method: 'POST',
+					method: 'PATCH',
 					headers: {
 						'Content-Type': 'application/json;charset=utf-8'
 					},
-					body: JSON.stringify(removeParams),
+					body: JSON.stringify(restoreParams),
 				}
 			)
 				.then((response) => {
 					return response.json();
 				})
 				.then((response) => {
-					if (response.result === 'Y')
+					if (response.result === true)
 					{
 						this.items[itemIndex].isActive = true;
 						buttonRestore.disabled = false;

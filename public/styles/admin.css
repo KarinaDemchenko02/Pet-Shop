@@ -352,6 +352,10 @@ td {
 	justify-content: space-between;
 }
 
+.productsRowContainer .productLabel label {
+	padding: 6px;
+}
+
 /*.products li:hover {
 	background-color: #0979ad;
 	color: white;

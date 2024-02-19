@@ -205,8 +205,8 @@ class ProductRepositoryImpl implements ProductRepository
 	{
 		try
 		{
-			$disableProductSQL = "UPDATE up_item SET is_active=1 where id = {$id}";
-			$result = Query::getQueryResult($disableProductSQL);
+			$restoreProductSQL = "UPDATE up_item SET is_active=1 where id = {$id}";
+			Query::getQueryResult($restoreProductSQL);
 			if (Query::affectedRows() === 0)
 			{
 				throw new ProductNotRestored();

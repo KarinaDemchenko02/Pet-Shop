@@ -18,8 +18,8 @@ export class ProductItem
 		this.title = String(title);
 		this.description = String(description);
 		this.price = Number(price);
-		this.addedAt = String(addedAt);
-		this.editedAt = String(editedAt);
+		this.addedAt = new Date(Number(addedAt)*1000).toDateString();
+		this.editedAt = new Date(Number(editedAt)*1000).toDateString();
 		this.isActive = Boolean(isActive);
 		this.tags = String(tags);
 
