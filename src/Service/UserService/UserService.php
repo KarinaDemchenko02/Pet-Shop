@@ -15,6 +15,22 @@ class UserService
 	/**
 	 * @throws UserNotFound
 	 */
+
+	public static function getAll(): array
+	{
+		$users = UserRepositoryImpl::getAll();
+		$usersDto = [];
+		foreach ($users as $user)
+		{
+			$usersDto[$user->id] = new UserDto($user);
+		}
+		return $usersDto;
+	}
+
+	public static function getColumn(): array
+	{
+		return UserRepositoryImpl::getColumn();
+	}
 	public static function getUserByEmail(string $email): UserDto
 	{
 		$user = UserRepositoryImpl::getByEmail($email);

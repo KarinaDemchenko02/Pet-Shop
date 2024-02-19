@@ -4,6 +4,8 @@ namespace Up\Controller;
 
 use Up\Service\OrderService\OrderService;
 use Up\Service\ProductService\ProductService;
+use Up\Service\TagService\TagService;
+use Up\Service\UserService\UserService;
 use Up\Util\TemplateEngine\PageAdminTemplateEngine;
 use Up\Util\Upload;
 
@@ -45,7 +47,36 @@ class PageAdminController extends BaseController
 		{
 			$page = (int)$_GET['page'];
 		}
-		if ($_GET['entity'] === 'orders')
+		if ($_GET['entity'] === 'users')
+		{
+			$contentName = 'users';
+			$users = UserService::getAll();
+			$columns = UserService::getColumn();
+			foreach ($users as $user)
+			{
+				$content[] = [
+					'id' => $user->id,
+					'email' => $user->email,
+					'password' => $user->password,
+					'roleTitle' => $user->roleTitle,
+					'phoneNumber' => $user->phoneNumber,
+				];
+			}
+		}
+		elseif ($_GET['entity'] === 'tags')
+		{
+			$contentName = 'tags';
+			$tags = TagService::getAllTags();
+			$columns = TagService::getColumn();
+			foreach ($tags as $tag)
+			{
+				$content[] = [
+					'id' => $tag->id,
+					'title' => $tag->title,
+				];
+			}
+		}
+		elseif ($_GET['entity'] === 'orders')
 		{
 			$contentName = 'orders';
 			$orders = OrderService::getAllOrder();
