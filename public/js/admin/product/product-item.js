@@ -61,6 +61,10 @@ export class ProductItem
 		priceColumn.classList.add('table__th', 'table__th_price');
 		priceColumn.innerText = this.price;
 
+		const tagsColumn = document.createElement('td');
+		tagsColumn.classList.add('table__th', 'table__th_tags');
+		tagsColumn.innerText = this.tags;
+
 		const addedAtColumn = document.createElement('td');
 		addedAtColumn.classList.add('table__th');
 		addedAtColumn.innerText = this.addedAt;
@@ -119,7 +123,7 @@ export class ProductItem
 		actionsColumn.classList.add('table__th', 'table__th_button');
 		actionsColumn.append(editButton, removeButton, restoreButton);
 
-		trProduct.append(idColumn, titleColumn, descColumn, priceColumn, addedAtColumn, editedAtColumn, isActiveColumn, actionsColumn);
+		trProduct.append(idColumn, titleColumn, descColumn, priceColumn, addedAtColumn, editedAtColumn, isActiveColumn, tagsColumn, actionsColumn);
 		return trProduct;
 	}
 

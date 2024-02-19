@@ -2,8 +2,10 @@
 
 namespace Up\Service\OrderService;
 
-use Up\Dto\OrderAddingAdminDto;
-use Up\Dto\OrderAddingDto;
+use Up\Dto\Order\OrderAdding;
+use Up\Dto\Order\OrderAddingAdminDto;
+use Up\Dto\Order\OrderGettingAdminDto;
+use Up\Exceptions\Admin\Order\OrderNotDeleted;
 use Up\Exceptions\Order\OrderNotCompleted;
 use Up\Repository\Order\OrderRepositoryImpl;
 
@@ -13,7 +15,7 @@ class OrderService
 	/**
 	 * @throws OrderNotCompleted
 	 */
-	public static function buyProduct(OrderAddingDto $dto): void
+	public static function createOrder(OrderAdding $dto): void
 	{
 		OrderRepositoryImpl::add($dto);
 	}
@@ -25,26 +27,33 @@ class OrderService
 		$ordersDto = [];
 		foreach ($orders as $order)
 		{
-			foreach ($order->getProducts() as $product)
-			{
-				$ordersDto[] = new OrderAddingAdminDto(
-					$order->id,
-					$product->info->id,
-					is_null($order->user) ? null : $order->user->id,
-					$order->deliveryAddress,
-					$order->createdAt,
-					$order->name,
-					$order->surname,
-					(int)$order->status,
-				);
-			}
+			$ordersDto[] = new OrderGettingAdminDto(
+				$order->id,
+				$order->getProducts(),
+				is_null($order->user) ? null : $order->user->id,
+				$order->deliveryAddress,
+				$order->createdAt,
+				$order->editedAt,
+				$order->name,
+				$order->surname,
+				(int)$order->status,
+			);
+
 		}
 
 		return $ordersDto;
 	}
 
-	public static function gelColumn()
+	public static function gelColumn(): array
 	{
 		return OrderRepositoryImpl::getColumn();
+	}
+
+	/**
+	 * @throws OrderNotDeleted
+	 */
+	public static function deleteOrder(int $id): void
+	{
+		OrderRepositoryImpl::delete($id);
 	}
 }

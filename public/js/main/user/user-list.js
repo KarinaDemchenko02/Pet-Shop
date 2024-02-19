@@ -71,7 +71,7 @@ export class UserList
 			fetch(
 				'/account/edit/',
 				{
-					method: 'POST',
+					method: 'PATCH',
 					headers: {
 						'Content-Type': 'application/json;charset=utf-8'
 					},
@@ -82,7 +82,7 @@ export class UserList
 					return response.json();
 				})
 				.then((response) => {
-					if (response.result === 'Y')
+					if (response.result === true)
 					{
 						const inputPassword = document.getElementById('password');
 						inputPassword.value = '';

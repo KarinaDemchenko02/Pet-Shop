@@ -12,16 +12,19 @@ Router::post('/deleteFromBasket/:id/', new \Up\Controller\BasketController(), 'd
 Router::get('/admin/', new \Up\Controller\PageAdminController(), 'indexAction');
 Router::post('/admin/logIn/', new \Up\Controller\AuthController(), 'logInAdminAction');
 
-Router::patch('/admin/product/disable/', new \Up\Controller\PageAdminController(), 'disableAction');
-Router::patch('/admin/product/restore/', new \Up\Controller\PageAdminController(), 'restoreAction');
-Router::patch('/admin/product/change/', new \Up\Controller\PageAdminController(), 'changeAction');
+Router::patch('/admin/product/disable/', new \Up\Controller\ProductAdminController(), 'disableAction');
+Router::patch('/admin/product/restore/', new \Up\Controller\ProductAdminController(), 'restoreAction');
+Router::patch('/admin/product/change/', new \Up\Controller\ProductAdminController(), 'changeAction');
+
+Router::delete('/admin/order/', new \Up\Controller\OrderAdminController(), 'deleteAction');
+Router::post('/admin/order/add/', new \Up\Controller\OrderAdminController(), 'addAction');
 
 Router::post('/product/:id/', new \Up\Controller\PageDetailController(), 'buyProductAction');
 
 Router::get('/success/', new \Up\Controller\PageDetailController(), 'showModalSuccess');
 
 Router::get('/account/', new \Up\Controller\PageAccountController(), 'indexAction');
-Router::post('/account/edit/', new \Up\Controller\ChangeAccountController(), 'changeAction');
+Router::patch('/account/edit/', new \Up\Controller\ChangeAccountController(), 'changeAction');
 Router::post('/upload/', new \Up\Controller\PageAdminController(), 'uploadAction');
 
 Router::post('/createOrder/', new \Up\Controller\OrderController(), 'createOrder');

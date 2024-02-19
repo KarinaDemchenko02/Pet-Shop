@@ -2,7 +2,7 @@
 
 namespace Up\Repository\Order;
 
-use Up\Dto\OrderAddingDto;
+use Up\Dto\Order\OrderAddingDto;
 use Up\Entity\Order;
 use Up\Repository\Repository;
 

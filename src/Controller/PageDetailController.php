@@ -2,10 +2,10 @@
 
 namespace Up\Controller;
 
-use Up\Dto\OrderAddingDto;
-use Up\Exceptions\Order\OrderNotCompleted;
+use Up\Dto\Order\OrderAddingDto;
 use Up\Entity\ProductQuantity;
 use Up\Entity\ShoppingSession;
+use Up\Exceptions\Order\OrderNotCompleted;
 use Up\Repository\Product\ProductRepositoryImpl;
 use Up\Service\OrderService\OrderService;
 use Up\Service\ProductService\ProductService;
@@ -45,7 +45,7 @@ class PageDetailController extends BaseController
 					null, $userId, [new ProductQuantity($product, 1)]
 				), $_POST['name'], $_POST['surname'], $_POST['address'],
 			);
-			OrderService::buyProduct($orderDto);
+			OrderService::createOrder($orderDto);
 			header('Location: /success/');
 		}
 		catch (OrderNotCompleted)

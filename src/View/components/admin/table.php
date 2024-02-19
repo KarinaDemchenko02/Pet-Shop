@@ -1,29 +1,7 @@
 <?php
-
-$products = $this->getVariable('products');
-$columns = $this->getVariable('columnsProducts');
-
-$productList = [];
-foreach ($products as $product)
-{
-	$tags = [];
-	foreach ($product->tags as $tag)
-	{
-		$tags[] = $tag->title;
-	}
-	$productList[] =
-		[
-			'title' => $product->title,
-			'description' => $product->description,
-			'price' => $product->price,
-			'id' => $product->id,
-			'isActive' => (int) $product->isActive,
-			'addedAt' => $product->addedAt,
-			'editedAt' => $product->editedAt,
-			'tags' =>implode(", ", $tags),
-		];
-
-}
+$contentName = $this->getVariable('contentName');
+$content = $this->getVariable('content');
+$columns = $this->getVariable('columns');
 ?>
 
 <div class="table__container">
@@ -39,12 +17,25 @@ foreach ($products as $product)
 
 <script type="module">
 	import { ProductList } from "/js/admin/product/product-list.js";
+	import { OrderList } from "/js/admin/order/order-list.js";
+	console.log('good');
+	if ('<?=$contentName?>' === 'products')
+	{
+		const mainList = new ProductList({
+			attachToNodeId: 'item-list',
+			items: <?= \Up\Util\Json::encode($content) ?>,
+			columns: <?= \Up\Util\Json::encode($columns) ?>,
+		});
+		mainList.render();
+	}
+	if ('<?=$contentName?>' === 'orders')
+	{
+		const mainList = new OrderList({
+			attachToNodeId: 'item-list',
+			items: <?= \Up\Util\Json::encode($content) ?>,
+			columns: <?= \Up\Util\Json::encode($columns) ?>,
+		});
+		mainList.render();
+	}
 
-	const mainProductList = new ProductList({
-		attachToNodeId: 'item-list',
-		items: <?= \Up\Util\Json::encode($productList) ?>,
-		columns: <?= \Up\Util\Json::encode($columns) ?>,
-	});
-
-	mainProductList.render();
 </script>

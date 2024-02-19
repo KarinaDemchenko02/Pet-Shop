@@ -1,11 +1,11 @@
 <?php
 
-namespace Up\Dto;
+namespace Up\Dto\Order;
 
 use Up\Entity\Entity;
 use Up\Entity\ShoppingSession;
 
-class OrderAddingDto implements Dto
+class OrderAddingDto implements OrderAdding
 {
 	public readonly ?int $userId;
 	public readonly ?string $name;

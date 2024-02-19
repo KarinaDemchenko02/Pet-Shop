@@ -218,6 +218,9 @@ class ProductRepositoryImpl implements ProductRepository
 		}
 	}
 
+	/**
+	 * @throws ProductNotChanged
+	 */
 	public static function change(ProductChangeDto $productChangeDto): void
 	{
 		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();

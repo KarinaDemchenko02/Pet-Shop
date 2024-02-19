@@ -1,6 +1,6 @@
-import { ProductItem } from "./product-item.js";
+import { OrderItem } from "./order-item.js";
 
-export class ProductList
+export class OrderList
 {
 	attachToNodeId = '';
 	rootNode;
@@ -35,8 +35,7 @@ export class ProductList
 	{
 		itemData.removeButtonHandler = this.handleRemoveButtonClick.bind(this);
 		itemData.editButtonHandler = this.handleEditButtonClick.bind(this);
-		itemData.restoreButtonHandler = this.handleRestoreButtonClick.bind(this);
-		return new ProductItem(itemData);
+		return new OrderItem(itemData);
 	}
 
 	createItemsContainer()
@@ -50,17 +49,18 @@ export class ProductList
 	handleEditButtonClick(item)
 	{
 		const formEdit = document.querySelector('.form__box');
-		const id = document.getElementById('productId');
-		const title = document.getElementById('title');
-		const desc = document.getElementById('desc');
-		const price = document.getElementById('price');
-		const tags = document.getElementById('tags');
+		const id = document.getElementById('id');
+		const deliveryAddress = document.getElementById('deliveryAddress');
+		const name = document.getElementById('name');
+		const surname = document.getElementById('surname');
+		const products = document.getElementById('products');
+
 
 		id.innerText = item['id'];
-		title.value = item['title'];
-		desc.value = item['description'];
-		price.value = item['price'];
-		tags.value = item['tags'];
+		deliveryAddress.value = item['deliveryAddress'];
+		name.value = item['name'];
+		surname.value = item['surname'];
+		products.value = item['products'];
 
 		formEdit.style.display = 'block';
 	}
@@ -73,7 +73,7 @@ export class ProductList
 
 	handleAcceptEditButtonClick()
 	{
-		const shouldRemove = confirm(`Are you sure you want to delete this product: ?`)
+		const shouldRemove = confirm(`Are you sure you want to change this product: ?`)
 		if (!shouldRemove)
 		{
 			return;
@@ -120,6 +120,7 @@ export class ProductList
 							item.description = changeParams.description;
 							item.price = changeParams.price;
 							item.tags = changeParams.tags;
+							return true;
 						}
 					})
 
@@ -171,7 +172,7 @@ export class ProductList
 					return response.json();
 				})
 				.then((response) => {
-					if (response.result === 'Y')
+					if (response.result === true)
 					{
 						this.items[itemIndex].isActive = false;
 						buttonRemove.disabled = false;
@@ -190,56 +191,6 @@ export class ProductList
 		}
 	}
 
-	handleRestoreButtonClick(item)
-	{
-		const itemIndex = this.items.indexOf(item);
-		if (itemIndex > -1)
-		{
-			const shouldRemove = confirm(`Are you sure you want to restore this product: ${item.title}?`)
-			if (!shouldRemove)
-			{
-				return;
-			}
-
-			const removeParams = {
-				id: item.id,
-			}
-
-			const buttonRestore = document.getElementById(item.id + 'restore');
-			buttonRestore.disabled = true;
-
-			fetch(
-				'/admin/restore/',
-				{
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json;charset=utf-8'
-					},
-					body: JSON.stringify(removeParams),
-				}
-			)
-				.then((response) => {
-					return response.json();
-				})
-				.then((response) => {
-					if (response.result === 'Y')
-					{
-						this.items[itemIndex].isActive = true;
-						buttonRestore.disabled = false;
-						this.render();
-					}
-					else
-					{
-						console.error('Error while deleting item.');
-						buttonRestore.disabled = false;
-					}
-				})
-				.catch((error) => {
-					console.error('Error while deleting item.');
-					buttonRestore.disabled = false;
-				})
-		}
-	}
 	render()
 	{
 		this.itemsContainer.innerHTML = '';
@@ -257,6 +208,11 @@ export class ProductList
 
 			containerColumn.append(tableColumn);
 		})
+
+		const productsColumn = document.createElement('th');
+		productsColumn.classList.add('table__th', 'table__th-heading');
+		productsColumn.innerText = 'Продукты';
+		containerColumn.append(productsColumn);
 
 		const columnAction = document.createElement('th');
 		columnAction.classList.add('table__th', 'table__th-heading');
@@ -293,52 +249,58 @@ export class ProductList
 		form.classList.add('form');
 
 		const spanId = document.createElement('span');
-		spanId.id = 'productId';
+		spanId.id = 'orderId';
 		spanId.style.display = 'none';
 
-		const titleLabel = document.createElement('label');
-		titleLabel.classList.add('form__label');
-		titleLabel.htmlFor = 'title';
-		titleLabel.innerText = 'Название';
+		const productsLabel = document.createElement('label');
+		productsLabel.classList.add('form__label');
+		productsLabel.htmlFor = 'products';
+		productsLabel.innerText = 'Продукты';
 
-		const titleInput = document.createElement('input');
-		titleInput.classList.add('form__input');
-		titleInput.id = 'title';
-		titleInput.type = 'text';
-		titleInput.name = 'title';
+		const dropDown = document.createElement('div');
+		const dropDownButton = document.createElement('button');
+		dropDownButton.classList.add('dropbtn');
+		dropDownButton.innerText = 'Показать';
+		dropDownButton.addEventListener('click', this.handleDropdownClick.bind(dropDownButton))
 
-		const descLabel = document.createElement('label');
-		descLabel.classList.add('form__label');
-		descLabel.htmlFor = 'desc';
-		descLabel.innerText = 'Описание';
+		const dropDownContent = document.createElement('div');
+		dropDownContent.id = 'product-dropdown';
+		dropDownContent.classList.add('dropdown-content');
 
-		const descInput = document.createElement('input');
-		descInput.classList.add('form__input');
-		descInput.id = 'desc';
-		descInput.type = 'text';
-		descInput.name = 'desc';
 
-		const priceLabel = document.createElement('label');
-		priceLabel.classList.add('form__label');
-		priceLabel.htmlFor = 'price';
-		priceLabel.innerText = 'Цена';
 
-		const priceInput = document.createElement('input');
-		priceInput.classList.add('form__input');
-		priceInput.id = 'price';
-		priceInput.type = 'text';
-		priceInput.name = 'price';
+		const deliveryAddressLabel = document.createElement('label');
+		deliveryAddressLabel.classList.add('form__label');
+		deliveryAddressLabel.htmlFor = 'deliveryAddress';
+		deliveryAddressLabel.innerText = 'Адрес доставки';
 
-		const tagsLabel = document.createElement('label');
-		tagsLabel.classList.add('form__label');
-		tagsLabel.htmlFor = 'tags';
-		tagsLabel.innerText = 'Теги';
+		const deliveryAddressInput = document.createElement('input');
+		deliveryAddressInput.classList.add('form__input');
+		deliveryAddressInput.id = 'deliveryAddress';
+		deliveryAddressInput.type = 'text';
+		deliveryAddressInput.name = 'deliveryAddress';
 
-		const tagsInput = document.createElement('input');
-		tagsInput.classList.add('form__input');
-		tagsInput.id = 'tags';
-		tagsInput.type = 'text';
-		tagsInput.name = 'tags';
+		const nameLabel = document.createElement('label');
+		nameLabel.classList.add('form__label');
+		nameLabel.htmlFor = 'name';
+		nameLabel.innerText = 'Имя';
+
+		const nameInput = document.createElement('input');
+		nameInput.classList.add('form__input');
+		nameInput.id = 'name';
+		nameInput.type = 'text';
+		nameInput.name = 'name';
+
+		const surnameLabel = document.createElement('label');
+		surnameLabel.classList.add('form__label');
+		surnameLabel.htmlFor = 'name';
+		surnameLabel.innerText = 'Имя';
+
+		const surnameInput = document.createElement('input');
+		surnameInput.classList.add('form__input');
+		surnameInput.id = 'surname';
+		surnameInput.type = 'text';
+		surnameInput.name = 'surname';
 
 		const acceptButton = document.createElement('button');
 		acceptButton.classList.add('form__button','form__button_change');
@@ -348,12 +310,18 @@ export class ProductList
 		acceptButton.innerText = 'Редактировать';
 		acceptButton.addEventListener('click', this.handleAcceptEditButtonClick.bind(this))
 
-		form.append(spanId, titleLabel, titleInput, descLabel, descInput,
-			priceLabel, priceInput, tagsLabel, tagsInput, acceptButton);
+		form.append(spanId, deliveryAddressLabel, deliveryAddressInput,
+			nameLabel, nameInput,
+			surnameLabel, surnameInput, acceptButton);
 		formContainer.append(closeButton, form);
 		formBox.append(formContainer);
 
 		return formBox;
+	}
+
+	handleDropdownClick(button)
+	{
+		button.classList.toggle("show");
 	}
 
 }

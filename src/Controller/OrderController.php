@@ -2,7 +2,7 @@
 
 namespace Up\Controller;
 
-use Up\Dto\OrderAddingDto;
+use Up\Dto\Order\OrderAddingDto;
 use Up\Exceptions\Service\OrderService\OrderNotCompleted;
 use Up\Repository\ShoppingSession\ShoppingSessionRepositoryImpl;
 use Up\Service\OrderService\OrderService;
@@ -27,7 +27,7 @@ class OrderController extends BaseController
 				$userId, $_POST['name'], $_POST['surname'], $_POST['address'],
 
 			);
-			OrderService::buyProduct($orderDto);
+			OrderService::createOrder($orderDto);
 			header('Location: /success/');
 		}
 		catch (OrderNotCompleted)
@@ -44,7 +44,7 @@ class OrderController extends BaseController
 			$orderDto = new OrderAddingDto(
 				$shoppingSession, 'Мем', 'Прикол', 'Я схожу с ума',
 			);
-			OrderService::buyProduct($orderDto);
+			OrderService::createOrder($orderDto);
 			if (!is_null($shoppingSession->id))
 			{
 				ShoppingSessionRepositoryImpl::delete($shoppingSession->id);

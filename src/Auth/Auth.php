@@ -5,6 +5,7 @@ namespace Up\Auth;
 
 use Up\Dto\UserAddingDto;
 use Up\Dto\UserDto;
+use Up\Exceptions\Auth\InvalidPassword;
 use Up\Exceptions\User\UserAdding;
 use Up\Exceptions\User\UserNotFound;
 use Up\Service\UserService\UserService;
@@ -72,6 +73,18 @@ class Auth
 			$this->errors[] = "Пользователь с этим Email уже существует";
 			return false;
 		}
+	}
+
+	/**
+	 * @throws InvalidPassword
+	 */
+	public static function hashPassword(string $password): string
+	{
+		if (!preg_match("/^(?=^.{8,}$)(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s).*$/", $password))
+		{
+			throw new InvalidPassword("Пароль состоит минимум из 8 символов и может содержать только строчные и прописные латинские буквы, цифры");
+		}
+		return password_hash($password, PASSWORD_DEFAULT);
 	}
 
 	/**

@@ -6,8 +6,9 @@ use Up\Dto\UserAddingDto;
 use Up\Dto\UserDto;
 use Up\Entity\User;
 use Up\Exceptions\User\UserAdding;
+use Up\Exceptions\User\UserNotFound;
 use Up\Util\Database\Query;
-use Up\Util\Database\QueryResult;
+
 
 class UserRepositoryImpl implements UserRepository
 {
@@ -17,7 +18,7 @@ class UserRepositoryImpl implements UserRepository
 		$sql = "select up_users.id, email, password, up_role.title as role, tel, name
 				from up_users inner join up_role on up_users.role_id = up_role.id;";
 
-		$result = QueryResult::getQueryResult($sql);
+		$result = Query::getQueryResult($sql);
 
 		$users = [];
 
@@ -105,6 +106,9 @@ class UserRepositoryImpl implements UserRepository
 		}
 	}
 
+	/**
+	 * @throws UserNotFound
+	 */
 	public static function change($id, $name, $email, $phoneNumber, $password): void
 	{
 		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
@@ -118,14 +122,14 @@ class UserRepositoryImpl implements UserRepository
 		{
 			mysqli_begin_transaction($connection);
 			$changeUsersSQL = "UPDATE up_users SET name='{$escapedName}', email='{$escapedEmail}', tel= '{$escapedPhoneNumber}', password = '{$escapedPassword}' where id = {$id}";
-			QueryResult::getQueryResult($changeUsersSQL);
+			Query::getQueryResult($changeUsersSQL);
 
 			mysqli_commit($connection);
 		}
 		catch (\Throwable $e)
 		{
 			mysqli_rollback($connection);
-			throw $e;
+			throw new UserNotFound();
 		}
 	}
 }

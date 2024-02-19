@@ -2,8 +2,11 @@
 
 namespace Up\Repository\Order;
 
-use Up\Dto\OrderAddingDto;
+use Up\Dto\Order\OrderAdding;
+use Up\Dto\Order\OrderAddingDto;
+use Up\Dto\Product\ProductAddingDto;
 use Up\Entity;
+use Up\Exceptions\Admin\Order\OrderNotDeleted;
 use Up\Exceptions\Order\OrderNotCompleted;
 use Up\Repository\Product\ProductRepositoryImpl;
 use Up\Repository\User\UserRepositoryImpl;
@@ -40,10 +43,25 @@ class OrderRepositoryImpl implements OrderRepository
 		{
 			if (!isset($orders[$row['id']]))
 			{
+				$query = Query::getInstance();
+				$sql = "SELECT item_id, quantities, price
+				FROM up_order_item oi
+				WHERE oi.order_id = {$row['id']}";
+				$productResult = $query::getQueryResult($sql);
+				$productDto = [];
+				while ($productRow = mysqli_fetch_assoc($productResult))
+				{
+					$productDto[] = new ProductAddingDto(
+						$productRow['item_id'],
+						$productRow['quantities'],
+						$productRow['price'],
+					);
+				}
+
 				$user = $row['user_id'] !== null ? UserRepositoryImpl::getById($row['user_id']) : null;
 				$orders[$row['id']] = new Entity\Order(
 					$row['id'],
-					[],
+					$productDto,
 					$user,
 					$row['delivery_address'],
 					$row['created_at'],
@@ -53,10 +71,6 @@ class OrderRepositoryImpl implements OrderRepository
 					$row['surname']
 				);
 			}
-			if (!is_null($row['item_id']))
-			{
-				$orders[$row['id']]->addProduct(new Entity\ProductQuantity(ProductRepositoryImpl::getById($row['item_id'], true), $row['quantities']));
-			}
 		}
 
 		return $orders;
@@ -65,7 +79,7 @@ class OrderRepositoryImpl implements OrderRepository
 	/**
 	 * @throws OrderNotCompleted
 	 */
-	public static function add(OrderAddingDto $order): void
+	public static function add(OrderAdding $order): void
 	{
 		$query = Query::getInstance();
 		try
@@ -76,14 +90,14 @@ class OrderRepositoryImpl implements OrderRepository
 			$addNewShoppingSessionSQL = "INSERT INTO up_order (up_order.user_id, up_order.delivery_address, up_order.status_id, up_order.created_at, up_order.name, up_order.surname) 
 				VALUES ($userId, '{$order->deliveryAddress}', {$order->statusId}, CURRENT_TIMESTAMP, '{$order->name}', '{$order->surname}')";
 
-			$query->getQueryResult($addNewShoppingSessionSQL);
+			$query::getQueryResult($addNewShoppingSessionSQL);
 			$last = $query->last();
 			foreach ($order->products as $product)
 			{
 				$addLinkToItemSQL = "INSERT INTO up_order_item (order_id, item_id, quantities, price)
-									VALUES ({$last}, {$product->info->id},
-											{$product->getQuantity()}, {$product->info->price})";
-				$query->getQueryResult($addLinkToItemSQL);
+									VALUES ({$last}, {$product->id},
+											{$product->quantity}, {$product->price})";
+				$query::getQueryResult($addLinkToItemSQL);
 			}
 			$query->commit();
 		}
@@ -94,6 +108,9 @@ class OrderRepositoryImpl implements OrderRepository
 		}
 	}
 
+	/**
+	 * @throws OrderNotDeleted
+	 */
 	public static function delete($id)
 	{
 		$query = Query::getInstance();
@@ -101,15 +118,19 @@ class OrderRepositoryImpl implements OrderRepository
 		{
 			$query->begin();
 			$deleteLinkOrderSQL = "DELETE FROM up_order_item WHERE order_id=$id";
-			$query->getQueryResult($deleteLinkOrderSQL);
+			$query::getQueryResult($deleteLinkOrderSQL);
 			$deleteOrderSQL = "DELETE FROM up_order WHERE id=$id";
-			$query->getQueryResult($deleteOrderSQL);
+			$query::getQueryResult($deleteOrderSQL);
+			if (Query::affectedRows() === 0)
+			{
+				throw new OrderNotDeleted();
+			}
 			$query->commit();
 		}
-		catch (\Throwable $e)
+		catch (\Throwable)
 		{
 			$query->rollback();
-			throw $e;
+			throw new OrderNotDeleted();
 		}
 	}
 
@@ -123,14 +144,14 @@ class OrderRepositoryImpl implements OrderRepository
 		{
 			$query->begin();
 			$changeOrderSQL = "UPDATE up_order SET edited_at='{$now}' WHERE id={$order->id}";
-			$query->getQueryResult($changeOrderSQL);
+			$query::getQueryResult($changeOrderSQL);
 			$deleteItemLinkSQL = "DELETE FROM up_order_item WHERE item_id NOT IN ($itemIds)";
-			$query->getQueryResult($deleteItemLinkSQL);
+			$query::getQueryResult($deleteItemLinkSQL);
 			foreach ($order->getProducts() as $item)
 			{
 				$addLinkToItemSQL = "INSERT IGNORE INTO up_order_item (order_id, item_id, quantities, price)
 									VALUES ({$order->id}, {$item->info->id}, {$item->getQuantity()}, {$item->info->price})";
-				$query->getQueryResult($addLinkToItemSQL);
+				$query::getQueryResult($addLinkToItemSQL);
 			}
 			$query->commit();
 
@@ -149,7 +170,7 @@ class OrderRepositoryImpl implements OrderRepository
 		$sql = "SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
                 WHERE TABLE_NAME = 'up_order';";
 
-		$result = $query->getQueryResult($sql);
+		$result = $query::getQueryResult($sql);
 		$columns = [];
 		while ($column = mysqli_fetch_column($result))
 		{

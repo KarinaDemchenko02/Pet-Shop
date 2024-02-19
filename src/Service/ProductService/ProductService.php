@@ -6,6 +6,7 @@ use Up\Dto\ProductAddingDto;
 use Up\Dto\ProductChangeDto;
 use Up\Dto\ProductDto;
 use Up\Dto\ProductDtoAdmin;
+use Up\Exceptions\Admin\ProductNotChanged;
 use Up\Exceptions\Admin\ProductNotDisabled;
 use Up\Exceptions\Admin\ProductNotRestored;
 use Up\Repository\Product\ProductRepositoryImpl;
@@ -72,6 +73,9 @@ class ProductService
 		return $productsDto;
 	}
 
+	/**
+	 * @throws ProductNotChanged
+	 */
 	public static function changeProduct(ProductChangeDto $productChangeDto): void
 	{
 		ProductRepositoryImpl::change($productChangeDto);
