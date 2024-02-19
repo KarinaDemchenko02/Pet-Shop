@@ -22,7 +22,7 @@ class OrderRepositoryImpl implements OrderRepository
 	{
 		$query = Query::getInstance();
 
-		$result = $query::getQueryResult(self::SELECT_SQL);
+		$result = $query->getQueryResult(self::SELECT_SQL);
 
 		return self::createOrderList($result);
 	}
@@ -30,8 +30,8 @@ class OrderRepositoryImpl implements OrderRepository
 	public static function getById(int $id): Entity\Order
 	{
 		$query = Query::getInstance();
-		$sql =  self::SELECT_SQL . "where up_order.id = {$id}";
-		$result = $query::getQueryResult($sql);
+		$sql = self::SELECT_SQL . "where up_order.id = {$id}";
+		$result = $query->getQueryResult($sql);
 
 		return self::createOrderList($result)[$id];
 	}
@@ -47,14 +47,12 @@ class OrderRepositoryImpl implements OrderRepository
 				$sql = "SELECT item_id, quantities, price
 				FROM up_order_item oi
 				WHERE oi.order_id = {$row['id']}";
-				$productResult = $query::getQueryResult($sql);
+				$productResult = $query->getQueryResult($sql);
 				$productDto = [];
 				while ($productRow = mysqli_fetch_assoc($productResult))
 				{
 					$productDto[] = new ProductAddingDto(
-						$productRow['item_id'],
-						$productRow['quantities'],
-						$productRow['price'],
+						$productRow['item_id'], $productRow['quantities'], $productRow['price'],
 					);
 				}
 
@@ -87,17 +85,17 @@ class OrderRepositoryImpl implements OrderRepository
 			$userId = $order->userId ?? 'null';
 			$query->begin();
 
-			$addNewShoppingSessionSQL = "INSERT INTO up_order (up_order.user_id, up_order.delivery_address, up_order.status_id, up_order.created_at, up_order.name, up_order.surname) 
-				VALUES ($userId, '{$order->deliveryAddress}', {$order->statusId}, CURRENT_TIMESTAMP, '{$order->name}', '{$order->surname}')";
+			$addNewShoppingSessionSQL = "INSERT INTO up_order (up_order.user_id, up_order.delivery_address, up_order.status_id, up_order.name, up_order.surname) 
+				VALUES ($userId, '{$order->deliveryAddress}', {$order->statusId}, '{$order->name}', '{$order->surname}')";
 
-			$query::getQueryResult($addNewShoppingSessionSQL);
+			$query->getQueryResult($addNewShoppingSessionSQL);
 			$last = $query->last();
 			foreach ($order->products as $product)
 			{
 				$addLinkToItemSQL = "INSERT INTO up_order_item (order_id, item_id, quantities, price)
-									VALUES ({$last}, {$product->id},
-											{$product->quantity}, {$product->price})";
-				$query::getQueryResult($addLinkToItemSQL);
+									VALUES ({$last}, {$product->info->id},
+											{$product->getQuantity()}, {$product->info->price})";
+				$query->getQueryResult($addLinkToItemSQL);
 			}
 			$query->commit();
 		}
@@ -118,9 +116,9 @@ class OrderRepositoryImpl implements OrderRepository
 		{
 			$query->begin();
 			$deleteLinkOrderSQL = "DELETE FROM up_order_item WHERE order_id=$id";
-			$query::getQueryResult($deleteLinkOrderSQL);
+			$query->getQueryResult($deleteLinkOrderSQL);
 			$deleteOrderSQL = "DELETE FROM up_order WHERE id=$id";
-			$query::getQueryResult($deleteOrderSQL);
+			$query->getQueryResult($deleteOrderSQL);
 			if (Query::affectedRows() === 0)
 			{
 				throw new OrderNotDeleted();
@@ -144,14 +142,14 @@ class OrderRepositoryImpl implements OrderRepository
 		{
 			$query->begin();
 			$changeOrderSQL = "UPDATE up_order SET edited_at='{$now}' WHERE id={$order->id}";
-			$query::getQueryResult($changeOrderSQL);
+			$query->getQueryResult($changeOrderSQL);
 			$deleteItemLinkSQL = "DELETE FROM up_order_item WHERE item_id NOT IN ($itemIds)";
-			$query::getQueryResult($deleteItemLinkSQL);
+			$query->getQueryResult($deleteItemLinkSQL);
 			foreach ($order->getProducts() as $item)
 			{
 				$addLinkToItemSQL = "INSERT IGNORE INTO up_order_item (order_id, item_id, quantities, price)
 									VALUES ({$order->id}, {$item->info->id}, {$item->getQuantity()}, {$item->info->price})";
-				$query::getQueryResult($addLinkToItemSQL);
+				$query->getQueryResult($addLinkToItemSQL);
 			}
 			$query->commit();
 
@@ -170,7 +168,7 @@ class OrderRepositoryImpl implements OrderRepository
 		$sql = "SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
                 WHERE TABLE_NAME = 'up_order';";
 
-		$result = $query::getQueryResult($sql);
+		$result = $query->getQueryResult($sql);
 		$columns = [];
 		while ($column = mysqli_fetch_column($result))
 		{

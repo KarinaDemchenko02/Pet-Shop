@@ -31,7 +31,7 @@ class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
 		return self::createShoppingSessionList($result);
 	}
 
-	public static function getByUser($id)
+	public static function getByUser($id): ShoppingSession
 	{
 		$query = Query::getInstance();
 		$sql = self::SELECT_SQL . "where user_id = {$id};";
@@ -69,7 +69,7 @@ class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
 		return $shoppingSessions;
 	}
 
-	public static function add($userId, array $productsQuantities)
+	public static function add($userId, array $productsQuantities): void
 	{
 		$query = Query::getInstance();
 		try

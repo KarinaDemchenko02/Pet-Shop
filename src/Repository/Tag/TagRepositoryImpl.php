@@ -10,10 +10,10 @@ class TagRepositoryImpl implements TagRepository
 
 	public static function getAll(): array
 	{
-
+		$query = Query::getInstance();
 		$sql = "select * from up_tags;";
 
-		$result = Query::getQueryResult($sql);
+		$result = $query->getQueryResult($sql);
 
 		$tags = [];
 
@@ -27,9 +27,10 @@ class TagRepositoryImpl implements TagRepository
 
 	public static function getById(int $id): Tag
 	{
+		$query = Query::getInstance();
 		$sql = "select * from up_tags where id = {$id};";
 
-		$result = Query::getQueryResult($sql);
+		$result = $query->getQueryResult($sql);
 
 		$row = mysqli_fetch_assoc($result);
 
@@ -38,9 +39,10 @@ class TagRepositoryImpl implements TagRepository
 
 	public static function add(string $title): bool
 	{
+		$query = Query::getInstance();
 		$sql = "INSERT INTO up_tags (name) VALUES ('{$title}');";
 
-		$result = Query::getQueryResult($sql);
+		$result = $query->getQueryResult($sql);
 
 		return true;
 	}
@@ -50,7 +52,7 @@ class TagRepositoryImpl implements TagRepository
 		$query = Query::getInstance();
 		$sql = "SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
 				WHERE TABLE_NAME = 'up_tags'";
-		$result = $query::getQueryResult($sql);
+		$result = $query->getQueryResult($sql);
 		$columns = [];
 		while ($column = mysqli_fetch_assoc($result))
 		{

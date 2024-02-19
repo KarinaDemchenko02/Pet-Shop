@@ -47,7 +47,7 @@ class Template
 	{
 		if (is_object($variables))
 		{
-			$variables->variables = $this->xssProtection($variables->variables);
+			@$variables->variables = $this->xssProtection($variables->variables);
 
 			return $variables;
 		}

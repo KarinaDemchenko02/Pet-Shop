@@ -13,10 +13,11 @@ class UserRepositoryImpl implements UserRepository
 
 	public static function getAll(): array
 	{
+		$query = Query::getInstance();
 		$sql = "select up_users.id, email, password, up_role.title as role, tel, name
 				from up_users inner join up_role on up_users.role_id = up_role.id;";
 
-		$result = Query::getQueryResult($sql);
+		$result = $query->getQueryResult($sql);
 
 		$users = [];
 
@@ -34,11 +35,12 @@ class UserRepositoryImpl implements UserRepository
 
 	public static function getById(int $id): User
 	{
+		$query = Query::getInstance();
 		$sql = "select up_users.id, email, password, up_role.title as role, tel, name
 				from up_users inner join up_role on up_users.role_id = up_role.id
 				where up_users.id = {$id};";
 
-		$result = Query::getQueryResult($sql);
+		$result = $query->getQueryResult($sql);
 
 		$row = mysqli_fetch_assoc($result);
 
@@ -49,12 +51,12 @@ class UserRepositoryImpl implements UserRepository
 
 	public static function getByEmail(string $email): ?User
 	{
-
+		$query = Query::getInstance();
 		$sql = "select up_users.id, up_users.email, up_users.password, up_role.title as role, up_users.tel, up_users.name
 				from up_users inner join up_role on up_users.role_id = up_role.id
 				where up_users.email = '{$email}'";
 
-		$result = Query::getQueryResult($sql);
+		$result = $query->getQueryResult($sql);
 
 		$row = mysqli_fetch_assoc($result);
 
@@ -74,9 +76,10 @@ class UserRepositoryImpl implements UserRepository
 	 */
 	public static function add(UserAddingDto $user): void
 	{
+		$query = Query::getInstance();
 		$sql = "select id from up_role where title = '{$user->roleTitle}';";
 
-		$result = Query::getQueryResult($sql);
+		$result = $query->getQueryResult($sql);
 
 		$row = mysqli_fetch_assoc($result);
 		if (is_null($row))
@@ -85,21 +88,20 @@ class UserRepositoryImpl implements UserRepository
 		}
 		$roleId = $row['id'];
 
-		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
-		$escapedUserName = mysqli_real_escape_string($connection, $user->name);
-		$escapedUserPassword = mysqli_real_escape_string($connection, $user->password);
+		$escapedUserName = $query->escape($user->name);
+		$escapedUserPassword = $query->escape($user->password);
 		try
 		{
-			mysqli_begin_transaction($connection);
+			$query->begin();
 			$sql = "INSERT INTO up_users (email, password, role_id, tel, name) 
 				VALUES ('{$user->email}', '{$escapedUserPassword}', {$roleId}, '{$user->phoneNumber}', '{$escapedUserName}');";
 
-			Query::getQueryResult($sql);
-			mysqli_commit($connection);
+			$query->getQueryResult($sql);
+			$query->commit();
 		}
 		catch (\Throwable $e)
 		{
-			mysqli_rollback($connection);
+			$query->rollback();
 			throw new UserAdding('Failed to add a user');
 		}
 	}
@@ -109,24 +111,24 @@ class UserRepositoryImpl implements UserRepository
 	 */
 	public static function change($id, $name, $email, $phoneNumber, $password): void
 	{
-		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
+		$query = Query::getInstance();
 
-		$escapedName = mysqli_real_escape_string($connection, $name);
-		$escapedEmail = mysqli_real_escape_string($connection, $email);
-		$escapedPhoneNumber = mysqli_real_escape_string($connection, $phoneNumber);
-		$escapedPassword = mysqli_real_escape_string($connection, $password);
+		$escapedName = $query->escape($name);
+		$escapedEmail = $query->escape($email);
+		$escapedPhoneNumber = $query->escape($phoneNumber);
+		$escapedPassword = $query->escape($password);
 
 		try
 		{
-			mysqli_begin_transaction($connection);
+			$query->begin();
 			$changeUsersSQL = "UPDATE up_users SET name='{$escapedName}', email='{$escapedEmail}', tel= '{$escapedPhoneNumber}', password = '{$escapedPassword}' where id = {$id}";
-			Query::getQueryResult($changeUsersSQL);
+			$query->getQueryResult($changeUsersSQL);
 
-			mysqli_commit($connection);
+			$query->commit();
 		}
 		catch (\Throwable $e)
 		{
-			mysqli_rollback($connection);
+			$query->rollback();
 			throw new UserNotFound();
 		}
 	}
@@ -136,12 +138,13 @@ class UserRepositoryImpl implements UserRepository
 		$query = Query::getInstance();
 		$sql = "SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
 				WHERE TABLE_NAME = 'up_users'";
-		$result = $query::getQueryResult($sql);
+		$result = $query->getQueryResult($sql);
 		$columns = [];
 		while ($column = mysqli_fetch_assoc($result))
 		{
 			$columns[] = $column;
 		}
+
 		return $columns;
 
 	}

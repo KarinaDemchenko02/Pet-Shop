@@ -17,6 +17,7 @@ class ProductRepositoryImpl implements ProductRepository
 {
 	public static function getAll(int $page = 1): array
 	{
+		$query = Query::getInstance();
 		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
 
 		$offset = $limit * ($page - 1);
@@ -29,13 +30,14 @@ class ProductRepositoryImpl implements ProductRepository
 				WHERE up_item.is_active = 1
 	            LIMIT {$limit} OFFSET {$offset}";
 
-		$result = Query::getQueryResult($sql);
+		$result = $query->getQueryResult($sql);
 
 		return self::createProductList($result);
 	}
 
 	public static function getAllProducts(): array
 	{
+		$query = Query::getInstance();
 
 		$sql = "select up_item.id, up_item.name, description, price, id_tag, is_active,
                 added_at, edited_at, up_image.id as imageId, path
@@ -45,13 +47,14 @@ class ProductRepositoryImpl implements ProductRepository
 				WHERE up_item.is_active = 1
 	           ";
 
-		$result = Query::getQueryResult($sql);
+		$result = $query->getQueryResult($sql);
 
 		return self::createProductList($result);
 	}
 
 	public static function getAllForAdmin(int $page = 1): array
 	{
+		$query = Query::getInstance();
 		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
 		$offset = $limit * ($page - 1);
 
@@ -62,13 +65,14 @@ class ProductRepositoryImpl implements ProductRepository
 	            left join up_item_tag on up_item.id = up_item_tag.id_item
 	            LIMIT {$limit} OFFSET {$offset}";
 
-		$result = Query::getQueryResult($sql);
+		$result = $query->getQueryResult($sql);
 
 		return self::createProductList($result);
 	}
 
 	public static function getById(int $id, bool $showHiddenProducts = false): Product
 	{
+		$query = Query::getInstance();
 		$status = '';
 		if (!$showHiddenProducts)
 		{
@@ -82,7 +86,7 @@ class ProductRepositoryImpl implements ProductRepository
 				left join up_image on up_item.id = item_id
 	            where up_item.id = {$id} {$status}";
 
-		$result = Query::getQueryResult($sql);
+		$result = $query->getQueryResult($sql);
 
 		$isFirstLine = true;
 		while ($row = mysqli_fetch_assoc($result))
@@ -109,8 +113,8 @@ class ProductRepositoryImpl implements ProductRepository
 
 	public static function getByTitle(string $title, int $page = 1): array
 	{
-		$connection = Connector::getInstance()->getDbConnection();
-		$escapedTitle = mysqli_real_escape_string($connection, $title);
+		$query = Query::getInstance();
+		$escapedTitle = $query->escape($title);
 
 		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
 		$offset = $limit * ($page - 1);
@@ -123,41 +127,41 @@ class ProductRepositoryImpl implements ProductRepository
 				WHERE up_item.name LIKE '%{$escapedTitle}%' AND up_item.is_active = 1
 				LIMIT {$limit} OFFSET {$offset}";
 
-		$result = Query::getQueryResult($sql);
+		$result = $query->getQueryResult($sql);
 
 		return self::createProductList($result);
 	}
 
 	public static function add(ProductAddingDto $productAddingDto): void
 	{
-		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
+		$query = Query::getInstance();
 		try
 		{
-			mysqli_begin_transaction($connection);
-			$escapedTitle = mysqli_real_escape_string($connection, $productAddingDto->title);
-			$escapedDescription = mysqli_real_escape_string($connection, $productAddingDto->description) ? : "NULL";
+			$query->begin();
+			$escapedTitle = $query->escape($productAddingDto->title);
+			$escapedDescription = $query->escape($productAddingDto->description) ? : "NULL";
 
 			$addNewProductSQL = "INSERT INTO up_item (name, description, price) 
 				VALUES ('{$escapedTitle}', '{$escapedDescription}', {$productAddingDto->price})";
-			Query::getQueryResult($addNewProductSQL);
-			$lastItem = mysqli_insert_id($connection);
+			$query->getQueryResult($addNewProductSQL);
+			$lastItem = $query->last();
 			$addImgNewProductSQL = "INSERT INTO up_image (path, item_id) VALUES ('{$productAddingDto->imagePath}', {$lastItem})";
-			Query::getQueryResult($addImgNewProductSQL);
+			$query->getQueryResult($addImgNewProductSQL);
 			TagRepositoryImpl::add($productAddingDto->tag);
-			$lastTag = mysqli_insert_id($connection);
+			$lastTag = $query->last();
 			$addTagNewProductSQL = "INSERT INTO up_item_tag (id_item, id_tag) VALUES ({$lastItem}, {$lastTag})";
-			Query::getQueryResult($addTagNewProductSQL);
+			$query->getQueryResult($addTagNewProductSQL);
 			//			$last = mysqli_insert_id($connection);
 			//			foreach ($tags as $tag)
 			//			{
 			//				$addLinkToTagSQL = "INSERT INTO up_item_tag (id_item, id_tag) VALUES ({$last}, {$tag})";
 			//				QueryResult::getQueryResult($addLinkToTagSQL);
 			//			}
-			mysqli_commit($connection);
+			$query->commit();
 		}
 		catch (\Throwable $e)
 		{
-			mysqli_rollback($connection);
+			$query->rollback();
 			throw $e;
 		}
 	}
@@ -183,10 +187,11 @@ class ProductRepositoryImpl implements ProductRepository
 	 */
 	public static function disable($id): void
 	{
+		$query = Query::getInstance();
 		try
 		{
 			$disableProductSQL = "UPDATE up_item SET is_active=0 where id = {$id}";
-			Query::getQueryResult($disableProductSQL);
+			$query->getQueryResult($disableProductSQL);
 			if (Query::affectedRows() === 0)
 			{
 				throw new ProductNotDisabled();
@@ -203,10 +208,11 @@ class ProductRepositoryImpl implements ProductRepository
 	 */
 	public static function restore($id): void
 	{
+		$query = Query::getInstance();
 		try
 		{
 			$restoreProductSQL = "UPDATE up_item SET is_active=1 where id = {$id}";
-			Query::getQueryResult($restoreProductSQL);
+			$query->getQueryResult($restoreProductSQL);
 			if (Query::affectedRows() === 0)
 			{
 				throw new ProductNotRestored();
@@ -223,7 +229,7 @@ class ProductRepositoryImpl implements ProductRepository
 	 */
 	public static function change(ProductChangeDto $productChangeDto): void
 	{
-		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
+		$query = Query::getInstance();
 		$time = new \DateTime();
 		$now = $time->format('Y-m-d H:i:s');
 
@@ -233,13 +239,13 @@ class ProductRepositoryImpl implements ProductRepository
 		}*/
 
 		/*$strTags = implode(', ', $tagIds);*/
-		$escapedName = mysqli_real_escape_string($connection, $productChangeDto->title);
-		$escapedDescription = mysqli_real_escape_string($connection, $productChangeDto->description);
+		$escapedName = $query->escape($productChangeDto->title);
+		$escapedDescription = $query->escape($productChangeDto->description);
 		try
 		{
-			mysqli_begin_transaction($connection);
+			$query->begin();
 			$changeProductSQL = "UPDATE up_item SET name='{$escapedName}', description='{$escapedDescription}', price= {$productChangeDto->price}, edited_at='{$now}' where id = {$productChangeDto->id}";
-			Query::getQueryResult($changeProductSQL);
+			$query->getQueryResult($changeProductSQL);
 			if (Query::affectedRows() === 0)
 			{
 				throw new ProductNotRestored();
@@ -251,17 +257,18 @@ class ProductRepositoryImpl implements ProductRepository
 				$addLinkToTagSQL = "INSERT IGNORE INTO up_item_tag (id_item, id_tag) VALUES ({$id}, {$tag->id})";
 				QueryResult::getQueryResult($addLinkToTagSQL);
 			}*/
-			mysqli_commit($connection);
+			$query->commit();
 		}
 		catch (\Throwable)
 		{
-			mysqli_rollback($connection);
+			$query->rollback();
 			throw new ProductNotChanged();
 		}
 	}
 
 	public static function getByTag(int $tagId, int $page = 1): array
 	{
+		$query = Query::getInstance();
 		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
 		$offset = $limit * ($page - 1);
 
@@ -273,13 +280,14 @@ class ProductRepositoryImpl implements ProductRepository
 				WHERE it.id_tag = {$tagId} AND up_item.is_active = 1
 				LIMIT {$limit} OFFSET {$offset}";
 
-		$result = Query::getQueryResult($sql);
+		$result = $query->getQueryResult($sql);
 
 		return self::createProductList($result);
 	}
 
 	public static function getByTags(array $tags, int $page = 1): array
 	{
+		$query = Query::getInstance();
 		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
 		$offset = $limit * ($page - 1);
 
@@ -296,13 +304,14 @@ class ProductRepositoryImpl implements ProductRepository
 				WHERE it.id_tag IN (" . implode(",", $tagIds) . ") AND up_item.is_active = 1
 				LIMIT {$limit} OFFSET {$offset}";
 
-		$result = Query::getQueryResult($sql);
+		$result = $query->getQueryResult($sql);
 
 		return self::createProductList($result);
 	}
 
 	private static function createProductList(\mysqli_result $result): array
 	{
+		$query = Query::getInstance();
 		$products = [];
 
 		while ($row = mysqli_fetch_assoc($result))
@@ -329,6 +338,7 @@ class ProductRepositoryImpl implements ProductRepository
 
 	private static function createProductEntity(array $row): Product
 	{
+		$query = Query::getInstance();
 		$tag = [];
 		// $image = [new Image(404, '/images/imgNotFound.png', 'main')];
 		$imagePath = '/images/imgNotFound.png';
@@ -358,10 +368,11 @@ class ProductRepositoryImpl implements ProductRepository
 
 	public static function getColumn(): array
 	{
+		$query = Query::getInstance();
 		$sql = "SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
                 WHERE TABLE_NAME = 'up_item';";
 
-		$result = Query::getQueryResult($sql);
+		$result = $query->getQueryResult($sql);
 
 		$columns = [];
 

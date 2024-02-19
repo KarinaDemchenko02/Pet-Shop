@@ -13,7 +13,7 @@ class Query
 		self::$connection = Connector::getInstance()->getDbConnection();
 	}
 
-	public static function getQueryResult(string $sql): \mysqli_result|bool
+	public function getQueryResult(string $sql): \mysqli_result|bool
 	{
 		$result = mysqli_query(self::$connection, $sql);
 
