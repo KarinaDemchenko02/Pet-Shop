@@ -3,12 +3,10 @@
 namespace Up\Repository\User;
 
 use Up\Dto\UserAddingDto;
-use Up\Dto\UserDto;
 use Up\Entity\User;
 use Up\Exceptions\User\UserAdding;
 use Up\Exceptions\User\UserNotFound;
 use Up\Util\Database\Query;
-
 
 class UserRepositoryImpl implements UserRepository
 {
@@ -131,5 +129,20 @@ class UserRepositoryImpl implements UserRepository
 			mysqli_rollback($connection);
 			throw new UserNotFound();
 		}
+	}
+
+	public static function getColumn(): array
+	{
+		$query = Query::getInstance();
+		$sql = "SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+				WHERE TABLE_NAME = 'up_users'";
+		$result = $query::getQueryResult($sql);
+		$columns = [];
+		while ($column = mysqli_fetch_assoc($result))
+		{
+			$columns[] = $column;
+		}
+		return $columns;
+
 	}
 }

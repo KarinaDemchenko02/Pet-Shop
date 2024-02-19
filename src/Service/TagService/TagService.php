@@ -25,4 +25,9 @@ class TagService
 		$product = TagRepositoryImpl::getById($id);
 		return new TagDto($product);
 	}
+
+	public static function getColumn(): array
+	{
+		return TagRepositoryImpl::getColumn();
+	}
 }
