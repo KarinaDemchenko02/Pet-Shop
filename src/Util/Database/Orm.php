@@ -46,12 +46,21 @@ class Orm
 		return self::$instance;
 	}
 
-	public function select($table, $columns = '*', $where = '', $orderBy = '', $limit = '', $offset='', $joins = [])
+	public function select(
+		$table,
+		$columns = '*',
+		$where = '',
+		$orderBy = '',
+		$limit = '',
+		$offset = '',
+		$joins = [],
+		$groupBy = ''
+	)
 	{
 		if (!is_string($columns))
-			{
-				$columns = implode(', ', $columns);
-			}
+		{
+			$columns = implode(', ', $columns);
+		}
 		$query = "SELECT $columns FROM $table";
 
 		foreach ($joins as $join => $joinData)
@@ -65,6 +74,10 @@ class Orm
 		{
 			$query .= " WHERE $where";
 		}
+		if (!empty($groupBy))
+		{
+			$query .= " GROUP BY $groupBy";
+		}
 		if (!empty($orderBy))
 		{
 			$query .= " ORDER BY $orderBy";
@@ -73,7 +86,7 @@ class Orm
 		{
 			$query .= " LIMIT $limit";
 		}
-		if (!empty(!$offset))
+		if (!empty($offset))
 		{
 			$query .= " OFFSET $offset";
 		}
@@ -91,7 +104,6 @@ class Orm
 		$columns = implode(', ', array_keys($data));
 		$values = implode(', ', array_map([$this, 'escapeString'], array_values($data)));
 		$query = "INSERT INTO $table ($columns) VALUES ($values)";
-
 
 		$result = $this->db->query($query);
 		if ($error = $this->db->error)
