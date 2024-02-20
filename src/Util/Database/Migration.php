@@ -6,14 +6,14 @@ class Migration
 {
 	protected const  migrationPattern = "/\d{4}_(\d{2}_){4}/";
 
-	public static function migrate(): void
+	public static function migrate(Orm $orm): void
 	{
 		$lastFileTimestamp = 0;
-		$queryResult = Query::getInstance();
 		try
 		{
-			$result = $queryResult->getQueryResult('SELECT NAME FROM migration');
-			$lastFileTimestamp = self::getTimestampFromFileName($result->fetch_column());
+			$migration = $orm->select('migration', 'NAME')->fetch_column();
+			$lastFileTimestamp = self::getTimestampFromFileName($migration);
+
 		}
 		catch (\mysqli_sql_exception $e)
 		{
@@ -24,7 +24,7 @@ class Migration
 		}
 		finally
 		{
-			self::doMigrations($lastFileTimestamp);
+			self::doMigrations($orm, $lastFileTimestamp);
 		}
 	}
 
@@ -36,15 +36,15 @@ class Migration
 		return (int)\DateTime::createFromFormat('Y_m_d_H_i', $lastFileDate)->getTimestamp();
 	}
 
-	private static function doMigrations($timeStamp = 0): void
+	private static function doMigrations(Orm $orm, $timeStamp = 0): void
 	{
-		$queryResult = Query::getInstance();
 		$dir = ROOT . '/Migration';
 		$lastFile = null;
 		if (!is_dir($dir))
 		{
 			throw new \RuntimeException("migration dir is not exists");
 		}
+
 		$dh = opendir($dir);
 		while (($file = readdir($dh)) !== false)
 		{
@@ -57,21 +57,25 @@ class Migration
 				continue;
 			}
 			$migration = file_get_contents($dir . '/' . $file);
-			$queryResult->execute($migration);
+			$orm->execute($migration);
 			$lastFile = $file;
 		}
 		closedir($dh);
 		if ($lastFile)
 		{
-			self::updateLastMigration($timeStamp === 0, $lastFile);
+			self::updateLastMigration($orm, $timeStamp === 0, $lastFile);
 		}
 	}
 
-	private static function updateLastMigration(bool $isFirstTime, $lastFile): void
+	private static function updateLastMigration(Orm $orm, bool $isFirstTime, $lastFile): void
 	{
-		$queryResult = Query::getInstance();
-		$sql = $isFirstTime ? "INSERT INTO migration (NAME) VALUES ('$lastFile')"
-			: "UPDATE migration SET NAME='$lastFile' WHERE ID =1;";
-		$queryResult->getQueryResult($sql);
+		if ($isFirstTime)
+		{
+			$orm->insert('migration', ['NAME' => $lastFile]);
+		}
+		else
+		{
+			$orm->update('migration', ['NAME' => $lastFile], 'ID=1');
+		}
 	}
 }
