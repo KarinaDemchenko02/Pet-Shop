@@ -1,4 +1,4 @@
-import { TagItem } from "../tag/tag-item.js";
+import { TagItem } from "./tag-item.js";
 
 export class TagList
 {
@@ -35,7 +35,6 @@ export class TagList
 	{
 		itemData.removeButtonHandler = this.handleRemoveButtonClick.bind(this);
 		itemData.editButtonHandler = this.handleEditButtonClick.bind(this);
-		itemData.restoreButtonHandler = this.handleRestoreButtonClick.bind(this);
 		return new TagItem(itemData);
 	}
 
@@ -50,8 +49,8 @@ export class TagList
 	handleEditButtonClick(item)
 	{
 		const formEdit = document.querySelector('.form__box');
-		const id = document.getElementById('productId');
-		const title = document.getElementById('title');
+		const id = document.getElementById('tagId');
+		const title = document.getElementById('tagTitle');
 
 		id.innerText = item['id'];
 		title.value = item['title'];
@@ -73,8 +72,8 @@ export class TagList
 			return;
 		}
 
-		const id = document.getElementById('productId').innerText;
-		const title = document.getElementById('title').value;
+		const id = document.getElementById('tagId').innerText;
+		const title = document.getElementById('tagTitle').value;
 
 
 		const changeParams = {
@@ -158,7 +157,7 @@ export class TagList
 				.then((response) => {
 					if (response.result === true)
 					{
-						this.items[itemIndex].isActive = false;
+						this.items.splice(itemIndex, 1);
 						buttonRemove.disabled = false;
 						this.render();
 					}
@@ -175,56 +174,6 @@ export class TagList
 		}
 	}
 
-	handleRestoreButtonClick(item)
-	{
-		const itemIndex = this.items.indexOf(item);
-		if (itemIndex > -1)
-		{
-			const shouldRestore = confirm(`Are you sure you want to restore this product: ${item.title}?`)
-			if (!shouldRestore)
-			{
-				return;
-			}
-
-			const restoreParams = {
-				id: item.id,
-			}
-
-			const buttonRestore = document.getElementById(item.id + 'restore');
-			buttonRestore.disabled = true;
-
-			fetch(
-				'/admin/product/restore/',
-				{
-					method: 'PATCH',
-					headers: {
-						'Content-Type': 'application/json;charset=utf-8'
-					},
-					body: JSON.stringify(restoreParams),
-				}
-			)
-				.then((response) => {
-					return response.json();
-				})
-				.then((response) => {
-					if (response.result === true)
-					{
-						this.items[itemIndex].isActive = true;
-						buttonRestore.disabled = false;
-						this.render();
-					}
-					else
-					{
-						console.error('Error while deleting item.');
-						buttonRestore.disabled = false;
-					}
-				})
-				.catch((error) => {
-					console.error('Error while deleting item.');
-					buttonRestore.disabled = false;
-				})
-		}
-	}
 	render()
 	{
 		this.itemsContainer.innerHTML = '';
@@ -243,18 +192,12 @@ export class TagList
 			containerColumn.append(tableColumn);
 		})
 
-		/*const tagsColumn = document.createElement('th');
-		tagsColumn.classList.add('table__th', 'table__th-heading');
-		tagsColumn.innerText = 'Теги';
-		containerColumn.append(tagsColumn);*/
-
 		const columnAction = document.createElement('th');
 		columnAction.classList.add('table__th', 'table__th-heading');
 		columnAction.innerText = 'Действие';
 
 		containerColumn.append(columnAction);
 		table.append(containerColumn);
-
 
 		this.itemsContainer.append(table, this.renderForm());
 
@@ -283,52 +226,19 @@ export class TagList
 		form.classList.add('form');
 
 		const spanId = document.createElement('span');
-		spanId.id = 'productId';
+		spanId.id = 'tagId';
 		spanId.style.display = 'none';
 
 		const titleLabel = document.createElement('label');
 		titleLabel.classList.add('form__label');
-		titleLabel.htmlFor = 'title';
+		titleLabel.htmlFor = 'tagTitle';
 		titleLabel.innerText = 'Название';
 
 		const titleInput = document.createElement('input');
 		titleInput.classList.add('form__input');
-		titleInput.id = 'title';
+		titleInput.id = 'tagTitle';
 		titleInput.type = 'text';
-		titleInput.name = 'title';
-
-		const descLabel = document.createElement('label');
-		descLabel.classList.add('form__label');
-		descLabel.htmlFor = 'desc';
-		descLabel.innerText = 'Описание';
-
-		const descInput = document.createElement('input');
-		descInput.classList.add('form__input');
-		descInput.id = 'desc';
-		descInput.type = 'text';
-		descInput.name = 'desc';
-
-		const priceLabel = document.createElement('label');
-		priceLabel.classList.add('form__label');
-		priceLabel.htmlFor = 'price';
-		priceLabel.innerText = 'Цена';
-
-		const priceInput = document.createElement('input');
-		priceInput.classList.add('form__input');
-		priceInput.id = 'price';
-		priceInput.type = 'text';
-		priceInput.name = 'price';
-
-		/*const tagsLabel = document.createElement('label');
-		tagsLabel.classList.add('form__label');
-		tagsLabel.htmlFor = 'tags';
-		tagsLabel.innerText = 'Теги';
-
-		const tagsInput = document.createElement('input');
-		tagsInput.classList.add('form__input');
-		tagsInput.id = 'tags';
-		tagsInput.type = 'text';
-		tagsInput.name = 'tags';*/
+		titleInput.name = 'tagTitle';
 
 		const acceptButton = document.createElement('button');
 		acceptButton.classList.add('form__button','form__button_change');
@@ -338,8 +248,7 @@ export class TagList
 		acceptButton.innerText = 'Редактировать';
 		acceptButton.addEventListener('click', this.handleAcceptEditButtonClick.bind(this))
 
-		form.append(spanId, titleLabel, titleInput, descLabel, descInput,
-			priceLabel, priceInput, /*tagsLabel, tagsInput,*/ acceptButton);
+		form.append(spanId, titleLabel, titleInput, acceptButton);
 		formContainer.append(closeButton, form);
 		formBox.append(formContainer);
 

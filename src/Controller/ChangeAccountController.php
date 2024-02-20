@@ -13,10 +13,10 @@ class ChangeAccountController extends BaseController
 	{
 		$data = Json::decode(file_get_contents("php://input"));
 
-		if (!$this->isLogIn() || !(self::getUser()->id === (int) $data['id']))
+		/*if (!$this->isLogIn() || !($this->getUser()->id === (int)$data['id']))
 		{
 			return;
-		}
+		}*/
 
 		$response = [];
 		$response['errors'] = [];

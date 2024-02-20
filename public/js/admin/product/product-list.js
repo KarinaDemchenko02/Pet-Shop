@@ -139,7 +139,7 @@ export class ProductList
 
 		if (itemIndex > -1)
 		{
-			const shouldRemove = confirm(`Are you sure you want to delete this product: ${item.title}?`)
+			const shouldRemove = confirm(`Are you sure you want to disable this product: ${item.title}?`)
 			if (!shouldRemove)
 			{
 				return;

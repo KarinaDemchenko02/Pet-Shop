@@ -41,13 +41,14 @@ class PageAdminController extends BaseController
 	public function showProductsAction()
 	{
 		$contentName = 'products';
+		$entity = $_GET['entity'] ?? 'products';
 		$content = [];
 		$page = 1;
 		if (isset($_GET['page']))
 		{
 			$page = (int)$_GET['page'];
 		}
-		if ($_GET['entity'] === 'users')
+		if ($entity === 'users')
 		{
 			$contentName = 'users';
 			$users = UserService::getAll();
@@ -63,7 +64,7 @@ class PageAdminController extends BaseController
 				];
 			}
 		}
-		elseif ($_GET['entity'] === 'tags')
+		elseif ($entity === 'tags')
 		{
 			$contentName = 'tags';
 			$tags = TagService::getAllTags();
@@ -76,7 +77,7 @@ class PageAdminController extends BaseController
 				];
 			}
 		}
-		elseif ($_GET['entity'] === 'orders')
+		elseif ($entity === 'orders')
 		{
 			$contentName = 'orders';
 			$orders = OrderService::getAllOrder();

@@ -4,6 +4,7 @@ namespace Up\Service\OrderService;
 
 use Up\Dto\Order\OrderAdding;
 use Up\Dto\Order\OrderAddingAdminDto;
+use Up\Dto\Order\OrderChangingDto;
 use Up\Dto\Order\OrderGettingAdminDto;
 use Up\Exceptions\Admin\Order\OrderNotChanged;
 use Up\Exceptions\Admin\Order\OrderNotDeleted;
@@ -59,8 +60,8 @@ class OrderService
 	/**
 	 * @throws OrderNotChanged
 	 */
-	public static function changeOrder(int $id): void
+	public static function changeOrder(OrderChangingDto $dto): void
 	{
-		OrderRepositoryImpl::change($id);
+		OrderRepositoryImpl::change($dto);
 	}
 }
