@@ -6,8 +6,9 @@ class Migration
 {
 	protected const  migrationPattern = "/\d{4}_(\d{2}_){4}/";
 
-	public static function migrate(Orm $orm): void
+	public static function migrate(): void
 	{
+		$orm = Orm::getInstance();
 		$lastFileTimestamp = 0;
 		try
 		{
