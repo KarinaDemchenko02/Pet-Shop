@@ -98,6 +98,10 @@ abstract class Table implements TableInterface
 			}
 			if ($field->getType() === 'oneToMany')
 			{
+				if ($field->conditions === $ignoredField)
+				{
+					continue;
+				}
 				$referenceField = $field->referenceTable->getFieldByName($field->conditions);
 				$referenceJoins = $field->referenceTable->getJoins($field->conditions);
 
@@ -114,6 +118,7 @@ abstract class Table implements TableInterface
 			}
 			if ($field->getType() === 'reference')
 			{
+				$referenceJoins = $field->referenceTable->getJoins($field->getName());
 				$conditions = $field->conditions;
 				foreach ($conditions as $condition)
 				{
@@ -122,7 +127,9 @@ abstract class Table implements TableInterface
 						'type' => $field->joinType,
 						'condition' => $condition,
 					];
+
 				}
+				$joins = array_merge($joins, $referenceJoins);
 			}
 		}
 
@@ -153,6 +160,86 @@ abstract class Table implements TableInterface
 		return null;
 	}
 
+	public static function getList(array|string $selectColumns, $where = '')
+	{
+		$orm = Orm::getInstance();
+		$rofls = self::getRofls($selectColumns);
+		$columns = $rofls[0];
+		$joins = $rofls[1];
+		return $orm->select(static::getTableName(), $columns, joins: $joins);
+	}
+
+	private static function getJoinReference($field)
+	{
+		$conditions = $field->conditions;
+		$joins = [];
+		foreach ($conditions as $condition)
+		{
+			$condition = self::formatCondition($condition, $field->referenceTable);
+			$joins[$field->referenceTable->getTableName()] = [
+				'type' => $field->joinType,
+				'condition' => $condition,
+			];
+
+		}
+		return $joins;
+	}
+
+	private static function getColumns()
+	{
+		$selectColumns = [];
+		$tableName = static::getTableName();
+		foreach (static::getMap() as $field)
+		{
+			if ($field->getType() !== 'reference' && $field->getType() !== 'oneToMany')
+			{
+				$selectColumns[] = "{$field->getName()}";
+			}
+		}
+		return $selectColumns;
+	}
+
+	private static function getRofls($selectColumns, $joins = [])
+	{
+		if ($selectColumns === '*')
+		{
+			$selectColumns = self::getColumns();
+		}
+		$tableName = static::getTableName();
+		foreach ($selectColumns as $alias => $selectColumn)
+		{
+			$parts = explode(".", $selectColumn);
+			$name = array_shift($parts);
+			$remaining = implode(".", $parts);
+			$field = self::getFieldByName($name);
+			if (is_null($field))
+			{
+				throw new \RuntimeException("Error a column does not exist: $selectColumn");
+			}
+			if ($field->getType() === 'oneToMany')
+			{
+
+				continue;
+			}
+			if($field->getType() === 'reference')
+			{
+				if (empty($remaining))
+				{
+					$remaining = '*';
+				}
+				$joins = array_merge($joins, self::getJoinReference($field));
+				$columns = array_merge($columns, $field->referenceTable->getRofls($remaining)[0]);
+				continue;
+			}
+			if (is_string($alias))
+			{
+				$columns[] = "$tableName.$selectColumn AS $alias";
+				continue;
+			}
+			$columns[] = "$tableName.$selectColumn";
+		}
+		return [$columns, $joins];
+	}
 	public static function update($data, $where): int
 	{
 		return Orm::getInstance()->update(static::getTableName(), $data, $where);

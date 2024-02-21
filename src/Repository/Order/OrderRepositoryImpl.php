@@ -16,8 +16,10 @@ use Up\Util\Database\Tables\TagTable;
 
 class OrderRepositoryImpl implements OrderRepository
 {
-	private const SELECT_SQL = "select up_order.id, item_id, user_id, delivery_address, created_at, edited_at , title as status, name, surname, quantities
-				from up_order inner join up_order_item uoi on up_order.id = uoi.order_id
+	private const SELECT_SQL = "
+				select up_order.id, item_id, user_id, delivery_address, created_at, edited_at , title as status, name, surname, quantities
+				from up_order
+				inner join up_order_item uoi on up_order.id = uoi.order_id
 				left join up_status us on up_order.status_id = us.id ";
 
 	public static function getAll(): array

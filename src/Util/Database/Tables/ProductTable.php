@@ -6,9 +6,7 @@ use Up\Util\Database\Fields\BooleanField;
 use Up\Util\Database\Fields\FloatField;
 use Up\Util\Database\Fields\IntegerField;
 use Up\Util\Database\Fields\OneToMany;
-use Up\Util\Database\Fields\Reference;
 use Up\Util\Database\Fields\StringField;
-use Up\Util\Database\Tables\Table;
 
 class ProductTable extends Table
 {
@@ -23,8 +21,10 @@ class ProductTable extends Table
 			new StringField('added_at', isNullable: false, isDefaultExists: true),
 			new StringField('edited_at', isNullable: false, isDefaultExists: true),
 			new BooleanField('is_active', isNullable: false, isDefaultExists: true),
-			new OneToMany('Image', new ImageTable, 'product'),
-			new OneToMany('Tag', new ProductTagTable, 'product')
+			new OneToMany('image', new ImageTable(), 'product'),
+			new OneToMany('tag', new ProductTagTable(), 'product'),
+			new OneToMany('shoppingSession', new ShoppingSessionTable(), 'product'),
+			new OneToMany('order', new OrderProductTable(), 'product'),
 		];
 	}
 
