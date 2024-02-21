@@ -30,14 +30,4 @@ class TagTable extends Table
 
 		return Orm::getInstance()->select(static::getTableName(), static::getAllColumns(), "$tableName.id=$id");
 	}
-
-	public static function update(): int
-	{
-		// TODO: Implement update() method.
-	}
-
-	public static function delete(): int
-	{
-		// TODO: Implement delete() method.
-	}
 }

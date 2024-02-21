@@ -153,6 +153,11 @@ abstract class Table implements TableInterface
 		return null;
 	}
 
+	public static function update($data, $where): int
+	{
+		return Orm::getInstance()->update(static::getTableName(), $data, $where);
+	}
+
 	abstract public static function getMap(): array;
 
 	abstract public static function getTableName(): string;

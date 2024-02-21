@@ -23,9 +23,4 @@ class ImageTable extends Table
 	{
 		return 'up_image';
 	}
-
-	public static function update(): int
-	{
-		// TODO: Implement update() method.
-	}
 }

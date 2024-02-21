@@ -5,7 +5,6 @@ namespace Up\Util\Database\Tables;
 use Up\Util\Database\Fields\BooleanField;
 use Up\Util\Database\Fields\FloatField;
 use Up\Util\Database\Fields\IntegerField;
-use Up\Util\Database\Fields\ManyToManyField;
 use Up\Util\Database\Fields\OneToMany;
 use Up\Util\Database\Fields\Reference;
 use Up\Util\Database\Fields\StringField;
@@ -32,15 +31,5 @@ class ProductTable extends Table
 	public static function getTableName(): string
 	{
 		return 'up_item';
-	}
-
-	public static function update(): int
-	{
-		// TODO: Implement update() method.
-	}
-
-	public static function delete(): int
-	{
-		// TODO: Implement delete() method.
 	}
 }

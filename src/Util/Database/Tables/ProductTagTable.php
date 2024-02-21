@@ -21,9 +21,4 @@ class ProductTagTable extends Table
 	{
 		return 'up_item_tag';
 	}
-
-	public static function update(): int
-	{
-		// TODO: Implement update() method.
-	}
 }
