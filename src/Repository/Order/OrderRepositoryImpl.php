@@ -12,6 +12,7 @@ use Up\Exceptions\Order\OrderNotCompleted;
 use Up\Repository\Product\ProductRepositoryImpl;
 use Up\Repository\User\UserRepositoryImpl;
 use Up\Util\Database\Query;
+use Up\Util\Database\Tables\TagTable;
 
 class OrderRepositoryImpl implements OrderRepository
 {

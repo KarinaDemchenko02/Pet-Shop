@@ -2,7 +2,8 @@
 
 namespace Up\Util\Database\Tables;
 
-use Up\Util\Database\Fields\ReferenceField;
+use Up\Util\Database\Fields\IntegerField;
+use Up\Util\Database\Fields\Reference;
 use Up\Util\Database\Tables\Table;
 
 class ProductTagTable extends Table
@@ -11,8 +12,8 @@ class ProductTagTable extends Table
 	public static function getMap(): array
 	{
 		return [
-			new ReferenceField(new TagTable(), ['this.id_tag=ref.id'], 'inner', true, false),
-			new ReferenceField(new ProductTable(), ['this.id_item=ref.id'], 'inner', true, false)
+			new Reference('tag', new TagTable(), ['this.id_tag=ref.id'], 'inner', true, false),
+			new Reference('product', new ProductTable(), ['this.id_item=ref.id'], 'inner', true, false),
 		];
 	}
 

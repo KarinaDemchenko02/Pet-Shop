@@ -4,22 +4,24 @@ namespace Up\Util\Database\Fields;
 
 use Up\Util\Database\Tables\Table;
 
-class ReferenceField extends Field
+class OneToMany extends Field
 {
 	public function __construct(
+		string          $name,
 		readonly Table  $referenceTable,
-		readonly array  $conditions,
+		readonly string $conditions,
 		readonly string $joinType = 'LEFT',
 		bool            $isPrimary = false,
 		bool            $isNullable = true,
 		bool            $isDefaultExists = false
 	)
 	{
-		parent::__construct($isPrimary, $isNullable, $isDefaultExists);
+		parent::__construct($name, $isPrimary, $isNullable, $isDefaultExists);
 	}
 
 	public function getType(): string
 	{
-		return 'reference';
+		return 'oneToMany';
 	}
+
 }
