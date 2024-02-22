@@ -13,8 +13,8 @@ class OrderProductTable extends Table
 	public static function getMap(): array
 	{
 		return [
-			new Reference('order', new OrderTable(), ['this.order_id=ref.id']),
-			new Reference('product', new ProductTable(), ['this.item_id=ref.id']),
+			new Reference('order', new OrderTable(), 'this.order_id=ref.id'),
+			new Reference('product', new ProductTable(), 'this.item_id=ref.id'),
 			new IntegerField('quantities', isNullable: false),
 			new FloatField('price', isNullable: false),
 		];

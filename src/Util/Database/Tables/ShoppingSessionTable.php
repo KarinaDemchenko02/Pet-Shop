@@ -15,10 +15,10 @@ class ShoppingSessionTable extends Table
 	{
 		return [
 			new IntegerField('id', true, false, true),
-			new Reference('user', new UserTable, ['this.user_id=ref.id']),
+			new Reference('user', new UserTable, 'this.user_id=ref.id'),
 			new StringField('created_at', isDefaultExists: true),
 			new StringField('updated_at', isDefaultExists: true),
-			new OneToMany('product', new ShoppingSessionItemTable(), 'shoppingSession')
+			new ManyToMany('product', new ShoppingSessionItemTable(), 'shoppingSession')
 		];
 	}
 

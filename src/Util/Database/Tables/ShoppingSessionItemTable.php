@@ -12,8 +12,8 @@ class ShoppingSessionItemTable extends Table
 	public static function getMap(): array
 	{
 		return [
-			new Reference('product', new ProductTable, ['this.item_id=ref.id']),
-			new Reference('shoppingSession', new ShoppingSessionTable, ['this.shopping_session_id=ref.id']),
+			new Reference('product', new ProductTable, 'this.item_id=ref.id'),
+			new Reference('shoppingSession', new ShoppingSessionTable, 'this.shopping_session_id=ref.id'),
 			new IntegerField('quantities'),
 		];
 	}

@@ -4,12 +4,12 @@ namespace Up\Util\Database\Fields;
 
 use Up\Util\Database\Tables\Table;
 
-class Reference extends Field
+class ManyToMany extends Field
 {
 	public function __construct(
-		string $name,
+		string          $name,
 		readonly Table  $referenceTable,
-		readonly string  $condition,
+		readonly string $conditions,
 		readonly string $joinType = 'LEFT',
 		bool            $isPrimary = false,
 		bool            $isNullable = true,
@@ -21,6 +21,7 @@ class Reference extends Field
 
 	public function getType(): string
 	{
-		return 'reference';
+		return 'manyToMany';
 	}
+
 }

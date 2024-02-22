@@ -3,6 +3,7 @@
 namespace Up\Util\Database\Tables;
 
 use Up\Util\Database\Fields\IntegerField;
+use Up\Util\Database\Fields\ManyToMany;
 use Up\Util\Database\Fields\OneToMany;
 use Up\Util\Database\Fields\StringField;
 use Up\Util\Database\Orm;
@@ -15,7 +16,7 @@ class TagTable extends Table
 		return [
 			new IntegerField('id', true, false, true),
 			new StringField('name', false, false),
-			new OneToMany('item', new ProductTagTable, 'tag')
+			new ManyToMany('product', new ProductTagTable, 'tag')
 		];
 	}
 

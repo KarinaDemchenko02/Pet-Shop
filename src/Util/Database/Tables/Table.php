@@ -30,13 +30,6 @@ abstract class Table implements TableInterface
 		return $orm->insert(static::getTableName(), $insertData);
 	}
 
-	public static function getAll(): \mysqli_result
-	{
-		$joins = static::getJoins();
-
-		return Orm::getInstance()->select(static::getTableName(), static::getAllColumns(), joins: $joins);
-	}
-
 	/*foreach ($joins as $join => $joinData)
 	{
 	$joinType = $joinData['type'];
@@ -45,96 +38,6 @@ abstract class Table implements TableInterface
 
 	'up_image' => ['type' => 'INNER', 'condition' => 'up_item.id=item_id'],
 	}*/
-
-	public static function getAllColumns($ignoredField = null): array
-	{
-		/**
-		 * @var Field[] $fields
-		 */
-		$fields = static::getMap();
-		$fieldsNames = [];
-		$tableName = static::getTableName();
-		foreach ($fields as $field)
-		{
-			if ($field->getName() === $ignoredField)
-			{
-				continue;
-			}
-			if ($field->getType() === 'reference')
-			{
-				$referenceFieldNames = $field->referenceTable->getAllColumns($field->getName());
-				$fieldsNames = array_merge($fieldsNames, $referenceFieldNames);
-				continue;
-			}
-			if ($field->getType() === 'oneToMany')
-			{
-				if ($field->conditions === $ignoredField)
-				{
-					continue;
-				}
-				$referenceFieldNames = $field->referenceTable->getAllColumns($field->conditions);
-				$fieldsNames = array_merge($fieldsNames, $referenceFieldNames);
-				continue;
-			}
-			$fieldName = $field->getName();
-			$fieldsNames[] = "$tableName.$fieldName AS $tableName" . '_' . (string)$fieldName;
-		}
-
-		return $fieldsNames;
-	}
-
-	public static function getJoins($ignoredField = null): array
-	{
-		/**
-		 * @var Field[] $fields
-		 */
-		$fields = static::getMap();
-		$joins = [];
-		foreach ($fields as $field)
-		{
-			if ($field->getName() === $ignoredField)
-			{
-				continue;
-			}
-			if ($field->getType() === 'oneToMany')
-			{
-				if ($field->conditions === $ignoredField)
-				{
-					continue;
-				}
-				$referenceField = $field->referenceTable->getFieldByName($field->conditions);
-				$referenceJoins = $field->referenceTable->getJoins($field->conditions);
-
-				$conditions = $referenceField->conditions;
-				foreach ($conditions as $condition)
-				{
-					$condition = $field->referenceTable::formatCondition($condition, $referenceField->referenceTable);
-					$joins[$field->referenceTable->getTableName()] = [
-						'type' => $field->joinType,
-						'condition' => $condition,
-					];
-				}
-				$joins = array_merge($joins, $referenceJoins);
-			}
-			if ($field->getType() === 'reference')
-			{
-				$referenceJoins = $field->referenceTable->getJoins($field->getName());
-				$conditions = $field->conditions;
-				foreach ($conditions as $condition)
-				{
-					$condition = self::formatCondition($condition, $field->referenceTable);
-					$joins[$field->referenceTable->getTableName()] = [
-						'type' => $field->joinType,
-						'condition' => $condition,
-					];
-
-				}
-				$joins = array_merge($joins, $referenceJoins);
-			}
-		}
-
-		return $joins;
-	}
 
 	private static function formatCondition(string $condition, Table $referenceTable): string
 	{
@@ -160,89 +63,155 @@ abstract class Table implements TableInterface
 		return null;
 	}
 
-	public static function getList(array|string $selectColumns, $where = '')
+	public static function getColumnJoin(
+		array $selectedColumns = ['*'],
+		array $selectedRelatedColumns = [],
+		array $columnAliases = [],
+		array $joins = [],
+	)
 	{
-		$orm = Orm::getInstance();
-		$rofls = self::getRofls($selectColumns);
-		$columns = $rofls[0];
-		$joins = $rofls[1];
-		return $orm->select(static::getTableName(), $columns, joins: $joins);
-	}
-
-	private static function getJoinReference($field)
-	{
-		$conditions = $field->conditions;
-		$joins = [];
-		foreach ($conditions as $condition)
-		{
-			$condition = self::formatCondition($condition, $field->referenceTable);
-			$joins[$field->referenceTable->getTableName()] = [
-				'type' => $field->joinType,
-				'condition' => $condition,
-			];
-
-		}
-		return $joins;
-	}
-
-	private static function getColumns()
-	{
-		$selectColumns = [];
+		$map = static::getMap();
 		$tableName = static::getTableName();
-		foreach (static::getMap() as $field)
+		$columns = [];
+		foreach ($map as $field)
 		{
-			if ($field->getType() !== 'reference' && $field->getType() !== 'oneToMany')
+			if (
+				$field->getType() === 'reference'
+				&& (array_key_exists($field->getName(), $selectedRelatedColumns)
+					|| in_array(
+						$field->getName(),
+						array_values($selectedRelatedColumns),
+						true
+					))
+			)
 			{
-				$selectColumns[] = "{$field->getName()}";
-			}
-		}
-		return $selectColumns;
-	}
-
-	private static function getRofls($selectColumns, $joins = [])
-	{
-		if ($selectColumns === '*')
-		{
-			$selectColumns = self::getColumns();
-		}
-		$tableName = static::getTableName();
-		foreach ($selectColumns as $alias => $selectColumn)
-		{
-			$parts = explode(".", $selectColumn);
-			$name = array_shift($parts);
-			$remaining = implode(".", $parts);
-			$field = self::getFieldByName($name);
-			if (is_null($field))
-			{
-				throw new \RuntimeException("Error a column does not exist: $selectColumn");
-			}
-			if ($field->getType() === 'oneToMany')
-			{
-
-				continue;
-			}
-			if($field->getType() === 'reference')
-			{
-				if (empty($remaining))
+				$selectColumns = ['*'];
+				if (isset($selectedRelatedColumns[$field->getName()]))
 				{
-					$remaining = '*';
+					$selectColumns = $selectedRelatedColumns[$field->getName()];
 				}
-				$joins = array_merge($joins, self::getJoinReference($field));
-				$columns = array_merge($columns, $field->referenceTable->getRofls($remaining)[0]);
-				continue;
+				if (isset($joins[$field->referenceTable->getTableName()]))
+				{
+					continue;
+				}
+				$condition = self::formatCondition($field->condition, $field->referenceTable);
+				$joins[$field->referenceTable->getTableName()] = [
+					'type' => $field->joinType,
+					'condition' => $condition,
+				];
+				$ahaha = $field->referenceTable->getColumnJoin(
+					$selectColumns,
+					$selectedRelatedColumns,
+					$columnAliases,
+					$joins
+				);
+				$joins = array_merge($joins, $ahaha['joins']);
+				$columns = array_unique(array_merge($columns, $ahaha['columns']));
 			}
-			if (is_string($alias))
+			elseif (
+				$field->getType() === 'oneToMany'
+				&& (array_key_exists($field->getName(), $selectedRelatedColumns)
+					|| in_array(
+						$field->getName(),
+						array_values($selectedRelatedColumns),
+						true
+					))
+			)
 			{
-				$columns[] = "$tableName.$selectColumn AS $alias";
-				continue;
+				$selectColumns = ['*'];
+				if (isset($selectedRelatedColumns[$field->getName()]))
+				{
+					$selectColumns = $selectedRelatedColumns[$field->getName()];
+				}
+				if (isset($joins[$field->referenceTable->getTableName()]))
+				{
+					continue;
+				}
+				$referenceField = $field->referenceTable->getFieldByName($field->conditions);
+				$condition = $field->referenceTable::formatCondition($referenceField->condition, $referenceField->referenceTable);
+				$joins[$field->referenceTable->getTableName()] = [
+					'type' => $field->joinType,
+					'condition' => $condition,
+				];
+				$ahaha = $field->referenceTable->getColumnJoin($selectColumns, $selectedRelatedColumns, $columnAliases, $joins);
+				$joins = array_merge($joins, $ahaha['joins']);
+				$columns = array_unique(array_merge($columns, $ahaha['columns']));
+
 			}
-			$columns[] = "$tableName.$selectColumn";
+			elseif (
+				$field->getType() === 'manyToMany'
+				&& (array_key_exists($field->getName(), $selectedRelatedColumns)
+					|| in_array(
+						$field->getName(),
+						array_values($selectedRelatedColumns),
+						true
+					))
+			)
+			{
+				$selectColumns = ['*'];
+				if (isset($selectedRelatedColumns[$field->getName()]))
+				{
+					$selectColumns = $selectedRelatedColumns[$field->getName()];
+				}
+				if (isset($joins[$field->referenceTable->getTableName()]))
+				{
+					continue;
+				}
+				$referenceField = $field->referenceTable->getFieldByName($field->conditions);
+				$condition = $field->referenceTable::formatCondition($referenceField->condition, $referenceField->referenceTable);
+				$joins[$field->referenceTable->getTableName()] = [
+					'type' => $field->joinType,
+					'condition' => $condition,
+				];
+				$ahaha = $field->referenceTable->getColumnJoin($selectColumns, $selectedRelatedColumns, $columnAliases, $joins);
+				$joins = array_merge($joins, $ahaha['joins']);
+				$columns = array_unique(array_merge($columns, $ahaha['columns']));
+			}
+			if (
+				(in_array($field->getName(), $selectedColumns, true) || $selectedColumns[0] === '*')
+				&& ($field->getType() !== 'reference' && $field->getType() !== 'oneToMany'
+					&& $field->getType() !== 'manyToMany')
+			)
+			{
+				$columnsName = "$tableName.{$field->getName()}";
+				$rofls = new \ReflectionClass(static::class);
+				$something = $rofls->getShortName() . '.' . $field->getName();
+				if (isset($columnAliases[$something]))
+				{
+					$columnsName .= " AS $columnAliases[$something]";
+				}
+				$columns[] = $columnsName;
+			}
 		}
-		return [$columns, $joins];
+
+		return ['columns' => $columns, 'joins' => $joins];
 	}
+
 	public static function update($data, $where): int
 	{
 		return Orm::getInstance()->update(static::getTableName(), $data, $where);
+	}
+
+	public function getMapWithoutReferences($columns = ['*'])
+	{
+		$fields = self::getMap();
+		$map = [];
+		foreach ($fields as $field)
+		{
+			if (
+				$field->getType() === 'reference' || $field->getType() === 'oneToMany'
+				|| $field->getType() === 'manyToMany'
+			)
+			{
+				continue;
+			}
+			if (in_array($field->getName(), $columns, true) || $columns[0] === '*')
+			{
+				$map[] = $field;
+			}
+		}
+
+		return $map;
 	}
 
 	abstract public static function getMap(): array;

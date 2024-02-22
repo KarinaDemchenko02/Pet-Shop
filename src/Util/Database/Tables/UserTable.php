@@ -17,7 +17,7 @@ class UserTable extends Table
 			new IntegerField('id', true, false, true),
 			new StringField('email', isNullable: false),
 			new StringField('password'),
-			new Reference('role', new RoleTable, ['this.role_id=ref.id']),
+			new Reference('role', new RoleTable, 'this.role_id=ref.id'),
 			new StringField('tel', isNullable: false),
 			new StringField('name'),
 			new OneToMany('order', new OrderTable(), 'user')

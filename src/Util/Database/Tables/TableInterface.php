@@ -9,6 +9,6 @@ interface TableInterface
 	public static function getMap():array;
 	public static function getTableName(): string;
 
-	public static function getAll(): \mysqli_result;
+	/*public static function getAll(): \mysqli_result;*/
 
 }
