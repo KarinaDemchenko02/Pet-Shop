@@ -3,7 +3,7 @@
 namespace Up\Util\Database\Tables;
 
 use Up\Util\Database\Fields\IntegerField;
-use Up\Util\Database\Fields\OneToMany;
+use Up\Util\Database\Fields\Reflection;
 use Up\Util\Database\Fields\Reference;
 use Up\Util\Database\Fields\StringField;
 use Up\Util\Database\Tables\Table;
@@ -18,7 +18,7 @@ class ShoppingSessionTable extends Table
 			new Reference('user', new UserTable, 'this.user_id=ref.id'),
 			new StringField('created_at', isDefaultExists: true),
 			new StringField('updated_at', isDefaultExists: true),
-			new ManyToMany('product', new ShoppingSessionItemTable(), 'shoppingSession')
+			new Reflection('product', new ShoppingSessionItemTable(), 'shoppingSession')
 		];
 	}
 

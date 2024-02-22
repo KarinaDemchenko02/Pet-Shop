@@ -4,12 +4,12 @@ namespace Up\Util\Database\Fields;
 
 use Up\Util\Database\Tables\Table;
 
-class OneToMany extends Field
+class Reflection extends Field
 {
 	public function __construct(
 		string          $name,
 		readonly Table  $referenceTable,
-		readonly string $conditions,
+		readonly string $condition,
 		readonly string $joinType = 'LEFT',
 		bool            $isPrimary = false,
 		bool            $isNullable = true,
@@ -21,7 +21,7 @@ class OneToMany extends Field
 
 	public function getType(): string
 	{
-		return 'oneToMany';
+		return 'reflection';
 	}
 
 }

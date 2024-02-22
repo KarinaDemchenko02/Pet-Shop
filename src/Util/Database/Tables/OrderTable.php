@@ -3,8 +3,7 @@
 namespace Up\Util\Database\Tables;
 
 use Up\Util\Database\Fields\IntegerField;
-use Up\Util\Database\Fields\ManyToMany;
-use Up\Util\Database\Fields\OneToMany;
+use Up\Util\Database\Fields\Reflection;
 use Up\Util\Database\Fields\Reference;
 use Up\Util\Database\Fields\StringField;
 use Up\Util\Database\Tables\Table;
@@ -23,7 +22,7 @@ class OrderTable extends Table
 			new StringField('edited_at', isDefaultExists: true),
 			new StringField('name', isNullable: true),
 			new StringField('surname', isNullable: true),
-			new ManyToMany('product', new OrderProductTable(), 'order')
+			new Reflection('product', new OrderProductTable(), 'order')
 		];
 	}
 
