@@ -13,17 +13,21 @@ class Product implements Entity
 	public readonly int $addedAt;
 	public readonly int $editedAt;
 	public readonly string $imagePath;
+	private array $specialOffer;
+	public readonly int $priority;
 
 	public function __construct(
-		int    $id,
-		string $title,
-		string $description,
-		float  $price,
-		array  $tag,
-		bool   $isActive,
-		string $addedAt,
-		string $editedAt,
-		string $imagePath
+		int     $id,
+		string  $title,
+		string  $description,
+		float   $price,
+		array   $tag,
+		bool    $isActive,
+		string  $addedAt,
+		string  $editedAt,
+		string  $imagePath,
+		array $specialOffer,
+		int     $priority
 	)
 	{
 		$this->id = $id;
@@ -35,6 +39,8 @@ class Product implements Entity
 		$this->addedAt = strtotime($addedAt);
 		$this->editedAt = strtotime($editedAt);
 		$this->imagePath = $imagePath;
+		$this->priority = $priority;
+		$this->specialOffer = $specialOffer;
 	}
 
 	public function addTag(Tag $tag)
@@ -42,6 +48,14 @@ class Product implements Entity
 		if (!in_array($tag, $this->tags, true))
 		{
 			$this->tags[] = $tag;
+		}
+	}
+
+	public function addSpecialOffer(string $specialOffer)
+	{
+		if (!in_array($specialOffer, $this->specialOffer, true))
+		{
+			$this->specialOffer[] = $specialOffer;
 		}
 	}
 	// public function addImage(Image $image)

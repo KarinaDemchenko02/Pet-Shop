@@ -5,6 +5,7 @@ namespace Up\Repository\Product;
 use Up\Dto\ProductAddingDto;
 use Up\Dto\ProductChangeDto;
 use Up\Entity\Product;
+use Up\Repository\SpecialOffer\SpecialOfferRepositoryImpl;
 use Up\Repository\Tag\TagRepositoryImpl;
 use Up\Util\Database\Connector;
 use Up\Util\Database\QueryResult;
@@ -18,11 +19,13 @@ class ProductRepositoryImpl implements ProductRepository
 		$offset = $limit * ($page - 1);
 
 		$sql = "select up_item.id, up_item.name, description, price, id_tag, is_active,
-                added_at, edited_at, up_image.id as imageId, path
+                added_at, edited_at, up_image.id as imageId, path, up_item_special_offer.special_offer_id, priority
 				from up_item
 				left join up_image on up_item.id = item_id
 	            left join up_item_tag on up_item.id = up_item_tag.id_item
+				left join up_item_special_offer on up_item_special_offer.item_id = up_item.id
 				WHERE up_item.is_active = 1
+				ORDER BY priority
 	            LIMIT {$limit} OFFSET {$offset}";
 
 		$result = QueryResult::getQueryResult($sql);
@@ -34,11 +37,13 @@ class ProductRepositoryImpl implements ProductRepository
 	{
 
 		$sql = "select up_item.id, up_item.name, description, price, id_tag, is_active,
-                added_at, edited_at, up_image.id as imageId, path
+                added_at, edited_at, up_image.id as imageId, path, up_item_special_offer.special_offer_id, priority
 				from up_item
 				left join up_image on up_item.id = item_id
 	            left join up_item_tag on up_item.id = up_item_tag.id_item
+				left join up_item_special_offer on up_item_special_offer.item_id = up_item.id
 				WHERE up_item.is_active = 1
+				ORDER BY priority
 	           ";
 
 		$result = QueryResult::getQueryResult($sql);
@@ -52,11 +57,14 @@ class ProductRepositoryImpl implements ProductRepository
 		$offset = $limit * ($page - 1);
 
 		$sql = "select up_item.id, up_item.name, description, price, id_tag, is_active,
-                added_at, edited_at, up_image.id as imageId, path
+                added_at, edited_at, up_image.id as imageId, path, up_item_special_offer.special_offer_id, priority
 				from up_item
 				left join up_image on up_item.id = item_id
 	            left join up_item_tag on up_item.id = up_item_tag.id_item
-	            LIMIT {$limit} OFFSET {$offset}";
+				left join up_item_special_offer on up_item_special_offer.item_id = up_item.id
+				ORDER BY priority
+	            LIMIT {$limit} OFFSET {$offset}
+	            ";
 
 		$result = QueryResult::getQueryResult($sql);
 
@@ -67,10 +75,11 @@ class ProductRepositoryImpl implements ProductRepository
 	{
 
 		$sql = "select up_item.id, up_item.name, description, price, id_tag, is_active,
-                added_at, edited_at, up_image.id as imageId, path
+                added_at, edited_at, up_image.id as imageId, path, up_item_special_offer.special_offer_id, priority
 				from up_item
-	            left join up_item_tag on up_item.id = up_item_tag.id_item
 				left join up_image on up_item.id = item_id
+	            left join up_item_tag on up_item.id = up_item_tag.id_item
+				left join up_item_special_offer on up_item_special_offer.item_id = up_item.id
 	            where up_item.id = {$id} AND up_item.is_active = 1";
 
 		$result = QueryResult::getQueryResult($sql);
@@ -107,11 +116,13 @@ class ProductRepositoryImpl implements ProductRepository
 		$offset = $limit * ($page - 1);
 
 		$sql = "select up_item.id, up_item.name, description, price, id_tag, is_active,
-                added_at, edited_at, up_image.id as imageId, path
+                added_at, edited_at, up_image.id as imageId, path, up_item_special_offer.special_offer_id, priority
 				from up_item
 				left join up_image on up_item.id = item_id
 	            left join up_item_tag on up_item.id = up_item_tag.id_item
+				left join up_item_special_offer on up_item_special_offer.item_id = up_item.id
 				WHERE up_item.name LIKE '%{$escapedTitle}%' AND up_item.is_active = 1
+				ORDER BY priority
 				LIMIT {$limit} OFFSET {$offset}";
 
 		$result = QueryResult::getQueryResult($sql);
@@ -247,11 +258,13 @@ class ProductRepositoryImpl implements ProductRepository
 		$offset = $limit * ($page - 1);
 
 		$sql = "select up_item.id, up_item.name, description, price, id_tag, is_active,
-                added_at, edited_at, up_image.id as imageId, path
+                added_at, edited_at, up_image.id as imageId, path, up_item_special_offer.special_offer_id, priority
 				from up_item
 				left join up_image on up_item.id = item_id
-	            left join up_item_tag it on up_item.id = it.id_item
+	            left join up_item_tag on up_item.id = up_item_tag.id_item
+				left join up_item_special_offer on up_item_special_offer.item_id = up_item.id
 				WHERE it.id_tag = {$tagId} AND up_item.is_active = 1
+				ORDER BY priority
 				LIMIT {$limit} OFFSET {$offset}";
 
 		$result = QueryResult::getQueryResult($sql);
@@ -270,11 +283,13 @@ class ProductRepositoryImpl implements ProductRepository
 		}
 
 		$sql = "select up_item.id, up_item.name, description, price, id_tag, is_active,
-                added_at, edited_at, up_image.id as imageId, path
+                added_at, edited_at, up_image.id as imageId, path, up_item_special_offer.special_offer_id, priority
 				from up_item
 				left join up_image on up_item.id = item_id
-	            left join up_item_tag it on up_item.id = it.id_item
+	            left join up_item_tag on up_item.id = up_item_tag.id_item
+				left join up_item_special_offer on up_item_special_offer.item_id = up_item.id
 				WHERE it.id_tag IN (" . implode(",", $tagIds) . ") AND up_item.is_active = 1
+				ORDER BY priority
 				LIMIT {$limit} OFFSET {$offset}";
 
 		$result = QueryResult::getQueryResult($sql);
@@ -298,6 +313,10 @@ class ProductRepositoryImpl implements ProductRepository
 				{
 					$products[$row['id']]->addTag(TagRepositoryImpl::getById($row['id_tag']));
 				}
+				if (!is_null($row['special_offer_id']))
+				{
+					$products[$row['id']]->addSpecialOffer(SpecialOfferRepositoryImpl::getById($row['special_offer_id']));
+				}
 				// if (!is_null($row['imageId']))
 				// {
 				// 	$products[$row['id']]->addImage(new Image($row['imageId'], $row['path'], 'main'));
@@ -311,6 +330,7 @@ class ProductRepositoryImpl implements ProductRepository
 	private static function createProductEntity(array $row): Product
 	{
 		$tag = [];
+		$specialOffer = [];
 		// $image = [new Image(404, '/images/imgNotFound.png', 'main')];
 		$imagePath = '/images/imgNotFound.png';
 
@@ -323,6 +343,10 @@ class ProductRepositoryImpl implements ProductRepository
 			// $image = [new Image($row['imageId'], $row['path'], 'main')];
 			$imagePath = $row['path'];
 		}
+		if (!is_null($row['special_offer_id']))
+		{
+			$specialOffer = [SpecialOfferRepositoryImpl::getById($row['special_offer_id'])];
+		}
 
 		return new Product(
 			$row['id'],
@@ -333,7 +357,9 @@ class ProductRepositoryImpl implements ProductRepository
 			$row['is_active'],
 			$row['added_at'],
 			$row['edited_at'],
-			$imagePath
+			$imagePath,
+			$specialOffer,
+			$row['priority']
 		);
 	}
 
