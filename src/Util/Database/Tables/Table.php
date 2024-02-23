@@ -63,19 +63,43 @@ abstract class Table implements TableInterface
 		return null;
 	}
 
-	public static function getColumnJoin(
+	public static function getList(
 		array $selectedColumns = ['*'],
 		array $selectedRelatedColumns = [],
-		array $columnAliases = [],
+		array $conditions = [],
+			  $orderBy = [],
+			  $limit = null,
+			  $offset = null,
+	)
+	{
+		$orm = orm::getInstance();
+		$columnJoin = self::getColumnJoin($selectedColumns, $selectedRelatedColumns);
+		$where = '';
+		if (!empty($conditions))
+		{
+			$where = self::makeWhere($conditions[0], $conditions[1]);
+		}
+
+		return $orm->select(
+			static::getTableName(),
+			$columnJoin['columns'],
+			$where,
+			self::makeOrderBy($orderBy),
+			$limit ?? '',
+			$offset ?? '',
+			$columnJoin['joins']
+		);
+	}
+
+	private static function getColumnJoin(
+		array $selectedColumns = ['*'],
+		array $selectedRelatedColumns = [],
 		array $joins = []
 	)
 	{
 		$map = static::getMap();
 		$tableName = static::getTableName();
 		$columns = [];
-
-		$classReflection = new \ReflectionClass(static::class);
-		$classShortName = $classReflection->getShortName();
 
 		foreach ($map as $field)
 		{
@@ -84,15 +108,15 @@ abstract class Table implements TableInterface
 
 			if (
 				in_array($fieldName, $selectedColumns, true)
-				|| ($selectedColumns[0] === '*' && $fieldType !== 'reference' && $fieldType !== 'reflection')
+				|| (in_array('*', $selectedColumns, true) && $fieldType !== 'reference' && $fieldType !== 'reflection')
 			)
 			{
+				$alias = array_search($fieldName, $selectedColumns, true);
 				$columnName = "$tableName.$fieldName";
-				$fullFieldName = "$classShortName.$fieldName";
 
-				if (isset($columnAliases[$fullFieldName]))
+				if ($alias && !is_int($alias))
 				{
-					$columnName .= " AS {$columnAliases[$fullFieldName]}";
+					$columnName .= " AS $alias";
 				}
 				$columns[] = $columnName;
 			}
@@ -134,7 +158,6 @@ abstract class Table implements TableInterface
 					$joinResult = $referenceTable->getColumnJoin(
 						$selectedColumnsForJoin,
 						$selectedRelatedColumns,
-						$columnAliases,
 						$joins
 					);
 
@@ -147,31 +170,63 @@ abstract class Table implements TableInterface
 		return ['columns' => $columns, 'joins' => $joins];
 	}
 
-	public static function update($data, $where): int
+	private static function makeWhere($logicCondition, $conditions): string
 	{
-		return Orm::getInstance()->update(static::getTableName(), $data, $where);
-	}
-
-	public function getMapWithoutReferences($columns = ['*'])
-	{
-		$fields = self::getMap();
-		$map = [];
-		foreach ($fields as $field)
+		$tableName = static::getTableName();
+		$where = [];
+		foreach ($conditions as $logic => $condition)
 		{
-			if (
-				$field->getType() === 'reference' || $field->getType() === 'oneToMany'
-				|| $field->getType() === 'manyToMany'
-			)
+			if ($logic === 'OR' || $logic === 'AND')
 			{
-				continue;
+				$nestedWhere = self::makeWhere($logic, $condition);
+				$where[] = "($nestedWhere)";
 			}
-			if (in_array($field->getName(), $columns, true) || $columns[0] === '*')
+			else
 			{
-				$map[] = $field;
+				$method = $logic[0];
+				$fieldName = substr($logic, 1);
+				$field = self::getFieldByName($fieldName);
+				if (!$field)
+				{
+					throw  new \RuntimeException("Error! No such field with the same name was found: $fieldName");
+				}
+				$preparedCondition = $condition;
+				if ($field->getType() === 'string')
+				{
+					$preparedCondition = "'$condition'";
+				}
+				switch ($method)
+				{
+					case '=':
+						$where[] = "$tableName.$fieldName=$preparedCondition";
+				}
 			}
 		}
 
-		return $map;
+		return implode(" $logicCondition ", $where);
+	}
+
+	private static function makeOrderBy($orderBy): string
+	{
+		$tableName = static::getTableName();
+		$orderByCondition = [];
+		foreach ($orderBy as $fieldName => $direction)
+		{
+			if ($direction !== 'DESC' && $direction !== 'ASC')
+			{
+				throw new \RuntimeException('Error! Sorting directions can only be DESC or ASC');
+			}
+			$orderByCondition[] = "$tableName.$fieldName $direction";
+		}
+
+		return implode(', ', $orderByCondition);
+	}
+
+	public static function update(array $data, array $condition): int
+	{
+		$where = self::makeWhere($condition[0], $condition[1]);
+
+		return Orm::getInstance()->update(static::getTableName(), $data, $where);
 	}
 
 	abstract public static function getMap(): array;
