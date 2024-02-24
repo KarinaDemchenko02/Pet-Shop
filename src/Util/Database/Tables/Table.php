@@ -77,9 +77,8 @@ abstract class Table implements TableInterface
 		$where = '';
 		if (!empty($conditions))
 		{
-			$where = self::makeWhere($conditions[0], $conditions[1]);
+			$where = self::makeWhere($conditions[0], $conditions[1], $columnJoin['alias']);
 		}
-
 		return $orm->select(
 			static::getTableName(),
 			$columnJoin['columns'],
@@ -94,7 +93,8 @@ abstract class Table implements TableInterface
 	private static function getColumnJoin(
 		array $selectedColumns = ['*'],
 		array $selectedRelatedColumns = [],
-		array $joins = []
+		array $joins = [],
+		array $tableAlias = []
 	)
 	{
 		$map = static::getMap();
@@ -116,6 +116,7 @@ abstract class Table implements TableInterface
 
 				if ($alias && !is_int($alias))
 				{
+					$tableAlias[$alias] = $columnName;
 					$columnName .= " AS $alias";
 				}
 				$columns[] = $columnName;
@@ -160,17 +161,17 @@ abstract class Table implements TableInterface
 						$selectedRelatedColumns,
 						$joins
 					);
-
+					$tableAlias = array_merge($tableAlias, $joinResult['alias']);
 					$joins = array_merge($joins, $joinResult['joins']);
 					$columns = array_unique(array_merge($columns, $joinResult['columns']));
 				}
 			}
 		}
 
-		return ['columns' => $columns, 'joins' => $joins];
+		return ['columns' => $columns, 'joins' => $joins, 'alias' => $tableAlias];
 	}
 
-	private static function makeWhere($logicCondition, $conditions): string
+	public static function makeWhere($logicCondition, $conditions, $alias = []): string
 	{
 		$tableName = static::getTableName();
 		$where = [];
@@ -178,28 +179,43 @@ abstract class Table implements TableInterface
 		{
 			if ($logic === 'OR' || $logic === 'AND')
 			{
-				$nestedWhere = self::makeWhere($logic, $condition);
+				$nestedWhere = self::makeWhere($logic, $condition, $alias);
 				$where[] = "($nestedWhere)";
 			}
 			else
 			{
-				$method = $logic[0];
-				$fieldName = substr($logic, 1);
-				$field = self::getFieldByName($fieldName);
-				if (!$field)
+
+				[$func, $fieldName] = explode('=', $logic);
+				if (isset($alias[$fieldName]))
 				{
-					throw  new \RuntimeException("Error! No such field with the same name was found: $fieldName");
+					$aliasColumn = $alias[$fieldName];
+					$fieldName = $aliasColumn;
 				}
 				$preparedCondition = $condition;
-				if ($field->getType() === 'string')
+				if (is_string($condition))
 				{
-					$preparedCondition = "'$condition'";
+					if ($func === '%')
+					{
+						$preparedCondition = "%$condition%";
+					}
+					$preparedCondition = self::prepareString($preparedCondition);
 				}
-				switch ($method)
+				if (is_array($condition))
 				{
-					case '=':
-						$where[] = "$tableName.$fieldName=$preparedCondition";
+					$preparedCondition = implode(
+						', ',
+						array_map('\Up\Util\Database\Tables\Table::prepareString', $condition)
+					);
 				}
+				switch ($func)
+				{
+					case '':
+						$where[] = "$fieldName=$preparedCondition";
+					case 'in':
+						$where[] = "$fieldName IN ($preparedCondition)";
+					case '%':
+						$where[] = "$fieldName LIKE $preparedCondition";
+				} //up_item.id in (2, 4)
 			}
 		}
 
@@ -227,6 +243,23 @@ abstract class Table implements TableInterface
 		$where = self::makeWhere($condition[0], $condition[1]);
 
 		return Orm::getInstance()->update(static::getTableName(), $data, $where);
+	}
+
+	public static function delete(array $condition): int
+	{
+		$where = self::makeWhere($condition[0], $condition[1]);
+
+		return Orm::getInstance()->delete(static::getTableName(), $where);
+	}
+
+	private static function prepareString($string): string
+	{
+		if (!is_string($string))
+		{
+			return $string;
+		}
+
+		return "'$string'";
 	}
 
 	abstract public static function getMap(): array;

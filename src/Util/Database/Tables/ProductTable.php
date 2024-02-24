@@ -32,4 +32,9 @@ class ProductTable extends Table
 	{
 		return 'up_item';
 	}
+
+	public static function delete(array $condition): int
+	{
+		throw new \RuntimeException("Product cannot be deleted, only disabled");
+	}
 }
