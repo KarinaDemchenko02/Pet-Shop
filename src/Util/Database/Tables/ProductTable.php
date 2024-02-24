@@ -21,10 +21,12 @@ class ProductTable extends Table
 			new StringField('added_at', isNullable: false, isDefaultExists: true),
 			new StringField('edited_at', isNullable: false, isDefaultExists: true),
 			new BooleanField('is_active', isNullable: false, isDefaultExists: true),
+			new IntegerField('priority', isDefaultExists: true),
 			new Reflection('image', new ImageTable(), 'product'),
 			new Reflection('tag', new ProductTagTable(), 'product'),
 			new Reflection('shoppingSession', new ShoppingSessionTable(), 'product'),
 			new Reflection('order', new OrderProductTable(), 'product'),
+			new Reflection('specialOffer', new ProductSpecialOfferTable(), 'product'),
 		];
 	}
 
