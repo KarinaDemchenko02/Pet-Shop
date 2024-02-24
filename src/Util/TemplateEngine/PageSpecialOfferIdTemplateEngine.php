@@ -8,6 +8,7 @@ class PageSpecialOfferIdTemplateEngine implements TemplateEngine
 {
 	public function getPageTemplate(array $variables): Template
 	{
+		$specialOfferTitle = $variables['specialOfferTitle'];
 		$products = $variables['products'];
 		$isLogIn = $variables['isLogIn'];
 		$nextPage = $variables['nextPage'];
@@ -22,6 +23,7 @@ class PageSpecialOfferIdTemplateEngine implements TemplateEngine
 		]);
 
 		$mainPageTemplate = new Template('page/specialOffers/products', [
+			'specialOfferTitle'=>$specialOfferTitle,
 			'products' => $this->getProductsSectionTemplate($products),
 			'form' => $form,
 			'basket' => $basket,

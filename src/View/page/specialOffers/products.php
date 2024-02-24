@@ -6,6 +6,9 @@
 		<?php $this->getVariable('basket')->display() ?>
 	</section>
 	<section class="product">
+		<div class="special_offer_title">
+			<h1><?= $this->getVariable('specialOfferTitle')?></h1>
+		</div>
 		<ul class="product__list">
 			<?php foreach ($this->getVariable('products') as $product): ?>
 				<?php $product->display() ?>
