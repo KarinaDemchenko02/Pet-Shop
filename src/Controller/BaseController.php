@@ -22,7 +22,10 @@ abstract class BaseController
 		}
 		return false;
 	}
-
+	protected function getUser()
+	{
+		return self::$user;
+	}
 	protected function isLogInAdmin(): bool
 	{
 		if (!Session::get('logIn'))

@@ -54,13 +54,11 @@ export class ProductList
 		const title = document.getElementById('title');
 		const desc = document.getElementById('desc');
 		const price = document.getElementById('price');
-		const tags = document.getElementById('tags');
 
 		id.innerText = item['id'];
 		title.value = item['title'];
 		desc.value = item['description'];
 		price.value = item['price'];
-		tags.value = item['tags'];
 
 		formEdit.style.display = 'block';
 	}
@@ -83,7 +81,6 @@ export class ProductList
 		const title = document.getElementById('title').value;
 		const desc = document.getElementById('desc').value;
 		const price = document.getElementById('price').value;
-		const tags = document.getElementById('tags').value;
 
 
 		const changeParams = {
@@ -91,7 +88,6 @@ export class ProductList
 			title: title,
 			description: desc,
 			price: price,
-			tags: tags,
 		}
 
 		const buttonEdit = document.getElementById(changeParams.id + 'edit');
@@ -100,7 +96,7 @@ export class ProductList
 		fetch(
 			'/admin/product/change/',
 			{
-				method: 'POST',
+				method: 'PATCH',
 				headers: {
 					'Content-Type': 'application/json;charset=utf-8'
 				},
@@ -119,7 +115,6 @@ export class ProductList
 							item.title = changeParams.title;
 							item.description = changeParams.description;
 							item.price = changeParams.price;
-							item.tags = changeParams.tags;
 						}
 					})
 
@@ -144,7 +139,7 @@ export class ProductList
 
 		if (itemIndex > -1)
 		{
-			const shouldRemove = confirm(`Are you sure you want to delete this product: ${item.title}?`)
+			const shouldRemove = confirm(`Are you sure you want to disable this product: ${item.title}?`)
 			if (!shouldRemove)
 			{
 				return;
@@ -158,9 +153,9 @@ export class ProductList
 			buttonRemove.disabled = true;
 
 			fetch(
-				'/admin/remove/',
+				'/admin/product/disable/',
 				{
-					method: 'POST',
+					method: 'PATCH',
 					headers: {
 						'Content-Type': 'application/json;charset=utf-8'
 					},
@@ -171,7 +166,7 @@ export class ProductList
 					return response.json();
 				})
 				.then((response) => {
-					if (response.result === 'Y')
+					if (response.result === true)
 					{
 						this.items[itemIndex].isActive = false;
 						buttonRemove.disabled = false;
@@ -179,12 +174,12 @@ export class ProductList
 					}
 					else
 					{
-						console.error('Error while deleting item.');
+						console.error('Error while disabling item.');
 						buttonRemove.disabled = false;
 					}
 				})
 				.catch((error) => {
-					console.error('Error while deleting item.');
+					console.error('Error while disabling item.');
 					buttonRemove.disabled = false;
 				})
 		}
@@ -195,13 +190,13 @@ export class ProductList
 		const itemIndex = this.items.indexOf(item);
 		if (itemIndex > -1)
 		{
-			const shouldRemove = confirm(`Are you sure you want to restore this product: ${item.title}?`)
-			if (!shouldRemove)
+			const shouldRestore = confirm(`Are you sure you want to restore this product: ${item.title}?`)
+			if (!shouldRestore)
 			{
 				return;
 			}
 
-			const removeParams = {
+			const restoreParams = {
 				id: item.id,
 			}
 
@@ -209,20 +204,20 @@ export class ProductList
 			buttonRestore.disabled = true;
 
 			fetch(
-				'/admin/restore/',
+				'/admin/product/restore/',
 				{
-					method: 'POST',
+					method: 'PATCH',
 					headers: {
 						'Content-Type': 'application/json;charset=utf-8'
 					},
-					body: JSON.stringify(removeParams),
+					body: JSON.stringify(restoreParams),
 				}
 			)
 				.then((response) => {
 					return response.json();
 				})
 				.then((response) => {
-					if (response.result === 'Y')
+					if (response.result === true)
 					{
 						this.items[itemIndex].isActive = true;
 						buttonRestore.disabled = false;
@@ -258,9 +253,14 @@ export class ProductList
 			containerColumn.append(tableColumn);
 		})
 
+		/*const tagsColumn = document.createElement('th');
+		tagsColumn.classList.add('table__th', 'table__th-heading');
+		tagsColumn.innerText = 'Теги';
+		containerColumn.append(tagsColumn);*/
+
 		const columnAction = document.createElement('th');
 		columnAction.classList.add('table__th', 'table__th-heading');
-		columnAction.innerText = 'действие';
+		columnAction.innerText = 'Действие';
 
 		containerColumn.append(columnAction);
 		table.append(containerColumn);
@@ -293,7 +293,8 @@ export class ProductList
 		form.classList.add('form');
 
 		const spanId = document.createElement('span');
-		spanId.id = 'productId'
+		spanId.id = 'productId';
+		spanId.style.display = 'none';
 
 		const titleLabel = document.createElement('label');
 		titleLabel.classList.add('form__label');
@@ -328,7 +329,7 @@ export class ProductList
 		priceInput.type = 'text';
 		priceInput.name = 'price';
 
-		const tagsLabel = document.createElement('label');
+		/*const tagsLabel = document.createElement('label');
 		tagsLabel.classList.add('form__label');
 		tagsLabel.htmlFor = 'tags';
 		tagsLabel.innerText = 'Теги';
@@ -337,7 +338,7 @@ export class ProductList
 		tagsInput.classList.add('form__input');
 		tagsInput.id = 'tags';
 		tagsInput.type = 'text';
-		tagsInput.name = 'tags';
+		tagsInput.name = 'tags';*/
 
 		const acceptButton = document.createElement('button');
 		acceptButton.classList.add('form__button','form__button_change');
@@ -348,7 +349,7 @@ export class ProductList
 		acceptButton.addEventListener('click', this.handleAcceptEditButtonClick.bind(this))
 
 		form.append(spanId, titleLabel, titleInput, descLabel, descInput,
-			priceLabel, priceInput, tagsLabel, tagsInput, acceptButton);
+			priceLabel, priceInput, /*tagsLabel, tagsInput,*/ acceptButton);
 		formContainer.append(closeButton, form);
 		formBox.append(formContainer);
 

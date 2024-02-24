@@ -2,10 +2,12 @@
 
 namespace Up\Service\UserService;
 
+use Up\Auth\Auth;
 use Up\Dto\UserAddingDto;
 use Up\Dto\UserDto;
-use Up\Exceptions\Service\UserService\UserAdding;
-use Up\Exceptions\Service\UserService\UserNotFound;
+use Up\Exceptions\Auth\InvalidPassword;
+use Up\Exceptions\User\UserAdding;
+use Up\Exceptions\User\UserNotFound;
 use Up\Repository\User\UserRepositoryImpl;
 
 class UserService
@@ -13,6 +15,22 @@ class UserService
 	/**
 	 * @throws UserNotFound
 	 */
+
+	public static function getAll(): array
+	{
+		$users = UserRepositoryImpl::getAll();
+		$usersDto = [];
+		foreach ($users as $user)
+		{
+			$usersDto[$user->id] = new UserDto($user);
+		}
+		return $usersDto;
+	}
+
+	public static function getColumn(): array
+	{
+		return UserRepositoryImpl::getColumn();
+	}
 	public static function getUserByEmail(string $email): UserDto
 	{
 		$user = UserRepositoryImpl::getByEmail($email);
@@ -38,6 +56,10 @@ class UserService
 		UserRepositoryImpl::add($userAddingDto);
 	}
 
+	/**
+	 * @throws UserNotFound
+	 * @throws InvalidPassword
+	 */
 	public static function changeUser($id, $name, $email, $phoneNumber, $password): void
 	{
 		if (empty($password))
@@ -46,7 +68,7 @@ class UserService
 		}
 		else
 		{
-			$password = password_hash($password, PASSWORD_DEFAULT);
+			$password = Auth::hashPassword($password);
 		}
 
 		UserRepositoryImpl::change($id, $name, $email, $phoneNumber, $password);

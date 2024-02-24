@@ -2,97 +2,64 @@
 
 namespace Up\Repository\ShoppingSession;
 
-use Up\Entity\ProductQuantity;
 use Up\Entity\ShoppingSession;
 use Up\Repository\Product\ProductRepositoryImpl;
-use Up\Repository\User\UserRepositoryImpl;
-use Up\Util\Database\QueryResult;
+use Up\Util\Database\Query;
 
 class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
 {
+	private const SELECT_SQL = "select id, user_id, item_id, quantities ,created_at, updated_at
+				from up_shopping_session
+				left join up_shopping_session_item on id = up_shopping_session_item.shopping_session_id ";
 
 	public static function getById(int $id): ShoppingSession
 	{
-		$sql = "select id, user_id, item_id, quantities ,created_at, updated_at
-				from up_shopping_session
-				left join up_shopping_session_item on id = up_shopping_session_item.shopping_session_id
-				where id = {$id};";
+		$query = Query::getInstance();
+		$sql = self::SELECT_SQL . "where id = {$id}";
 
-		$result = QueryResult::getQueryResult($sql);
-
-		while ($row = mysqli_fetch_assoc($result))
-		{
-			if (!isset($shoppingSession))
-			{
-				$shoppingSession = self::createShoppingSessionEntity($row);
-			}
-			else
-			{
-				$shoppingSession->addProduct(
-					ProductRepositoryImpl::getById($row['item_id']),
-					$row['quantities']
-				);
-			}
-		}
-
-		return $shoppingSession;
-	}
-
-	public static function getAll(): array
-	{
-		$sql = "select id, user_id, item_id, quantities ,created_at, updated_at
-				from up_shopping_session
-				inner join up_shopping_session_item on id = up_shopping_session_item.shopping_session_id";
-
-		$result = QueryResult::getQueryResult($sql);
+		$result = $query->getQueryResult($sql);
 
 		return self::createShoppingSessionList($result);
 	}
 
-	public static function getByUser(int $id): ShoppingSession
+	public static function getAll(): array
 	{
-		$sql = "select id, user_id, item_id, quantities ,created_at, updated_at
-				from up_shopping_session
-				left join up_shopping_session_item on id = up_shopping_session_item.shopping_session_id
-				where user_id = {$id};";
+		$query = Query::getInstance();
 
-		$result = QueryResult::getQueryResult($sql);
+		$result = $query->getQueryResult(self::SELECT_SQL);
 
-		while ($row = mysqli_fetch_assoc($result))
-		{
-			if (!isset($shoppingSession))
-			{
-				$shoppingSession = self::createShoppingSessionEntity($row);
-			}
-			else
-			{
-				$shoppingSession->addProduct(
-					ProductRepositoryImpl::getById($row['item_id']),
-					$row['quantities']
-				);
-			}
-		}
+		return self::createShoppingSessionList($result);
+	}
 
-		if (!isset($shoppingSession))
+	public static function getByUser($id): ShoppingSession
+	{
+		$query = Query::getInstance();
+		$sql = self::SELECT_SQL . "where user_id = {$id};";
+
+		$result = $query->getQueryResult($sql);
+		$shoppingSession = self::createShoppingSessionList($result);
+		if (is_array($shoppingSession))
 		{
 			self::add($id, []);
-
 			return self::getByUser($id);
 		}
 
 		return $shoppingSession;
 	}
 
-	private static function createShoppingSessionList(\mysqli_result $result): array
+	private static function createShoppingSessionList(\mysqli_result $result): array|ShoppingSession
 	{
 		$shoppingSessions = [];
 		while ($row = mysqli_fetch_assoc($result))
 		{
 			if (!isset($shoppingSessions[$row['id']]))
 			{
-				$shoppingSessions[$row['id']] = self::createShoppingSessionEntity($row);
+				$id = $row['id'];
+				$shoppingSessions[$id] = new ShoppingSession(
+					$id, $row['user_id'], []
+				);
 			}
-			else
+			if (!is_null($row['item_id']))
 			{
 				$shoppingSessions[$row['id']]->addProduct(
 					ProductRepositoryImpl::getById($row['item_id']),
@@ -100,75 +67,87 @@ class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
 				);
 			}
 		}
+		if (count($shoppingSessions) === 1)
+		{
+			return $shoppingSessions[$id];
+		}
 
 		return $shoppingSessions;
 	}
 
-	private static function createShoppingSessionEntity(array $row): ShoppingSession
-	{
-		return new ShoppingSession(
-			$row['id'],
-			$row['user_id'],
-			[new ProductQuantity(ProductRepositoryImpl::getById($row['item_id']), $row['quantities'])],
-			$row['created_at'],
-			$row['updated_at']
-		);
-	}
-
 	public static function add($userId, array $productsQuantities): void
 	{
-		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
+		$query = Query::getInstance();
 		try
 		{
-			mysqli_begin_transaction($connection);
+			$query->begin();
 			$addNewShoppingSessionSQL = "INSERT INTO up_shopping_session (user_id) 
 				VALUES ({$userId})";
-			QueryResult::getQueryResult($addNewShoppingSessionSQL);
-			$last = mysqli_insert_id($connection);
+			$query->getQueryResult($addNewShoppingSessionSQL);
+			$last = $query->last();
 			foreach ($productsQuantities as $product)
 			{
 				$addLinkToItemSQL = "INSERT INTO up_shopping_session_item (item_id, shopping_session_id, quantities)
 									VALUES ({$product->info->id}, {$last}, {$product->getQuantity()})";
-				QueryResult::getQueryResult($addLinkToItemSQL);
+				$query->getQueryResult($addLinkToItemSQL);
 			}
-			mysqli_commit($connection);
+			$query->commit();
 		}
 		catch (\Throwable $e)
 		{
-			mysqli_rollback($connection);
+			$query->rollback();
 			throw $e;
 		}
 	}
 
 	public static function change(ShoppingSession $shoppingSession): void
 	{
-		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
+		$query = Query::getInstance();
 		$time = new \DateTime();
 		$now = $time->format('Y-m-d H:i:s');
 		$strProduct = implode(', ', self::getProductIds($shoppingSession->getProducts()));
 		try
 		{
-			mysqli_begin_transaction($connection);
+			$query->begin();
 			$changeProductSQL = "UPDATE up_shopping_session SET updated_at='{$now}' where id = {$shoppingSession->id}";
-			QueryResult::getQueryResult($changeProductSQL);
+			$query->getQueryResult($changeProductSQL);
 			$deleteProductSQL = "DELETE FROM up_shopping_session_item WHERE shopping_session_id={$shoppingSession->id} AND item_id NOT IN ({$strProduct})";
-			QueryResult::getQueryResult($deleteProductSQL);
+			$query->getQueryResult($deleteProductSQL);
 			foreach ($shoppingSession->getProducts() as $item)
 			{
 				$addLinkToTagSQL = "INSERT IGNORE INTO up_shopping_session_item (item_id, shopping_session_id, quantities)
 					VALUES ({$item->info->id}, {$shoppingSession->id}, {$item->getQuantity()})";
-				QueryResult::getQueryResult($addLinkToTagSQL);
+				$query->getQueryResult($addLinkToTagSQL);
 			}
-			mysqli_commit($connection);
+			$query->commit();
 		}
 		catch (\Throwable $e)
 		{
-			mysqli_rollback($connection);
+			$query->rollback();
 			throw $e;
 		}
 	}
 
-	private static function getProductIds(array $products): array
+	public static function delete($id)
+	{
+		$query = Query::getInstance();
+		try
+		{
+			$query->begin();
+			$deleteLinkShoppingSessionSQL = "DELETE FROM up_shopping_session_item WHERE shopping_session_id=$id";
+			$query->getQueryResult($deleteLinkShoppingSessionSQL);
+			$deleteShoppingSessionSQL = "DELETE FROM up_shopping_session WHERE id=$id";
+			$query->getQueryResult($deleteShoppingSessionSQL);
+			$query->commit();
+		}
+		catch (\Throwable $e)
+		{
+			$query->rollback();
+			throw $e;
+		}
+	}
+
+	private static function getProductIds(array $products)
 	{
 		$productIds = [];
 		foreach ($products as $product)

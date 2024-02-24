@@ -46,23 +46,23 @@ export class UserList
 	{
 		if (this.items)
 		{
-			const shouldRemove = confirm(`Are you sure you want to restore this user: ${item.id}?`)
+			const shouldRemove = confirm(`Are you sure you want to change this user?`)
 			if (!shouldRemove)
 			{
 				return;
 			}
 
-			const inputName = document.getElementById('name');
-			const inputPhone = document.getElementById('phone');
-			const inputEmail = document.getElementById('email');
-			const inputPassword = document.getElementById('password')
+			const name = document.getElementById('name').value;
+			const phone = document.getElementById('phone').value;
+			const email = document.getElementById('email').value;
+			const password = document.getElementById('password').value;
 
 			const newDataInput = {
-				id: item.id,
-				name: inputName.value,
-				phoneNumber: inputPhone.value,
-				email: inputEmail.value,
-				password: inputPassword.value,
+				id: Number(item.id),
+				name: name,
+				phoneNumber: phone,
+				email: email,
+				password: password,
 			}
 
 			const buttonSave = document.getElementById('save');
@@ -71,7 +71,7 @@ export class UserList
 			fetch(
 				'/account/edit/',
 				{
-					method: 'POST',
+					method: 'PATCH',
 					headers: {
 						'Content-Type': 'application/json;charset=utf-8'
 					},
@@ -82,12 +82,12 @@ export class UserList
 					return response.json();
 				})
 				.then((response) => {
-					if (response.result === 'Y')
+					if (response.result === true)
 					{
 						const inputPassword = document.getElementById('password');
 						inputPassword.value = '';
 						buttonSave.disabled = false;
-						console.log('success');
+						this.render();
 					}
 					else
 					{

@@ -5,6 +5,10 @@ namespace Up\Repository\Product;
 use Up\Dto\ProductAddingDto;
 use Up\Dto\ProductChangeDto;
 use Up\Entity\Product;
+use Up\Exceptions\Admin\ProductNotChanged;
+use Up\Exceptions\Admin\ProductNotDisabled;
+use Up\Exceptions\Admin\ProductNotRestored;
+use Up\Exceptions\Product\ProductNotFound;
 use Up\Repository\SpecialOffer\SpecialOfferRepositoryImpl;
 use Up\Repository\Tag\TagRepositoryImpl;
 use Up\Util\Database\Connector;
@@ -201,42 +205,50 @@ class ProductRepositoryImpl implements ProductRepository
 		}*/
 
 	/**
-	 * @throws \Throwable
+	 * @throws ProductNotDisabled
 	 */
 	public static function disable($id): void
 	{
 		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
 		try
 		{
-			mysqli_begin_transaction($connection);
 			$disableProductSQL = "UPDATE up_item SET is_active=0 where id = {$id}";
-			QueryResult::getQueryResult($disableProductSQL);
-			mysqli_commit($connection);
+			$query->getQueryResult($disableProductSQL);
+			if (Query::affectedRows() === 0)
+			{
+				throw new ProductNotDisabled();
+			}
 		}
-		catch (\Throwable $e)
+		catch (\Throwable)
 		{
-			mysqli_rollback($connection);
-			throw $e;
+			throw new ProductNotDisabled();
 		}
 	}
 
+	/**
+	 * @throws ProductNotRestored
+	 */
 	public static function restore($id): void
 	{
 		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
 		try
 		{
-			mysqli_begin_transaction($connection);
-			$disableProductSQL = "UPDATE up_item SET is_active=1 where id = {$id}";
-			QueryResult::getQueryResult($disableProductSQL);
-			mysqli_commit($connection);
+			$restoreProductSQL = "UPDATE up_item SET is_active=1 where id = {$id}";
+			$query->getQueryResult($restoreProductSQL);
+			if (Query::affectedRows() === 0)
+			{
+				throw new ProductNotRestored();
+			}
 		}
-		catch (\Throwable $e)
+		catch (\Throwable)
 		{
-			mysqli_rollback($connection);
-			throw $e;
+			throw new ProductNotRestored();
 		}
 	}
 
+	/**
+	 * @throws ProductNotChanged
+	 */
 	public static function change(ProductChangeDto $productChangeDto): void
 	{
 		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
@@ -255,7 +267,11 @@ class ProductRepositoryImpl implements ProductRepository
 		{
 			mysqli_begin_transaction($connection);
 			$changeProductSQL = "UPDATE up_item SET name='{$escapedName}', description='{$escapedDescription}', price= {$productChangeDto->price}, edited_at='{$now}' where id = {$productChangeDto->id}";
-			QueryResult::getQueryResult($changeProductSQL);
+			$query->getQueryResult($changeProductSQL);
+			if (Query::affectedRows() === 0)
+			{
+				throw new ProductNotRestored();
+			}
 			/*$deleteProductSQL = "DELETE FROM up_item_tag WHERE id_item={$productChangeDto->id} AND id_tag NOT IN ({$strTags})";
 			QueryResult::getQueryResult($deleteProductSQL);
 			foreach ($tags as $tag)

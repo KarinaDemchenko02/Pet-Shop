@@ -2,8 +2,6 @@
 
 namespace Up;
 
-use Up\Auth\Auth;
-use Up\Dto\UserAddingDto;
 use Up\Entity\ShoppingSession;
 use Up\Util\Session;
 
@@ -11,10 +9,9 @@ class Application
 {
 	public function run()
 	{
-		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
-		//Util\Database\Migration::migrate($connection);
+		Util\Database\Migration::migrate();
 
-		$imagesCompressed = new \Up\Compression\CompressionImages
+		$imagesCompressed = new Util\Compression\CompressionImages
 		(
 			ROOT . '/public/images/',
 			ROOT . '/public/compressImages/'
@@ -27,7 +24,7 @@ class Application
 
 		if (!isset($shoppingSession) && is_null($user))
 		{
-			Session::set('shoppingSession', new ShoppingSession(null, null, [], null, null));
+			Session::set('shoppingSession', new ShoppingSession(null, null, []));
 		}
 
 		$route = \Up\Routing\Router::find($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);

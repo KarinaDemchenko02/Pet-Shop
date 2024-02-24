@@ -6,6 +6,9 @@ use Up\Dto\ProductAddingDto;
 use Up\Dto\ProductChangeDto;
 use Up\Dto\ProductDto;
 use Up\Dto\ProductDtoAdmin;
+use Up\Exceptions\Admin\ProductNotChanged;
+use Up\Exceptions\Admin\ProductNotDisabled;
+use Up\Exceptions\Admin\ProductNotRestored;
 use Up\Repository\Product\ProductRepositoryImpl;
 
 
@@ -73,21 +76,27 @@ class ProductService
 	public static function getAllProductsForAdmin(int $page = 1): array
 	{
 		$products = ProductRepositoryImpl::getAllForAdmin($page);
-
 		$productsDto = [];
 		foreach ($products as $product)
 		{
 			$productsDto[] = new ProductDtoAdmin($product);
 		}
-
+		/*echo "<pre>";
+		var_dump($productsDto); die;*/
 		return $productsDto;
 	}
 
+	/**
+	 * @throws ProductNotChanged
+	 */
 	public static function changeProduct(ProductChangeDto $productChangeDto): void
 	{
 		ProductRepositoryImpl::change($productChangeDto);
 	}
 
+	/**
+	 * @throws ProductNotDisabled
+	 */
 	public static function disableProduct(int $id): void
 	{
 		ProductRepositoryImpl::disable($id);
@@ -98,6 +107,9 @@ class ProductService
 		ProductRepositoryImpl::add($productAddingDto);
 	}
 
+	/**
+	 * @throws ProductNotRestored
+	 */
 	public static function restoreProduct(int $id): void
 	{
 		ProductRepositoryImpl::restore($id);
@@ -105,6 +117,8 @@ class ProductService
 
 	public static function getColumn()
 	{
-		return ProductRepositoryImpl::getColumn();
+		$columns = ProductRepositoryImpl::getColumn();
+		$columns[] = 'tags';
+		return $columns;
 	}
 }

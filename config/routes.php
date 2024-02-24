@@ -12,16 +12,29 @@ Router::post('/deleteFromBasket/:id/', new \Up\Controller\BasketController(), 'd
 Router::get('/admin/', new \Up\Controller\PageAdminController(), 'indexAction');
 Router::post('/admin/logIn/', new \Up\Controller\AuthController(), 'logInAdminAction');
 
-//Router::post('/admin/action/', new \Up\Controller\MultipleController(), 'processAction');
-Router::post('/admin/remove/', new \Up\Controller\DisableController(), 'disableAction');
-Router::post('/admin/restore/', new \Up\Controller\RestoreController(), 'restoreAction');
-Router::post('/admin/product/change/', new \Up\Controller\PageAdminController(), 'changeAction');
+Router::patch('/admin/product/disable/', new \Up\Controller\ProductAdminController(), 'disableAction');
+Router::patch('/admin/product/restore/', new \Up\Controller\ProductAdminController(), 'restoreAction');
+Router::patch('/admin/product/change/', new \Up\Controller\ProductAdminController(), 'changeAction');
+
+Router::delete('/admin/order/', new \Up\Controller\OrderAdminController(), 'deleteAction');
+Router::post('/admin/order/add/', new \Up\Controller\OrderAdminController(), 'addAction');
+Router::patch('/admin/order/change/', new \Up\Controller\OrderAdminController(), 'changeAction');
+
+Router::delete('/admin/tag/', new \Up\Controller\TagAdminController(), 'deleteAction');
+Router::post('/admin/tag/add/', new \Up\Controller\TagAdminController(), 'addAction');
+Router::patch('/admin/tag/change/', new \Up\Controller\TagAdminController(), 'changeAction');
 
 Router::post('/product/:id/', new \Up\Controller\PageDetailController(), 'buyProductAction');
 
 Router::get('/success/', new \Up\Controller\PageDetailController(), 'showModalSuccess');
 
 Router::get('/account/', new \Up\Controller\PageAccountController(), 'indexAction');
+Router::patch('/account/edit/', new \Up\Controller\ChangeAccountController(), 'changeAction');
+
+Router::post('/upload/', new \Up\Controller\PageAdminController(), 'uploadAction');
+
+Router::post('/createOrder/', new \Up\Controller\OrderController(), 'createOrder');
+
 Router::post('/account/edit/', new \Up\Controller\ChangeController(), 'changeAction');
 
 Router::get('/special-offer/', new \Up\Controller\PageSpecialOfferController(), 'showSpecialOfferAction');

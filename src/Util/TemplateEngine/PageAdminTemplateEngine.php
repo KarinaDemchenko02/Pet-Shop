@@ -6,14 +6,14 @@ class PageAdminTemplateEngine implements TemplateEngine
 {
 	public function getPageTemplate(array $variables): Template
 	{
-
 		$header = new Template('components/admin/header');
 		$form = new Template('components/admin/form');
 		$delete = new Template('components/admin/delete');
 
 		$content = new Template('components/admin/table', [
-			'products' => $variables['products'],
-			'columnsProducts' => $variables['columnsProducts'],
+			'content' => $variables['content'],
+			'columns' => $variables['columns'],
+			'contentName' => $variables['contentName'],
 			'form' => $form,
 			'delete' => $delete
 		]);

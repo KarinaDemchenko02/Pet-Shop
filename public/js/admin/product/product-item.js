@@ -18,10 +18,10 @@ export class ProductItem
 		this.title = String(title);
 		this.description = String(description);
 		this.price = Number(price);
-		this.addedAt = String(addedAt);
-		this.editedAt = String(editedAt);
+		this.addedAt = new Date(Number(addedAt)*1000).toDateString();
+		this.editedAt = new Date(Number(editedAt)*1000).toDateString();
 		this.isActive = Boolean(isActive);
-		this.tags = String(tags);
+		this.tags = tags;
 
 		if (typeof editButtonHandler === 'function')
 		{
@@ -60,6 +60,9 @@ export class ProductItem
 		const priceColumn = document.createElement('td');
 		priceColumn.classList.add('table__th', 'table__th_price');
 		priceColumn.innerText = this.price;
+
+		const tagsColumn = this.createTagColumn();
+		tagsColumn.classList.add('table__th', 'table__th_tags');
 
 		const addedAtColumn = document.createElement('td');
 		addedAtColumn.classList.add('table__th');
@@ -119,7 +122,7 @@ export class ProductItem
 		actionsColumn.classList.add('table__th', 'table__th_button');
 		actionsColumn.append(editButton, removeButton, restoreButton);
 
-		trProduct.append(idColumn, titleColumn, descColumn, priceColumn, addedAtColumn, editedAtColumn, isActiveColumn, actionsColumn);
+		trProduct.append(idColumn, titleColumn, descColumn, priceColumn, addedAtColumn, editedAtColumn, isActiveColumn, tagsColumn, actionsColumn);
 		return trProduct;
 	}
 
@@ -144,6 +147,62 @@ export class ProductItem
 		if (this.restoreButtonHandler)
 		{
 			this.restoreButtonHandler(this);
+		}
+	}
+
+	createTagColumn()
+	{
+		const tagsColumn = document.createElement('td');
+		tagsColumn.classList.add('dropdown_list');
+
+		const dropdownButton = document.createElement('dropdown_button');
+		dropdownButton.innerText = 'Показать теги';
+		dropdownButton.id = String(this.id) + 'dropdown';
+		dropdownButton.addEventListener('click', this.showDropDownTags.bind(this));
+
+		const tagRowContainer = document.createElement('div');
+		tagRowContainer.id = String(this.id) + 'productsRowContainer';
+		tagRowContainer.classList.add('productsRowContainer');
+
+		const labelsContainer = document.createElement('ul');
+		labelsContainer.id = 'productLabel';
+		labelsContainer.classList.add('productLabel');
+		const idTagLabel = document.createElement('label');
+		idTagLabel.innerText = 'Id тега';
+		const titleTagLabel = document.createElement('label');
+		titleTagLabel.innerText = 'Название тега';
+
+		labelsContainer.append(idTagLabel, titleTagLabel);
+
+		tagRowContainer.append(labelsContainer);
+		this.tags.forEach((tag) => {
+			const tagRow = document.createElement('ul');
+			tagRow.id = 'productRow';
+			tagRow.classList.add('productRow');
+
+			const tagIdColumn = document.createElement('li')
+			tagIdColumn.classList.add();
+			tagIdColumn.innerText = tag['tagId'];
+
+			const tagTitleColumn = document.createElement('li')
+			tagTitleColumn.classList.add();
+			tagTitleColumn.innerText = tag['tagTitle'];
+
+			tagRow.append(tagIdColumn, tagTitleColumn);
+			tagRowContainer.append(tagRow);
+		});
+		tagsColumn.append(dropdownButton, tagRowContainer);
+		return tagsColumn;
+	}
+
+	showDropDownTags()
+	{
+		let tags = document.getElementById(String(this.id) + 'productsRowContainer');
+
+		if (tags.style.display === "block") {
+			tags.style.display = "none";
+		} else {
+			tags.style.display = "block";
 		}
 	}
 }

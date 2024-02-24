@@ -17,6 +17,11 @@ class Session
 		$_SESSION[$key] = $value;
 	}
 
+	public static function unset($key): void
+	{
+		unset($_SESSION[$key]);
+	}
+
 	public static function get($key): mixed
 	{
 		return $_SESSION[$key] ?? null;

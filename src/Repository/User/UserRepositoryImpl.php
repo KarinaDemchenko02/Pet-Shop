@@ -3,10 +3,11 @@
 namespace Up\Repository\User;
 
 use Up\Dto\UserAddingDto;
-use Up\Dto\UserDto;
 use Up\Entity\User;
-use Up\Exceptions\Service\UserService\UserAdding;
-use Up\Util\Database\QueryResult;
+use Up\Exceptions\Admin\Tag\TagNotChanged;
+use Up\Exceptions\User\UserAdding;
+use Up\Exceptions\User\UserNotFound;
+use Up\Util\Database\Query;
 
 class UserRepositoryImpl implements UserRepository
 {
@@ -104,6 +105,9 @@ class UserRepositoryImpl implements UserRepository
 		}
 	}
 
+	/**
+	 * @throws UserNotFound
+	 */
 	public static function change($id, $name, $email, $phoneNumber, $password): void
 	{
 		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
@@ -117,46 +121,33 @@ class UserRepositoryImpl implements UserRepository
 		{
 			mysqli_begin_transaction($connection);
 			$changeUsersSQL = "UPDATE up_users SET name='{$escapedName}', email='{$escapedEmail}', tel= '{$escapedPhoneNumber}', password = '{$escapedPassword}' where id = {$id}";
-			QueryResult::getQueryResult($changeUsersSQL);
+			$query->getQueryResult($changeUsersSQL);
+			if (Query::affectedRows() === 0)
+			{
+				throw new UserNotFound();
+			}
+			$query->commit();
+		}
+		catch (\Throwable $e)
+		{
+			mysqli_rollback($connection);
+			throw $e;
+		}
+	}
 
-			mysqli_commit($connection);
-		}
-		catch (\Throwable $e)
-		{
-			mysqli_rollback($connection);
-			throw $e;
-		}
-	}
-	public static function disable($id): void
+	public static function getColumn(): array
 	{
-		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
-		try
+		$query = Query::getInstance();
+		$sql = "SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+				WHERE TABLE_NAME = 'up_users'";
+		$result = $query->getQueryResult($sql);
+		$columns = [];
+		while ($column = mysqli_fetch_assoc($result))
 		{
-			mysqli_begin_transaction($connection);
-			$disableProductSQL = "UPDATE up_user SET is_active=0 where id = {$id}";
-			QueryResult::getQueryResult($disableProductSQL);
-			mysqli_commit($connection);
+			$columns[] = $column;
 		}
-		catch (\Throwable $e)
-		{
-			mysqli_rollback($connection);
-			throw $e;
-		}
-	}
-	public static function restore($id): void
-	{
-		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
-		try
-		{
-			mysqli_begin_transaction($connection);
-			$disableProductSQL = "UPDATE up_user SET is_active=1 where id = {$id}";
-			QueryResult::getQueryResult($disableProductSQL);
-			mysqli_commit($connection);
-		}
-		catch (\Throwable $e)
-		{
-			mysqli_rollback($connection);
-			throw $e;
-		}
+
+		return $columns;
+
 	}
 }

@@ -4,7 +4,7 @@ namespace Up\Controller;
 
 use Up\Auth\Auth;
 use Up\Dto\UserAddingDto;
-use Up\Exceptions\Service\UserService\UserNotFound;
+use Up\Exceptions\User\UserNotFound;
 use Up\Repository\ShoppingSession\ShoppingSessionRepositoryImpl;
 use Up\Service\UserService\UserService;
 use Up\Util\Session;
