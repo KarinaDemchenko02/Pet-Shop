@@ -4,6 +4,7 @@ namespace Up\Repository\User;
 
 use Up\Dto\UserAddingDto;
 use Up\Entity\User;
+use Up\Exceptions\Admin\Tag\TagNotChanged;
 use Up\Exceptions\User\UserAdding;
 use Up\Exceptions\User\UserNotFound;
 use Up\Util\Database\Query;
@@ -123,7 +124,10 @@ class UserRepositoryImpl implements UserRepository
 			$query->begin();
 			$changeUsersSQL = "UPDATE up_users SET name='{$escapedName}', email='{$escapedEmail}', tel= '{$escapedPhoneNumber}', password = '{$escapedPassword}' where id = {$id}";
 			$query->getQueryResult($changeUsersSQL);
-
+			if (Query::affectedRows() === 0)
+			{
+				throw new UserNotFound();
+			}
 			$query->commit();
 		}
 		catch (\Throwable $e)

@@ -22,7 +22,7 @@ abstract class BaseController
 		}
 		return false;
 	}
-	protected static function getUser()
+	protected function getUser()
 	{
 		return self::$user;
 	}

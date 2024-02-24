@@ -3,7 +3,9 @@
 namespace Up\Controller;
 
 use Up\Dto\Order\OrderAddingAdminDto;
+use Up\Dto\Order\OrderChangingDto;
 use Up\Dto\Product\ProductAddingDto;
+use Up\Exceptions\Admin\Order\OrderNotChanged;
 use Up\Exceptions\Admin\Order\OrderNotDeleted;
 use Up\Exceptions\Order\OrderNotCompleted;
 use Up\Service\OrderService\OrderService;
@@ -65,11 +67,11 @@ class OrderAdminController extends BaseController
 	}
 	public function deleteAction(): void
 	{
-		/*if (!$this->isLogInAdmin())
+		if (!$this->isLogInAdmin())
 		{
 			http_response_code(403);
 			return;
-		}*/
+		}
 
 		$data = Json::decode(file_get_contents("php://input"));
 		$response = [];
@@ -110,10 +112,16 @@ class OrderAdminController extends BaseController
 		$response = [];
 		try
 		{
-			OrderService::deleteOrder((int)$data['id']);
+			$orderDto = new OrderChangingDto(
+				(int)$data['id'],
+				$data['deliveryAddress'],
+				$data['name'],
+				$data['surname'],
+			);
+			OrderService::changeOrder($orderDto);
 			$result = true;
 		}
-		catch (OrderNotDeleted)
+		catch (OrderNotChanged)
 		{
 			$result = false;
 		}
@@ -127,7 +135,7 @@ class OrderAdminController extends BaseController
 		}
 		else
 		{
-			$response['errors'] = 'Order not deleted';
+			$response['errors'] = 'Order not changed';
 			http_response_code(409);
 		}
 		echo Json::encode($response);

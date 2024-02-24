@@ -3,13 +3,12 @@
 namespace Up\Repository\Order;
 
 use Up\Dto\Order\OrderAdding;
-use Up\Dto\Order\OrderAddingDto;
+use Up\Dto\Order\OrderChangingDto;
 use Up\Dto\Product\ProductAddingDto;
 use Up\Entity;
 use Up\Exceptions\Admin\Order\OrderNotChanged;
 use Up\Exceptions\Admin\Order\OrderNotDeleted;
 use Up\Exceptions\Order\OrderNotCompleted;
-use Up\Repository\Product\ProductRepositoryImpl;
 use Up\Repository\User\UserRepositoryImpl;
 use Up\Util\Database\Query;
 use Up\Util\Database\Tables\TagTable;
@@ -29,15 +28,6 @@ class OrderRepositoryImpl implements OrderRepository
 		$result = $query->getQueryResult(self::SELECT_SQL);
 
 		return self::createOrderList($result);
-	}
-
-	public static function getById(int $id): Entity\Order
-	{
-		$query = Query::getInstance();
-		$sql = self::SELECT_SQL . "where up_order.id = {$id}";
-		$result = $query->getQueryResult($sql);
-
-		return self::createOrderList($result)[$id];
 	}
 
 	private static function createOrderList(\mysqli_result $result): array
@@ -78,6 +68,15 @@ class OrderRepositoryImpl implements OrderRepository
 		}
 
 		return $orders;
+	}
+
+	public static function getById(int $id): Entity\Order
+	{
+		$query = Query::getInstance();
+		$sql = self::SELECT_SQL . "where up_order.id = {$id}";
+		$result = $query->getQueryResult($sql);
+
+		return self::createOrderList($result)[$id];
 	}
 
 	/**
@@ -141,38 +140,44 @@ class OrderRepositoryImpl implements OrderRepository
 	/**
 	 * @throws OrderNotChanged
 	 */
-	public static function change(Entity\Order $order)
+	public static function change(OrderChangingDto $order): void
 	{
 		$query = Query::getInstance();
 		$time = new \DateTime();
 		$now = $time->format('Y-m-d H:i:s');
-		$itemIds = implode(", ", self::getItemsIds($order->getProducts()));
+		// $itemIds = implode(", ", self::getItemsIds($order->getProducts()));
 		try
 		{
 			$query->begin();
-			$changeOrderSQL = "UPDATE up_order SET edited_at='{$now}' WHERE id={$order->id}";
+			$changeOrderSQL = "
+				UPDATE up_order
+				SET
+					edited_at='{$now}',
+					delivery_address='{$order->deliveryAddress}',
+					name='{$order->name}',
+					surname='{$order->surname}'
+				WHERE id={$order->id}";
 			$query->getQueryResult($changeOrderSQL);
-			$deleteItemLinkSQL = "DELETE FROM up_order_item WHERE item_id NOT IN ($itemIds)";
-			$query->getQueryResult($deleteItemLinkSQL);
-			foreach ($order->getProducts() as $item)
-			{
-				$addLinkToItemSQL = "INSERT IGNORE INTO up_order_item (order_id, item_id, quantities, price)
-									VALUES ({$order->id}, {$item->info->id}, {$item->getQuantity()}, {$item->info->price})";
-				$query->getQueryResult($addLinkToItemSQL);
-			}
+
+			// $deleteItemLinkSQL = "DELETE FROM up_order_item WHERE item_id NOT IN ($itemIds)";
+			// $query->getQueryResult($deleteItemLinkSQL);
+			// foreach ($order->getProducts() as $item)
+			// {
+			// 	$addLinkToItemSQL = "INSERT IGNORE INTO up_order_item (order_id, item_id, quantities, price)
+			// 						VALUES ({$order->id}, {$item->info->id}, {$item->getQuantity()}, {$item->info->price})";
+			// 	$query->getQueryResult($addLinkToItemSQL);
+			// }
 			if (Query::affectedRows() === 0)
 			{
 				throw new OrderNotChanged();
 			}
 			$query->commit();
-
 		}
-		catch (\Throwable)
+		catch (\Throwable|OrderNotChanged)
 		{
 			$query->rollback();
 			throw new OrderNotChanged();
 		}
-
 	}
 
 	public static function getColumn(): array

@@ -3,7 +3,7 @@
 namespace Up\Controller;
 
 use Up\Dto\Order\OrderAddingDto;
-use Up\Exceptions\Service\OrderService\OrderNotCompleted;
+use Up\Exceptions\Order\OrderNotCompleted;
 use Up\Repository\ShoppingSession\ShoppingSessionRepositoryImpl;
 use Up\Service\OrderService\OrderService;
 use Up\Util\Session;
@@ -42,7 +42,7 @@ class OrderController extends BaseController
 		try
 		{
 			$orderDto = new OrderAddingDto(
-				$shoppingSession, 'Мем', 'Прикол', 'Я схожу с ума',
+				$shoppingSession, 'Имя', 'Фамилия', 'Адрес',
 			);
 			OrderService::createOrder($orderDto);
 			if (!is_null($shoppingSession->id))

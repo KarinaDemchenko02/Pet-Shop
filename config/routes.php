@@ -20,12 +20,17 @@ Router::delete('/admin/order/', new \Up\Controller\OrderAdminController(), 'dele
 Router::post('/admin/order/add/', new \Up\Controller\OrderAdminController(), 'addAction');
 Router::patch('/admin/order/change/', new \Up\Controller\OrderAdminController(), 'changeAction');
 
+Router::delete('/admin/tag/', new \Up\Controller\TagAdminController(), 'deleteAction');
+Router::post('/admin/tag/add/', new \Up\Controller\TagAdminController(), 'addAction');
+Router::patch('/admin/tag/change/', new \Up\Controller\TagAdminController(), 'changeAction');
+
 Router::post('/product/:id/', new \Up\Controller\PageDetailController(), 'buyProductAction');
 
 Router::get('/success/', new \Up\Controller\PageDetailController(), 'showModalSuccess');
 
 Router::get('/account/', new \Up\Controller\PageAccountController(), 'indexAction');
 Router::patch('/account/edit/', new \Up\Controller\ChangeAccountController(), 'changeAction');
+
 Router::post('/upload/', new \Up\Controller\PageAdminController(), 'uploadAction');
 
 Router::post('/createOrder/', new \Up\Controller\OrderController(), 'createOrder');

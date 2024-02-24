@@ -18,7 +18,6 @@ class ProductAdminController extends BaseController
 			http_response_code(403);
 			return;
 		}*/
-
 		$data = Json::decode(file_get_contents("php://input"));
 		$response = [];
 		try
