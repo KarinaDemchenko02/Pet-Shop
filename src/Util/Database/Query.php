@@ -63,7 +63,7 @@ class Query
 		return mysqli_real_escape_string(self::$connection, $string);
 	}
 
-	public static function affectedRows(): int|string
+	public function affectedRows(): int|string
 	{
 		return mysqli_affected_rows(self::$connection);
 	}

@@ -111,7 +111,7 @@ class TagRepositoryImpl implements TagRepository
 			// 						VALUES ({$order->id}, {$item->info->id}, {$item->getQuantity()}, {$item->info->price})";
 			// 	$query->getQueryResult($addLinkToItemSQL);
 			// }
-			if (Query::affectedRows() === 0)
+			if ($query->affectedRows() === 0)
 			{
 				throw new TagNotChanged();
 			}

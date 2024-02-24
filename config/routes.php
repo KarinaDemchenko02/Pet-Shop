@@ -35,7 +35,7 @@ Router::post('/upload/', new \Up\Controller\PageAdminController(), 'uploadAction
 
 Router::post('/createOrder/', new \Up\Controller\OrderController(), 'createOrder');
 
-Router::post('/account/edit/', new \Up\Controller\ChangeController(), 'changeAction');
+//Router::post('/account/edit/', new \Up\Controller\ChangeController(), 'changeAction');
 
 Router::get('/special-offer/', new \Up\Controller\PageSpecialOfferController(), 'showSpecialOfferAction');
 Router::get('/special-offer/:id/', new \Up\Controller\PageProductBySpecialOfferController(), 'showProductBySpecialOfferAction');

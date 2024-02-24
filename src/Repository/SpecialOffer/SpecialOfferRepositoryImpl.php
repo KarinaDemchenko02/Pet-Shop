@@ -8,16 +8,16 @@ use Up\Entity\SpecialOfferPreviewProducts;
 use Up\Entity\Tag;
 use Up\Repository\Product\ProductRepositoryImpl;
 use Up\Repository\SpecialOffer\SpecialOfferRepository;
-use Up\Util\Database\QueryResult;
+use Up\Util\Database\Query;
 
 class SpecialOfferRepositoryImpl implements SpecialOfferRepository
 {
 	public static function getAll(): array
 	{
-
+		$query = Query::getInstance();
 		$sql = "select * from up_special_offer;";
 
-		$result = QueryResult::getQueryResult($sql);
+		$result = $query->getQueryResult($sql);
 
 		$specialOffer = [];
 
@@ -31,9 +31,10 @@ class SpecialOfferRepositoryImpl implements SpecialOfferRepository
 
 	public static function getById(int $id): SpecialOffer
 	{
+		$query = Query::getInstance();
 		$sql = "select * from up_special_offer where id = {$id};";
 
-		$result = QueryResult::getQueryResult($sql);
+		$result = $query->getQueryResult($sql);
 
 		$row = mysqli_fetch_assoc($result);
 
@@ -42,18 +43,20 @@ class SpecialOfferRepositoryImpl implements SpecialOfferRepository
 
 	public static function add(string $title, string $description): bool
 	{
+		$query = Query::getInstance();
 		$sql = "INSERT INTO up_special_offer (title, description) VALUES ('{$title}', '{$description}');";
 
-		$result = QueryResult::getQueryResult($sql);
+		$result = $query->getQueryResult($sql);
 
 		return true;
 	}
 
 	public static function getPreviewProducts()
 	{
+		$query = Query::getInstance();
 		$sql = "select * from up_special_offer;";
 
-		$result = QueryResult::getQueryResult($sql);
+		$result = $query->getQueryResult($sql);
 
 		$specialOfferPreviewProducts = [];
 

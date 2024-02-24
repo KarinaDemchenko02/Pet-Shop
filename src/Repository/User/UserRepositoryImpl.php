@@ -14,10 +14,11 @@ class UserRepositoryImpl implements UserRepository
 
 	public static function getAll(): array
 	{
+		$query = Query::getInstance();
 		$sql = "select up_users.id, email, password, up_role.title as role, tel, name
 				from up_users inner join up_role on up_users.role_id = up_role.id;";
 
-		$result = QueryResult::getQueryResult($sql);
+		$result = $query->getQueryResult($sql);
 
 		$users = [];
 
@@ -35,11 +36,12 @@ class UserRepositoryImpl implements UserRepository
 
 	public static function getById(int $id): User
 	{
+		$query = Query::getInstance();
 		$sql = "select up_users.id, email, password, up_role.title as role, tel, name
 				from up_users inner join up_role on up_users.role_id = up_role.id
 				where up_users.id = {$id};";
 
-		$result = QueryResult::getQueryResult($sql);
+		$result = $query->getQueryResult($sql);
 
 		$row = mysqli_fetch_assoc($result);
 
@@ -51,11 +53,12 @@ class UserRepositoryImpl implements UserRepository
 	public static function getByEmail(string $email): ?User
 	{
 
+		$query = Query::getInstance();
 		$sql = "select up_users.id, up_users.email, up_users.password, up_role.title as role, up_users.tel, up_users.name
 				from up_users inner join up_role on up_users.role_id = up_role.id
 				where up_users.email = '{$email}'";
 
-		$result = QueryResult::getQueryResult($sql);
+		$result = $query->getQueryResult($sql);
 
 		$row = mysqli_fetch_assoc($result);
 
@@ -75,9 +78,10 @@ class UserRepositoryImpl implements UserRepository
 	 */
 	public static function add(UserAddingDto $user): void
 	{
+		$query = Query::getInstance();
 		$sql = "select id from up_role where title = '{$user->roleTitle}';";
 
-		$result = QueryResult::getQueryResult($sql);
+		$result = $query->getQueryResult($sql);
 
 		$row = mysqli_fetch_assoc($result);
 		if (is_null($row))
@@ -95,7 +99,7 @@ class UserRepositoryImpl implements UserRepository
 			$sql = "INSERT INTO up_users (email, password, role_id, tel, name) 
 				VALUES ('{$user->email}', '{$escapedUserPassword}', {$roleId}, '{$user->phoneNumber}', '{$escapedUserName}');";
 
-			QueryResult::getQueryResult($sql);
+			$query->getQueryResult($sql);
 			mysqli_commit($connection);
 		}
 		catch (\Throwable $e)
@@ -110,19 +114,19 @@ class UserRepositoryImpl implements UserRepository
 	 */
 	public static function change($id, $name, $email, $phoneNumber, $password): void
 	{
-		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
+		$query = Query::getInstance();
 
-		$escapedName = mysqli_real_escape_string($connection, $name);
-		$escapedEmail = mysqli_real_escape_string($connection, $email);
-		$escapedPhoneNumber = mysqli_real_escape_string($connection, $phoneNumber);
-		$escapedPassword = mysqli_real_escape_string($connection, $password);
+		$escapedName = $query->escape($name);
+		$escapedEmail = $query->escape($email);
+		$escapedPhoneNumber = $query->escape($phoneNumber);
+		$escapedPassword = $query->escape($password);
 
 		try
 		{
-			mysqli_begin_transaction($connection);
+			$query->begin();
 			$changeUsersSQL = "UPDATE up_users SET name='{$escapedName}', email='{$escapedEmail}', tel= '{$escapedPhoneNumber}', password = '{$escapedPassword}' where id = {$id}";
 			$query->getQueryResult($changeUsersSQL);
-			if (Query::affectedRows() === 0)
+			if ($query->affectedRows() === 0)
 			{
 				throw new UserNotFound();
 			}
@@ -130,7 +134,7 @@ class UserRepositoryImpl implements UserRepository
 		}
 		catch (\Throwable $e)
 		{
-			mysqli_rollback($connection);
+			$query->rollback();
 			throw $e;
 		}
 	}
