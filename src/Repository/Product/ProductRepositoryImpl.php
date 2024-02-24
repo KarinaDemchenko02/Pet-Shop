@@ -130,6 +130,26 @@ class ProductRepositoryImpl implements ProductRepository
 		return self::createProductList($result);
 	}
 
+	public static function getProductsBySpecialOffer(int $specialOfferId, int $page)
+	{
+		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
+		$offset = $limit * ($page - 1);
+
+		$sql = "select up_item.id, up_item.name, description, price, id_tag, is_active,
+                added_at, edited_at, up_image.id as imageId, path, up_item_special_offer.special_offer_id, priority
+				from up_item
+				left join up_image on up_item.id = item_id
+	            left join up_item_tag on up_item.id = up_item_tag.id_item
+				left join up_item_special_offer on up_item_special_offer.item_id = up_item.id
+				WHERE up_item_special_offer.special_offer_id = {$specialOfferId} AND up_item.is_active = 1
+				ORDER BY priority
+				LIMIT {$limit} OFFSET {$offset}";
+
+		$result = QueryResult::getQueryResult($sql);
+
+		return self::createProductList($result);
+	}
+
 	public static function add(ProductAddingDto $productAddingDto): void
 	{
 		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
@@ -263,7 +283,7 @@ class ProductRepositoryImpl implements ProductRepository
 				left join up_image on up_item.id = item_id
 	            left join up_item_tag on up_item.id = up_item_tag.id_item
 				left join up_item_special_offer on up_item_special_offer.item_id = up_item.id
-				WHERE it.id_tag = {$tagId} AND up_item.is_active = 1
+				WHERE id_tag = {$tagId} AND up_item.is_active = 1
 				ORDER BY priority
 				LIMIT {$limit} OFFSET {$offset}";
 
@@ -288,7 +308,7 @@ class ProductRepositoryImpl implements ProductRepository
 				left join up_image on up_item.id = item_id
 	            left join up_item_tag on up_item.id = up_item_tag.id_item
 				left join up_item_special_offer on up_item_special_offer.item_id = up_item.id
-				WHERE it.id_tag IN (" . implode(",", $tagIds) . ") AND up_item.is_active = 1
+				WHERE id_tag IN (" . implode(",", $tagIds) . ") AND up_item.is_active = 1
 				ORDER BY priority
 				LIMIT {$limit} OFFSET {$offset}";
 
@@ -379,4 +399,6 @@ class ProductRepositoryImpl implements ProductRepository
 
 		return $columns;
 	}
+
+
 }

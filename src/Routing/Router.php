@@ -40,6 +40,7 @@ class Router
 	{
 		foreach (self::$routes as $route)
 		{
+
 			if ($route->match($REQUEST_URI) && $route->method === $REQUEST_METHOD)
 			{
 				return $route;

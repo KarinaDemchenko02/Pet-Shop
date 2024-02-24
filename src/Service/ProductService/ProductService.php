@@ -43,6 +43,19 @@ class ProductService
 		return $productsDto;
 	}
 
+	public static function getProductsBySpecialOffer(int $specialOfferId, int $page):array
+	{
+		$products = ProductRepositoryImpl::getProductsBySpecialOffer($specialOfferId, $page);
+
+		$productsDto = [];
+		foreach ($products as $product)
+		{
+			$productsDto[] = new ProductDto($product);
+		}
+
+		return $productsDto;
+	}
+
 	public static function getProductByTitle(string $title, int $page): array
 	{
 		$title = strtolower(trim($title));
