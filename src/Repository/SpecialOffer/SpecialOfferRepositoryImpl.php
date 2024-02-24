@@ -10,7 +10,6 @@ use Up\Util\Database\QueryResult;
 
 class SpecialOfferRepositoryImpl implements SpecialOfferRepository
 {
-
 	public static function getAll(): array
 	{
 

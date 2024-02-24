@@ -23,3 +23,6 @@ Router::get('/success/', new \Up\Controller\PageDetailController(), 'showModalSu
 
 Router::get('/account/', new \Up\Controller\PageAccountController(), 'indexAction');
 Router::post('/account/edit/', new \Up\Controller\ChangeController(), 'changeAction');
+
+Router::get('/special-offer/', new \Up\Controller\PageSpecialOfferController(), 'showSpecialOfferAction');
+Router::get('/special-offer/:id/', new \Up\Controller\PageProductBySpecialOfferController(), 'showProductBySpecialOfferAction');
