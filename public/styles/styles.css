@@ -1423,3 +1423,27 @@ button {
 	display: block;
 	z-index: 10;
 }
+
+.special_offer_title {
+	width: 33%;
+	min-width: 320px;
+	padding: 15px;
+	background-color: white;
+	border-radius: 10px;
+}
+
+.special_offer_card {
+	padding: 15px;
+	background-color: white;
+	border-radius: 10px;
+}
+.special__offer__list {
+	display: flex;
+	flex-direction: column;
+	gap: 30px;
+	margin-top: 30px;
+}
+.special__offer__list h1 {
+	font-size: 20px;
+	padding-bottom: 5px;
+}

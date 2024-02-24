@@ -400,5 +400,22 @@ class ProductRepositoryImpl implements ProductRepository
 		return $columns;
 	}
 
+	public static function getLimitedProductsBySpecialOffer(int $specialOfferId): array
+	{
+		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PREVIEW');
 
+		$sql = "select up_item.id, up_item.name, description, price, id_tag, is_active,
+                added_at, edited_at, up_image.id as imageId, path, up_item_special_offer.special_offer_id, priority
+				from up_item
+				left join up_image on up_item.id = item_id
+	            left join up_item_tag on up_item.id = up_item_tag.id_item
+				left join up_item_special_offer on up_item_special_offer.item_id = up_item.id
+				WHERE up_item_special_offer.special_offer_id = {$specialOfferId} AND up_item.is_active = 1
+				ORDER BY priority
+				LIMIT {$limit}";
+
+		$result = QueryResult::getQueryResult($sql);
+
+		return self::createProductList($result);
+	}
 }

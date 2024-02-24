@@ -7,7 +7,7 @@
 	</section>
 	<section class="special__offer">
 		<ul class="special__offer__list">
-			<?php foreach ($this->getVariable('specialOffers') as $specialOffer): ?>
+			<?php foreach ($this->getVariable('specialOffersPreviewProducts') as $specialOffer): ?>
 				<?= $specialOffer->display() ?>
 			<?php endforeach; ?>
 		</ul>

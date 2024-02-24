@@ -4,7 +4,9 @@ namespace Up\Repository\SpecialOffer;
 
 use Up\Entity\Entity;
 use Up\Entity\SpecialOffer;
+use Up\Entity\SpecialOfferPreviewProducts;
 use Up\Entity\Tag;
+use Up\Repository\Product\ProductRepositoryImpl;
 use Up\Repository\SpecialOffer\SpecialOfferRepository;
 use Up\Util\Database\QueryResult;
 
@@ -45,5 +47,27 @@ class SpecialOfferRepositoryImpl implements SpecialOfferRepository
 		$result = QueryResult::getQueryResult($sql);
 
 		return true;
+	}
+
+	public static function getPreviewProducts()
+	{
+		$sql = "select * from up_special_offer;";
+
+		$result = QueryResult::getQueryResult($sql);
+
+		$specialOfferPreviewProducts = [];
+
+		while ($row = mysqli_fetch_assoc($result))
+		{
+			$specialOffer = new SpecialOffer($row['id'], $row['title'], $row['description']);
+			$specialOfferPreviewProducts[$row['id']] = new SpecialOfferPreviewProducts(
+				$specialOffer,
+				ProductRepositoryImpl::getLimitedProductsBySpecialOffer(
+					$specialOffer->id
+				)
+			);
+		}
+
+		return $specialOfferPreviewProducts;
 	}
 }

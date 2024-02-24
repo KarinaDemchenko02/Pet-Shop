@@ -15,10 +15,10 @@ class PageSpecialOfferController extends BaseController
 
 	public function showSpecialOfferAction(): void
 	{
-		$specialOffers = SpecialOfferRepositoryImpl::getAll();
+		$specialOffersPreviewProducts = SpecialOfferRepositoryImpl::getPreviewProducts();
 
 		$template = $this->engine->getPageTemplate([
-													   'specialOffers' => $specialOffers,
+													   'specialOffersPreviewProducts' => $specialOffersPreviewProducts,
 													   'isLogIn' => $this->isLogIn(),
 												   ]);
 

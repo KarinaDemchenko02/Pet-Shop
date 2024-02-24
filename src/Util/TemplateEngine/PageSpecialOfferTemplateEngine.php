@@ -8,7 +8,7 @@ class PageSpecialOfferTemplateEngine implements TemplateEngine
 {
 	public function getPageTemplate(array $variables): Template
 	{
-		$specialOffers = $variables['specialOffers'];
+		$specialOffersPreviewProducts = $variables['specialOffersPreviewProducts'];
 		$isLogIn = $variables['isLogIn'];
 
 
@@ -18,7 +18,7 @@ class PageSpecialOfferTemplateEngine implements TemplateEngine
 		$basket = $this->getBasketTemplate(Session::get('shoppingSession')->getProducts());
 
 		$specialOfferPageTemplate = new Template('page/specialOffers/specialOffers', [
-			'specialOffers' => $this->getSpecialOffersSectionTemplate($specialOffers),
+			'specialOffersPreviewProducts' => $this->getSpecialOffersSectionTemplate($specialOffersPreviewProducts),
 			'form' => $form,
 			'basket' => $basket,
 		],);
@@ -59,19 +59,38 @@ class PageSpecialOfferTemplateEngine implements TemplateEngine
 		return new Template('components/main/basket', ['items' => $basketItemsTemplates]);
 	}
 
-	public function getSpecialOffersSectionTemplate(array $specialOffers): array
+	public function getSpecialOffersSectionTemplate(array $specialOffersPreviewsProducts): array
 	{
 		$specialOffersTemplates = [];
-		foreach ($specialOffers as $specialOffer)
+		foreach ($specialOffersPreviewsProducts as $specialOffersPreview)
 		{
 			$specialOffersTemplates[] = new Template('components/specialOffers/specialOfferSection',
 				[
-					'description' =>$specialOffer->description,
-					'title' => $specialOffer->title,
-					'id' => $specialOffer->id,
+					'description' =>$specialOffersPreview->specialOffer->description,
+					'title' => $specialOffersPreview->specialOffer->title,
+					'id' => $specialOffersPreview->specialOffer->id,
+					'products' => $this->getProductsSectionTemplate($specialOffersPreview->getProducts()),
 				]
 			);
 		}
 		return $specialOffersTemplates;
+	}
+
+	private function getProductsSectionTemplate($products)
+	{
+		$productTemplates = [];
+		foreach ($products as $product)
+		{
+			$productTemplates[] = new Template('components/main/product',
+											   [
+												   'title' => $product->title,
+												   'desc' => $product->description,
+												   'price' => $product->price,
+												   'id' => $product->id,
+												   'imagePath' => $product->imagePath,
+											   ]
+			);
+		}
+		return $productTemplates;
 	}
 }
