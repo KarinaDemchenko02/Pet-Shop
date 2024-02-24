@@ -1,0 +1,2 @@
+ALTER TABLE up_users
+	ADD COLUMN is_active TINYINT(1) DEFAULT 1;
