@@ -7,6 +7,7 @@ use Up\Dto\UserAddingDto;
 use Up\Exceptions\User\UserNotFound;
 use Up\Repository\ShoppingSession\ShoppingSessionRepositoryImpl;
 use Up\Service\UserService\UserService;
+use Up\Util\Json;
 use Up\Util\Session;
 use Up\Util\TemplateEngine\PageMainTemplateEngine;
 
@@ -21,41 +22,68 @@ class AuthController extends BaseController
 	}
 	public function authAction()
 	{
-		if (isset($_POST['logOut']))
+		$data = Json::decode(file_get_contents("php://input"));
+
+		if ($data['action'] === 'logOut')
 		{
 			$this->logOut();
 		}
-		if (isset($_POST['logIn']))
+		if ($data['action'] === 'logIn')
 		{
-			$this->logInAction();
+			$this->logInAction($data['email'], $data['password']);
 		}
-		if (isset($_POST['register']))
+		if ($data['action'] === 'register')
 		{
-			$this->register();
+			$user = new UserAddingDto(
+				$data['name'],
+				$data['surname'],
+				$data['email'],
+				$data['password'],
+				$data['phone'],
+				'Пользователь',
+			);
+			$this->register($user);
 		}
 
 		$this->errors = array_merge($this->errors, $this->authService->getErrors());
-		header('Location: /');
 	}
 
-	private function logInAction(): void
+	private function logInAction(string $email, string $password): void
 	{
+		$response = [];
+
 		try
 		{
-			$user = UserService::getUserByEmail($_POST['email']);
+			$user = UserService::getUserByEmail($email);
+			$result = true;
 		}
 		catch (UserNotFound)
 		{
 			$this->errors[] = 'Неправильно введён Email';
-			return;
+			$result = false;
 		}
 
-		if ($this->authService->verifyUser($user, $_POST['password']))
+		if ($this->authService->verifyUser($user, $password))
 		{
 			Session::set('logIn', true);
 			Session::set('user', $user);
 			Session::set('shoppingSession', ShoppingSessionRepositoryImpl::getByUser($user->id));
 		}
+
+		$response['result'] = $result;
+
+		if ($result)
+		{
+			$response['errors'] = [];
+			http_response_code(200);
+		}
+		else
+		{
+			$response['errors'] = 'User not auth';
+			http_response_code(409);
+		}
+		echo Json::encode($response);
+		exit();
 	}
 
 	public function logInAdminAction(): void
@@ -79,26 +107,56 @@ class AuthController extends BaseController
 		}
 	}
 
-	private function register(): void
+	private function register(UserAddingDto $user): void
 	{
-		$user = new UserAddingDto(
-			$_POST['name'],
-			$_POST['surname'],
-			$_POST['email'],
-			$_POST['password'],
-			$_POST['phone'],
-			'Пользователь',
-		);
-
 		if (!$this->authService->registerUser($user))
 		{
 			$this->errors[] = 'Не удалось добавить пользователя';
+			$result = false;
+			return;
 		}
+
+		$result = true;
+
+		$response['result'] = $result;
+
+		if ($result)
+		{
+			$response['errors'] = [];
+			http_response_code(200);
+		}
+		else
+		{
+			$response['errors'] = 'User not auth';
+			http_response_code(409);
+		}
+
+		echo Json::encode($response);
+
+		exit();
 	}
 
 	private function logOut(): void
 	{
 		Session::delete();
 		self::$user = null;
+
+		$result = true;
+
+		$response['result'] = $result;
+
+		if ($result)
+		{
+			$response['errors'] = [];
+			http_response_code(200);
+		}
+		else
+		{
+			$response['errors'] = 'User not auth';
+			http_response_code(409);
+		}
+		echo Json::encode($response);
+
+		exit();
 	}
 }

@@ -7,10 +7,11 @@ use Up\Entity\Entity;
 class ProductChangeDto implements Dto
 {
 	public function __construct(
-		public readonly string $id,
+		public readonly int $id,
 		public readonly string $title,
 		public readonly string $description,
 		public readonly string $price,
+		public readonly array $tags,
 		public readonly string $imagePath,
 	){}
 

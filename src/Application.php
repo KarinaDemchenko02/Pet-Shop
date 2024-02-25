@@ -3,19 +3,22 @@
 namespace Up;
 
 use Up\Entity\ShoppingSession;
+use Up\Repository\Product\ProductRepositoryImpl;
+use Up\Util\Compression\CompressionImages;
 use Up\Util\Session;
+use Up\Util\Upload;
 
 class Application
 {
 	public function run()
 	{
-		Util\Database\Migration::migrate();
+		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
+		//Util\Database\Migration::migrate($connection);
 
-		$imagesCompressed = new Util\Compression\CompressionImages
-		(
+		$imagesCompressed = new CompressionImages(
 			ROOT . '/public/images/',
-			ROOT . '/public/compressImages/'
-		);
+			ROOT . '/public/compressImages/');
+
 		$imagesCompressed->compressImages();
 
 		Session::init();

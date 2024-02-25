@@ -13,6 +13,7 @@ class ProductDtoAdmin implements Dto
 	public readonly string $description;
 	public readonly string $price;
 	public readonly bool $isActive;
+	public readonly string $imagePath;
 	public readonly int $addedAt;
 	public readonly int $editedAt;
 	public readonly array $tags;
@@ -23,6 +24,7 @@ class ProductDtoAdmin implements Dto
 		$this->title = $product->title;
 		$this->description = $product->description;
 		$this->price = $product->price;
+		$this->imagePath = $product->imagePath;
 		$this->isActive = $product->isActive;
 		$this->addedAt = $product->addedAt;
 		$this->editedAt = $product->editedAt;

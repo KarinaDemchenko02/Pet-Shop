@@ -3,6 +3,9 @@
 use Up\Routing\Router;
 
 Router::get('/', new \Up\Controller\PageMainController(), 'showProductsAction');
+Router::get('/products-json/', new \Up\Controller\PageMainController(), 'getProductsJsonAction');
+Router::get('/tags-json/', new \Up\Controller\PageMainController(), 'getTagsJsonAction');
+Router::get('/search-json/', new \Up\Controller\PageMainController(), 'getSearchJsonAction');
 Router::get('/product/:id/', new \Up\Controller\PageDetailController(), 'showProductAction');
 Router::post('/logging/', new \Up\Controller\AuthController(), 'authAction');
 
@@ -15,6 +18,8 @@ Router::post('/admin/logIn/', new \Up\Controller\AuthController(), 'logInAdminAc
 Router::patch('/admin/product/disable/', new \Up\Controller\ProductAdminController(), 'disableAction');
 Router::patch('/admin/product/restore/', new \Up\Controller\ProductAdminController(), 'restoreAction');
 Router::patch('/admin/product/change/', new \Up\Controller\ProductAdminController(), 'changeAction');
+Router::post('/admin/product/image/', new \Up\Controller\ProductAdminController(), 'imageAction');
+Router::post('/admin/product/add/', new \Up\Controller\ProductAdminController(), 'addAction');
 
 Router::delete('/admin/order/', new \Up\Controller\OrderAdminController(), 'deleteAction');
 Router::post('/admin/order/add/', new \Up\Controller\OrderAdminController(), 'addAction');
