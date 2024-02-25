@@ -70,6 +70,9 @@ class ProductRepositoryImpl implements ProductRepository
 		return self::createProductList($result);
 	}
 
+	/**
+	 * @throws ProductNotFound
+	 */
 	public static function getById(int $id, bool $showHiddenProducts = false): Product
 	{
 		$query = Query::getInstance();
@@ -87,7 +90,7 @@ class ProductRepositoryImpl implements ProductRepository
 	            where up_item.id = {$id} {$status}";
 
 		$result = $query->getQueryResult($sql);
-
+		$product = null;
 		$isFirstLine = true;
 		while ($row = mysqli_fetch_assoc($result))
 		{
@@ -107,7 +110,10 @@ class ProductRepositoryImpl implements ProductRepository
 				// }
 			}
 		}
-
+		if (is_null($product))
+		{
+			throw new ProductNotFound();
+		}
 		return $product;
 	}
 

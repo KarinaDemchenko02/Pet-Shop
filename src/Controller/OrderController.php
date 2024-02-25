@@ -8,7 +8,7 @@ use Up\Repository\ShoppingSession\ShoppingSessionRepositoryImpl;
 use Up\Service\OrderService\OrderService;
 use Up\Util\Session;
 
-class OrderController extends BaseController
+class OrderController extends Controller
 {
 	public function buyProductAction(int $id)
 	{

@@ -6,24 +6,37 @@ use Up\Dto\Order\OrderAddingDto;
 use Up\Entity\ProductQuantity;
 use Up\Entity\ShoppingSession;
 use Up\Exceptions\Order\OrderNotCompleted;
+use Up\Exceptions\Product\ProductNotFound;
+use Up\Http\Request;
+use Up\Http\Response;
+use Up\Http\Status;
 use Up\Repository\Product\ProductRepositoryImpl;
 use Up\Service\OrderService\OrderService;
 use Up\Service\ProductService\ProductService;
 use Up\Util\Session;
 use Up\Util\TemplateEngine\PageDetailTemplateEngine;
 
-class PageDetailController extends BaseController
+class PageDetailController extends Controller
 {
 	public function __construct()
 	{
 		$this->engine = new PageDetailTemplateEngine();
 	}
 
-	public function showProductAction(int $id)
+	public function showProductAction(Request $request): Response
 	{
-		$product = ProductService::getProductById($id);
+		$id = $request->getVariable('id');
+
+		try
+		{
+			$product = ProductService::getProductById($id);
+		}
+		catch (ProductNotFound)
+		{
+			return new Response(Status::NOT_FOUND, ['errors' => 'Product not found']);
+		}
 		$template = $this->engine->getPageTemplate(['productDto' => $product, 'isLogIn' => $this->isLogIn()]);
-		$template->display();
+		return new Response(Status::OK, ['template' => $template]);
 	}
 
 	public function buyProductAction(int $id)

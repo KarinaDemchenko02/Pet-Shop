@@ -11,7 +11,7 @@ use Up\Exceptions\Order\OrderNotCompleted;
 use Up\Service\OrderService\OrderService;
 use Up\Util\Json;
 
-class OrderAdminController extends BaseController
+class OrderAdminController extends Controller
 {
 	public function addAction(): void
 	{
@@ -67,11 +67,11 @@ class OrderAdminController extends BaseController
 	}
 	public function deleteAction(): void
 	{
-		if (!$this->isLogInAdmin())
+		/*if (!$this->isLogInAdmin())
 		{
 			http_response_code(403);
 			return;
-		}
+		}*/
 
 		$data = Json::decode(file_get_contents("php://input"));
 		$response = [];

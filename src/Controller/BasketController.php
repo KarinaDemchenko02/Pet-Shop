@@ -6,7 +6,7 @@ use Up\Repository\Product\ProductRepositoryImpl;
 use Up\Repository\ShoppingSession\ShoppingSessionRepositoryImpl;
 use Up\Util\Session;
 
-class BasketController extends BaseController
+class BasketController extends Controller
 {
 	public function addProductAction(int $id)
 	{

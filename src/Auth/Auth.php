@@ -15,18 +15,12 @@ class Auth
 	private array $errors = [];
 	public function verifyUser(UserDto $userDto, string $password): bool
 	{
-		try
+		if (password_verify(trim($password), $userDto->password))
 		{
-			if (password_verify(trim($password), $userDto->password))
-			{
-				return true;
-			}
-			$this->errors[] = 'Invalid password';
+			return true;
 		}
-		catch (UserNotFound $exception)
-		{
-			$this->errors[] = $exception->getMessage();
-		}
+
+		$this->errors[] = 'Invalid password';
 		return false;
 	}
 
@@ -34,19 +28,19 @@ class Auth
 	{
 		if(!preg_match("/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/", $user->email))
 		{
-			$this->errors[] = "Неправильно введён Email";
+			$this->errors[] = "Invalid Email";
 		}
 		if (!preg_match("/^[a-zA-Z]{1,30}+$/", $user->name) || !preg_match("/^[a-zA-Z]{1,30}+$/", $user->surname))
 		{
-			$this->errors[] = "Имя и фамилия введены некорректно";
+			$this->errors[] = "Invalid name or surname";
 		}
 		if (!preg_match("/^\+\d+$/", $user->phoneNumber))
 		{
-			$this->errors[] = "Номер телефона введён некорректно";
+			$this->errors[] = "Invalid phone number";
 		}
 		if (!preg_match("/^(?=^.{8,}$)(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s).*$/", $user->password))
 		{
-			$this->errors[] = "Пароль состоит минимум из 8 символов и может содержать только строчные и прописные латинские буквы, цифры";
+			$this->errors[] = 'Invalid password';//"Пароль состоит минимум из 8 символов и может содержать только строчные и прописные латинские буквы, цифры";
 		}
 
 		if (!empty($this->errors))
@@ -70,7 +64,7 @@ class Auth
 		}
 		catch (UserAdding)
 		{
-			$this->errors[] = "Пользователь с этим Email уже существует";
+			$this->errors[] = 'This email is busy';//"Пользователь с этим Email уже существует";
 			return false;
 		}
 	}

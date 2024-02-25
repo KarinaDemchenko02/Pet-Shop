@@ -4,7 +4,7 @@ namespace Up\Util;
 
 class Upload
 {
-	public static function upload()
+	public static function upload(): string
 	{
 		$targetDir = "images/";
 		$configuration = Configuration::getInstance();

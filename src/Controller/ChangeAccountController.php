@@ -7,7 +7,7 @@ use Up\Exceptions\User\UserNotFound;
 use Up\Service\UserService\UserService;
 use Up\Util\Json;
 
-class ChangeAccountController extends BaseController
+class ChangeAccountController extends Controller
 {
 	public function changeAction(): void
 	{

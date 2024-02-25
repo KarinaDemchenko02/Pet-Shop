@@ -10,7 +10,7 @@ use Up\Util\Session;
 use Up\Util\TemplateEngine\PageAccountTemplateEngine;
 use Up\Util\TemplateEngine\Template;
 
-class PageAccountController extends BaseController
+class PageAccountController extends Controller
 {
 	public function __construct()
 	{

@@ -5,100 +5,101 @@ namespace Up\Controller;
 use Up\Auth\Auth;
 use Up\Dto\UserAddingDto;
 use Up\Exceptions\User\UserNotFound;
+use Up\Http\Request;
+use Up\Http\Response;
+use Up\Http\Status;
 use Up\Repository\ShoppingSession\ShoppingSessionRepositoryImpl;
+use Up\Routing\Router;
 use Up\Service\UserService\UserService;
 use Up\Util\Session;
 use Up\Util\TemplateEngine\PageMainTemplateEngine;
 
-class AuthController extends BaseController
+class AuthController extends Controller
 {
 	private Auth $authService;
 	public function __construct()
 	{
 		Session::init();
-		$this->engine = new PageMainTemplateEngine();
 		$this->authService = new Auth();
 	}
-	public function authAction()
+	public function authAction(Request $request): Response
 	{
-		if (isset($_POST['logOut']))
-		{
-			$this->logOut();
-		}
-		if (isset($_POST['logIn']))
-		{
-			$this->logInAction();
-		}
-		if (isset($_POST['register']))
-		{
-			$this->register();
-		}
-
-		$this->errors = array_merge($this->errors, $this->authService->getErrors());
-		header('Location: /');
-	}
-
-	private function logInAction(): void
-	{
+		$action = $request->getDataByKey('action') . 'Action';
 		try
 		{
-			$user = UserService::getUserByEmail($_POST['email']);
+			return $this->$action($request);
+		}
+		catch (\Error)
+		{
+			return new Response(Status::UNAUTHORIZED, ['errors' => $this->authService->getErrors(), 'redirect' => '/']);
+		}
+	}
+
+	private function logInAction(Request $request): Response
+	{
+		/*var_dump($request->getDataByKey('password')); die;*/
+		try
+		{
+			$user = UserService::getUserByEmail($request->getDataByKey('email'));
 		}
 		catch (UserNotFound)
 		{
 			$this->errors[] = 'Неправильно введён Email';
-			return;
+			return new Response(Status::UNAUTHORIZED, ['result' => false, 'errors' => $this->authService->getErrors(), 'redirect' => '/']); //,'redirect' => '/']);
 		}
-
-		if ($this->authService->verifyUser($user, $_POST['password']))
+		if ($this->authService->verifyUser($user, $request->getDataByKey('password')))
 		{
 			Session::set('logIn', true);
 			Session::set('user', $user);
 			Session::set('shoppingSession', ShoppingSessionRepositoryImpl::getByUser($user->id));
 		}
+		else
+		{
+			return new Response(Status::UNAUTHORIZED, ['result' => false,'errors' => $this->authService->getErrors(), 'redirect' => '/']); //,'redirect' => '/']);
+		}
+		return new Response(Status::OK, ['result' => true, 'redirect' => '/']);//, ['redirect' => '/']);
 	}
 
-	public function logInAdminAction(): void
+	public function logInAdminAction(Request $request): Response
 	{
 		try
 		{
-			$user = UserService::getUserByEmail($_POST['email']);
-			if ($this->authService->verifyUser($user, $_POST['password']))
+			$user = UserService::getUserByEmail($request->getDataByKey('email'));
+			if ($this->authService->verifyUser($user, $request->getDataByKey('password')))
 			{
 				Session::set('logIn', true);
 				Session::set('user', $user);
 			}
+			return new Response(Status::OK, ['redirect' => '/admin/']);
 		}
 		catch (UserNotFound)
 		{
 			$this->errors[] = 'Неправильно введён Email';
 		}
-		finally
-		{
-			header('Location: /admin/');
-		}
+		return new Response(Status::UNAUTHORIZED, ['redirect' => '/admin/logIn']);
 	}
 
-	private function register(): void
+	private function registerAction(Request $request): Response
 	{
 		$user = new UserAddingDto(
-			$_POST['name'],
-			$_POST['surname'],
-			$_POST['email'],
-			$_POST['password'],
-			$_POST['phone'],
+			$request->getDataByKey('name'),
+			$request->getDataByKey('surname'),
+			$request->getDataByKey('email'),
+			$request->getDataByKey('password'),
+			$request->getDataByKey('phone'),
 			'Пользователь',
 		);
-
 		if (!$this->authService->registerUser($user))
 		{
-			$this->errors[] = 'Не удалось добавить пользователя';
+			$this->errors[] = $this->authService->getErrors();
 		}
+		return new Response(Status::OK, ['errors' => $this->errors, 'redirect' => '/']);
 	}
 
-	private function logOut(): void
+	private function logOutAction(Request $request): Response
 	{
 		Session::delete();
 		self::$user = null;
+		return new Response(Status::OK, ['redirect' => '/']);
 	}
 }

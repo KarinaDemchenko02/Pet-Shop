@@ -2,35 +2,39 @@
 
 namespace Up\Controller;
 
+use Up\Http\Request;
+use Up\Http\Response;
+use Up\Http\Status;
 use Up\Service\ProductService\ProductService;
 use Up\Service\TagService\TagService;
 use Up\Util\TemplateEngine\PageMainTemplateEngine;
 
-class PageMainController extends BaseController
+class PageMainController extends Controller
 {
 	public function __construct()
 	{
 		$this->engine = new PageMainTemplateEngine();
 	}
 
-	public function showProductsAction(): void
+	public function showProductsAction(Request $request): Response
 	{
+		$page = $request->getVariable('page');
+		$titleParam = $request->getVariable('title');
+		$tagParam = $request->getVariable('tag');
+
 		$tags = TagService::getAllTags();
-		if (isset($_GET['page']) && is_numeric($_GET['page']) && $_GET['page'] > 0)
-		{
-			$page = $_GET['page'];
-		}
-		else
+		if (!(is_numeric($page) && $page > 0))
 		{
 			$page = 1;
 		}
-		if (isset($_GET['title']))
+
+		if (!is_null($titleParam))
 		{
-			$products = ProductService::getProductByTitle($_GET['title'], $page);
+			$products = ProductService::getProductByTitle($titleParam, $page);
 		}
-		elseif (isset($_GET['tag']) && is_numeric($_GET['tag']) && $_GET['tag'] > 0)
+		elseif (is_null($tagParam) && is_numeric($tagParam) && $tagParam > 0)
 		{
-			$products = ProductService::getProductsByTag((int)$_GET['tag'], $page);
+			$products = ProductService::getProductsByTag((int)$tagParam, $page);
 		}
 		else
 		{
@@ -41,9 +45,9 @@ class PageMainController extends BaseController
 			'products' => $products,
 			'tags' => $tags,
 			'nextPage' => ProductService::getAllProducts($page + 1),
-			'isLogIn' => $this->isLogIn(),
+			'isLogIn' => (bool)$request->getDataByKey('user'),
 			]);
 
-		$template->display();
+		return new Response(Status::OK, ['template' => $template]);
 	}
 }

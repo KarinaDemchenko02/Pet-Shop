@@ -5,7 +5,7 @@ namespace Up\Controller;
 use Up\AdminAction\Add;
 use Up\Util\TemplateEngine\PageAdminTemplateEngine;
 
-class AddController extends BaseController
+class AddController extends Controller
 {
 	private Add $addService;
 	public function __construct()

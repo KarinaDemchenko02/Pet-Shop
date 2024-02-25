@@ -9,7 +9,7 @@ use Up\Exceptions\Admin\ProductNotRestored;
 use Up\Service\ProductService\ProductService;
 use Up\Util\Json;
 
-class ProductAdminController extends BaseController
+class ProductAdminController extends Controller
 {
 	public function disableAction(): void
 	{

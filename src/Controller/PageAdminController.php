@@ -2,6 +2,9 @@
 
 namespace Up\Controller;
 
+use Up\Http\Request;
+use Up\Http\Response;
+use Up\Http\Status;
 use Up\Service\OrderService\OrderService;
 use Up\Service\ProductService\ProductService;
 use Up\Service\TagService\TagService;
@@ -9,45 +12,36 @@ use Up\Service\UserService\UserService;
 use Up\Util\TemplateEngine\PageAdminTemplateEngine;
 use Up\Util\Upload;
 
-class PageAdminController extends BaseController
+class PageAdminController extends Controller
 {
 	public function __construct()
 	{
 		$this->engine = new PageAdminTemplateEngine();
 	}
 
-	public function indexAction()
+	/*public function indexAction(Request $request)
 	{
-		if ($this->isLogInAdmin())
-		{
-			$this->showProductsAction();
-		}
-		else
-		{
 			$this->logInAction();
-		}
-	}
+	}*/
 
 	public function uploadAction(): void
 	{
 		Upload::upload();
-		$this->indexAction();
+		/*$this->indexAction();*/
 	}
-	private function logInAction()
+	public function logInAction(Request $request): Response
 	{
-		$this->engine->getAuthPageTemplate()->display();
+		return new Response(Status::OK, ['template' => $this->engine->getAuthPageTemplate()]);
 	}
 
-	public function showProductsAction()
+	public function showProductsAction(Request $request): Response
 	{
 		$contentName = 'products';
-		$entity = $_GET['entity'] ?? 'products';
+		$entity = $request->getVariable('entity') ?? 'products';
+		$page = (int)($request->getVariable('page') ?? 1);
+
 		$content = [];
-		$page = 1;
-		if (isset($_GET['page']))
-		{
-			$page = (int)$_GET['page'];
-		}
+
 		if ($entity === 'users')
 		{
 			$contentName = 'users';
@@ -140,6 +134,6 @@ class PageAdminController extends BaseController
 			'columns' => $columns,
 		]);
 
-		$template->display();
+		return new Response(Status::OK, ['template' => $template]);
 	}
 }

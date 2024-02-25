@@ -9,6 +9,7 @@ use Up\Dto\ProductDtoAdmin;
 use Up\Exceptions\Admin\ProductNotChanged;
 use Up\Exceptions\Admin\ProductNotDisabled;
 use Up\Exceptions\Admin\ProductNotRestored;
+use Up\Exceptions\Product\ProductNotFound;
 use Up\Repository\Product\ProductRepositoryImpl;
 
 
@@ -27,6 +28,10 @@ class ProductService
 
 		return $productsDto;
 	}
+
+	/**
+	 * @throws ProductNotFound
+	 */
 	public static function getProductById(int $id): ProductDto
 	{
 		$product = ProductRepositoryImpl::getById($id);
