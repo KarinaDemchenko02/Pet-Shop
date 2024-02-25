@@ -2,7 +2,7 @@
 	<section class="details">
 		<div class="details_main-information">
 			<div id="img-container" class="details__images-container">
-				<img id="product" class="details__images" src="<?=$this->getVariable('imagePath')?>" alt="product">
+				<img id="product" class="details__images" src="<?= $this->getVariable('imagePath') ?>" alt="product">
 			</div>
 			<div class="details__information">
 				<div class="details__name-container">
@@ -34,37 +34,29 @@
 			</div>
 			<div id="specifications" class="details__info-items details__specifications">
 				<ul class="details__list-specifications">
-					<li class="details__item-specifications">
-						<span class="details__specifications-name">Возраст</span>
-						<span class="details__ellipsis"></span>
-						<span class="details__characteristic">Взрослое Животное</span>
-					</li>
-					<li class="details__item-specifications">
-						<span class="details__specifications-name">Производитель</span>
-						<span class="details__ellipsis"></span>
-						<span class="details__characteristic">Premier</span>
-					</li>
-					<li class="details__item-specifications">
-						<span class="details__specifications-name">Страна производства</span>
-						<span class="details__ellipsis"></span>
-						<span class="details__characteristic">Бельгия</span>
-					</li>
-					<li class="details__item-specifications">
-						<span class="details__specifications-name">Категория товара</span>
-						<span class="details__ellipsis"></span>
-						<span class="details__characteristic">Сухой корм</span>
-					</li>
+					<?php
+					foreach ($this->getVariable('characteristics') as $characteristic): ?>
+						<li class="details__item-specifications">
+							<span class="details__specifications-name"><?= $characteristic->title ?></span>
+							<span class="details__ellipsis"></span>
+							<span class="details__characteristic"><?= $characteristic->value ?></span>
+						</li>
+					<?php
+					endforeach; ?>
 				</ul>
 			</div>
 		</div>
 	</section>
 	<section class="form">
-		<?php $this->getVariable('form')->display(); ?>
+		<?php
+		$this->getVariable('form')->display(); ?>
 	</section>
 	<section class="form-product">
-		<?php $this->getVariable('formBuyProduct')->display(); ?>
+		<?php
+		$this->getVariable('formBuyProduct')->display(); ?>
 	</section>
 	<section class="basket">
-		<?php $this->getVariable('basket')->display(); ?>
+		<?php
+		$this->getVariable('basket')->display(); ?>
 	</section>
 </div>

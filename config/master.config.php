@@ -6,5 +6,5 @@ return [
 	'NUMBER_OF_PRODUCTS_PER_PAGE' => 4,
 	'MAX_FILE_SIZE' => 1024 * 1024 * 5,
 	'ALLOWED_IMAGES_TYPE' => ['jpg', 'jpeg', 'png', 'gif'],
-	'NUMBER_OF_PRODUCTS_PER_PREVIEW' => 2,
+	'NUMBER_OF_PRODUCTS_PER_PREVIEW' => 3,
 ];

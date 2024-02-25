@@ -8,6 +8,7 @@ use Up\Entity\Product;
 use Up\Exceptions\Admin\ProductNotChanged;
 use Up\Exceptions\Admin\ProductNotDisabled;
 use Up\Exceptions\Admin\ProductNotRestored;
+use Up\Repository\ProductCharacteristic\ProductCharacteristicImpl;
 use Up\Repository\SpecialOffer\SpecialOfferRepositoryImpl;
 use Up\Repository\Tag\TagRepositoryImpl;
 use Up\Util\Database\Query;
@@ -373,6 +374,7 @@ class ProductRepositoryImpl implements ProductRepository
 		$specialOffer = [];
 		// $image = [new Image(404, '/images/imgNotFound.png', 'main')];
 		$imagePath = '/images/imgNotFound.png';
+		$characteristics = ProductCharacteristicImpl::getAllByProductId($row['id']);
 
 		if (!is_null($row['id_tag']))
 		{
@@ -399,7 +401,8 @@ class ProductRepositoryImpl implements ProductRepository
 			$row['edited_at'],
 			$imagePath,
 			$specialOffer,
-			$row['priority']
+			$row['priority'],
+			$characteristics,
 		);
 	}
 
