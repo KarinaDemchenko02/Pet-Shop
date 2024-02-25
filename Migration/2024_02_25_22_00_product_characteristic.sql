@@ -1,11 +1,11 @@
-create table up_characteristic
+create table IF NOT EXISTS up_characteristic
 (
 	id    int auto_increment
 		primary key,
 	title varchar(255) not null
 );
 
-create table up_item_characteristic
+create table IF NOT EXISTS up_item_characteristic
 (
 	item_id           int          not null,
 	characteristic_id int          not null,
