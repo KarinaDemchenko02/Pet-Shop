@@ -9,7 +9,9 @@ Router::group(['preMiddleware' => 'isLogin'], [
 	Router::post('/deleteFromBasket/:id/', new \Up\Controller\BasketController(), 'deleteProductAction'),
 ]);
 
-
+Router::get('/products-json/', new \Up\Controller\PageMainController(), 'getProductsJsonAction');
+Router::get('/tags-json/', new \Up\Controller\PageMainController(), 'getTagsJsonAction');
+Router::get('/search-json/', new \Up\Controller\PageMainController(), 'getSearchJsonAction');
 Router::post('/logging/', new \Up\Controller\AuthController(), 'authAction');
 
 Router::group(['preMiddleware' => 'isNotLogIn'], [
@@ -24,6 +26,8 @@ Router::group(['preMiddleware' => ['isLogin', 'isAdmin'], 'postMiddleware' => 't
 	Router::patch('/admin/product/disable/', new \Up\Controller\ProductAdminController(), 'disableAction'),
 	Router::patch('/admin/product/restore/', new \Up\Controller\ProductAdminController(), 'restoreAction'),
 	Router::patch('/admin/product/change/', new \Up\Controller\ProductAdminController(), 'changeAction'),
+	Router::post('/admin/product/image/', new \Up\Controller\ProductAdminController(), 'imageAction'),
+	Router::post('/admin/product/add/', new \Up\Controller\ProductAdminController(), 'addAction'),
 
 	Router::delete('/admin/order/', new \Up\Controller\OrderAdminController(), 'deleteAction'),
 	Router::post('/admin/order/add/', new \Up\Controller\OrderAdminController(), 'addAction'),

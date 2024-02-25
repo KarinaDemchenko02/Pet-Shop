@@ -1,4 +1,4 @@
-import { ProductItem } from "./product-item.js";
+import {ProductItem} from "./product-item.js";
 
 export class ProductList
 {
@@ -7,7 +7,8 @@ export class ProductList
 	itemsContainer;
 	items = [];
 	columns= [];
-	constructor({ attachToNodeId = '', items, columns })
+	tags = [];
+	constructor({ attachToNodeId = '', items, columns, tags })
 	{
 		if (attachToNodeId === '')
 		{
@@ -27,15 +28,17 @@ export class ProductList
 
 		this.columns = columns;
 
+		this.tags = tags;
+
 		this.createItemsContainer()
 	}
-
 
 	createItem(itemData)
 	{
 		itemData.removeButtonHandler = this.handleRemoveButtonClick.bind(this);
 		itemData.editButtonHandler = this.handleEditButtonClick.bind(this);
 		itemData.restoreButtonHandler = this.handleRestoreButtonClick.bind(this);
+		itemData.addImageButtonHandler = this.handleAddImageButtonClick.bind(this);
 		return new ProductItem(itemData);
 	}
 
@@ -55,18 +58,94 @@ export class ProductList
 		const desc = document.getElementById('desc');
 		const price = document.getElementById('price');
 
+		const buttonAdd = document.getElementById('add');
+		const buttonEdit = document.getElementById('changed');
+
 		id.innerText = item['id'];
 		title.value = item['title'];
 		desc.value = item['description'];
 		price.value = item['price'];
 
 		formEdit.style.display = 'block';
+		buttonAdd.style.display = 'none';
+		buttonEdit.style.display = 'block';
+
+		this.createSelectTags(item['tags']);
+	}
+
+	handleAddButtonClick()
+	{
+		const id = document.getElementById('productId');
+		const title = document.getElementById('title');
+		const desc = document.getElementById('desc');
+		const price = document.getElementById('price');
+
+		const buttonAdd = document.getElementById('add');
+		const buttonEdit = document.getElementById('changed');
+
+		id.innerText = '';
+		title.value = '';
+		desc.value = '';
+		price.value = '';
+
+		const formEdit = document.querySelector('.form__box');
+		formEdit.style.display = 'block';
+
+		buttonAdd.style.display = 'block';
+		buttonEdit.style.display = 'none';
+
+		const tagsContainer = document.querySelector('.form__container-tag');
+		tagsContainer.innerHTML = '';
+
+		this.handleAddTags();
 	}
 
 	handleEditCloseButtonClick()
 	{
 		const formEdit = document.querySelector('.form__box');
 		formEdit.style.display = 'none';
+	}
+
+	handleDeleteTag(event)
+	{
+		const container = event.target.parentNode.parentNode;
+		container.parentNode.removeChild(container);
+	}
+
+	handleAddTags()
+	{
+		const tagsContainer = document.querySelector('.form__container-tag');
+
+		let tagsSelect;
+
+		const selectContainer = document.createElement('div');
+		selectContainer.classList.add('form__select-container');
+
+		const deleteTag = document.createElement('button');
+		deleteTag.classList.add('form__delete-tag');
+		deleteTag.addEventListener('click', this.handleDeleteTag.bind(this));
+
+		const iconDelete = document.createElement('i');
+		iconDelete.classList.add('material-icons', 'form__icon-delete');
+		iconDelete.innerText = 'close';
+
+		tagsSelect = document.createElement('select');
+		tagsSelect.classList.add('form__select-input-tag', 'form-select')
+		tagsSelect.name = 'tags';
+
+		this.tags.forEach(tagAll => {
+			const option = document.createElement('option');
+			option.classList.add('form__option');
+			option.value = tagAll['id'];
+			option.innerText = tagAll['title'];
+
+			tagsSelect.append(option);
+		})
+
+		selectContainer.append(tagsSelect);
+		deleteTag.append(iconDelete);
+		selectContainer.append(deleteTag);
+		tagsContainer.append(selectContainer);
 	}
 
 	handleAcceptEditButtonClick()
@@ -81,13 +160,31 @@ export class ProductList
 		const title = document.getElementById('title').value;
 		const desc = document.getElementById('desc').value;
 		const price = document.getElementById('price').value;
+		const tags = document.querySelectorAll('.form__select-input-tag');
 
+		let idTags = [];
+		let objectTags = [];
+
+		tags.forEach(tag => {
+			const idTag = tag.options[tag.selectedIndex].value;
+			const textTag = tag.options[tag.selectedIndex].text;
+
+			objectTags.push({
+				tagId: idTag,
+				tagTitle: textTag
+			});
+
+			idTags.push(Number(idTag));
+		})
+
+		objectTags = Array.from(new Set(objectTags.map(item => JSON.stringify(item)))).map(item => JSON.parse(item));
 
 		const changeParams = {
 			id: Number(id),
 			title: title,
 			description: desc,
 			price: price,
+			tags: idTags,
 		}
 
 		const buttonEdit = document.getElementById(changeParams.id + 'edit');
@@ -107,7 +204,7 @@ export class ProductList
 				return response.json();
 			})
 			.then((response) => {
-				if (response.result === true)
+				if (response.result)
 				{
 					this.items.forEach(item => {
 						if (item.id === changeParams.id)
@@ -115,6 +212,10 @@ export class ProductList
 							item.title = changeParams.title;
 							item.description = changeParams.description;
 							item.price = changeParams.price;
+							item.tags = objectTags;
+							item.editedAt = item.renderDate();
+
+							return true;
 						}
 					})
 
@@ -133,13 +234,106 @@ export class ProductList
 				buttonEdit.disabled = false;
 			})
 	}
+
+	handleAcceptAddButtonClick()
+	{
+		const shouldRemove = confirm(`Are you sure you want to delete this product: ?`)
+		if (!shouldRemove)
+		{
+			return;
+		}
+
+		const title = document.getElementById('title').value;
+		const desc = document.getElementById('desc').value;
+		const price = document.getElementById('price').value;
+
+		const tags = document.querySelectorAll('.form__select-input-tag');
+
+		let idTags = [];
+		let objectTags = [];
+
+		tags.forEach(tag => {
+			const idTag = tag.options[tag.selectedIndex].value;
+			const textTag = tag.options[tag.selectedIndex].text;
+
+			objectTags.push({
+				tagId: idTag,
+				tagTitle: textTag
+			});
+
+			idTags.push(Number(idTag));
+		})
+
+		objectTags = Array.from(new Set(objectTags.map(item => JSON.stringify(item)))).map(item => JSON.parse(item));
+
+		const addParams = {
+			title: title,
+			description: desc,
+			price: price,
+			tags: idTags,
+		}
+
+		const buttonAdd = document.getElementById('add');
+		buttonAdd.disabled = true;
+
+		fetch(
+			'/admin/product/add/',
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json;charset=utf-8'
+				},
+				body: JSON.stringify(addParams),
+			}
+		)
+			.then((response) => {
+				return response.json();
+			})
+			.then((response) => {
+				if (response.id)
+				{
+					const table = document.querySelector('.table');
+					let isExecuted = false;
+
+					this.items.forEach(item => {
+						if (!isExecuted) {
+							item.id = response.id
+							item.title = addParams.title;
+							item.description = addParams.description;
+							item.price = addParams.price;
+							item.isActive = true;
+							item.tags = objectTags;
+							item.addedAt =  item.renderDate();
+							item.editedAt = item.renderDate();
+							table.append(item.render());
+
+							isExecuted = true;
+						}
+					});
+
+					const formEdit = document.querySelector('.form__box');
+					formEdit.style.display = 'none';
+
+					buttonAdd.disabled = false;
+				}
+				else
+				{
+					console.error(response.errors);
+					buttonAdd.disabled = false;
+				}
+			})
+			.catch((error) => {
+				console.error('Error while changing item.');
+				buttonAdd.disabled = false;
+			})
+	}
 	handleRemoveButtonClick(item)
 	{
 		const itemIndex = this.items.indexOf(item);
 
 		if (itemIndex > -1)
 		{
-			const shouldRemove = confirm(`Are you sure you want to disable this product: ${item.title}?`)
+			const shouldRemove = confirm(`Are you sure you want to delete this product: ${item.title}?`)
 			if (!shouldRemove)
 			{
 				return;
@@ -166,7 +360,7 @@ export class ProductList
 					return response.json();
 				})
 				.then((response) => {
-					if (response.result === true)
+					if (response.result)
 					{
 						this.items[itemIndex].isActive = false;
 						buttonRemove.disabled = false;
@@ -174,12 +368,12 @@ export class ProductList
 					}
 					else
 					{
-						console.error('Error while disabling item.');
+						console.error('Error while deleting item.');
 						buttonRemove.disabled = false;
 					}
 				})
 				.catch((error) => {
-					console.error('Error while disabling item.');
+					console.error('Error while deleting item.');
 					buttonRemove.disabled = false;
 				})
 		}
@@ -190,13 +384,13 @@ export class ProductList
 		const itemIndex = this.items.indexOf(item);
 		if (itemIndex > -1)
 		{
-			const shouldRestore = confirm(`Are you sure you want to restore this product: ${item.title}?`)
-			if (!shouldRestore)
+			const shouldRemove = confirm(`Are you sure you want to restore this product: ${item.title}?`)
+			if (!shouldRemove)
 			{
 				return;
 			}
 
-			const restoreParams = {
+			const removeParams = {
 				id: item.id,
 			}
 
@@ -210,14 +404,14 @@ export class ProductList
 					headers: {
 						'Content-Type': 'application/json;charset=utf-8'
 					},
-					body: JSON.stringify(restoreParams),
+					body: JSON.stringify(removeParams),
 				}
 			)
 				.then((response) => {
 					return response.json();
 				})
 				.then((response) => {
-					if (response.result === true)
+					if (response.result)
 					{
 						this.items[itemIndex].isActive = true;
 						buttonRestore.disabled = false;
@@ -232,6 +426,50 @@ export class ProductList
 				.catch((error) => {
 					console.error('Error while deleting item.');
 					buttonRestore.disabled = false;
+				})
+		}
+	}
+
+	handleAddImageButtonClick(item)
+	{
+		const itemIndex = this.items.indexOf(item);
+		if (itemIndex > -1)
+		{
+			const shouldRemove = confirm(`Are you sure you want to restore this product: ${item.title}?`)
+			if (!shouldRemove)
+			{
+				return;
+			}
+
+			const inputFile = document.getElementById(item.id + 'image').files[0];
+
+			const formData = new FormData();
+			formData.append('idProduct', item.id);
+			formData.append('imagePath', inputFile);
+
+			fetch(
+				'/admin/product/image/',
+				{
+					method: 'POST',
+					body: formData,
+				}
+			)
+				.then((response) => {
+					return response.json();
+				})
+				.then((response) => {
+					if (response.result)
+					{
+						const nowPath = document.getElementById(item.id + 'path');
+						nowPath.innerText = inputFile.name;
+					}
+					else
+					{
+						console.error('Error while deleting item.');
+					}
+				})
+				.catch((error) => {
+					console.error('Error while deleting item.');
 				})
 		}
 	}
@@ -253,24 +491,30 @@ export class ProductList
 			containerColumn.append(tableColumn);
 		})
 
-		/*const tagsColumn = document.createElement('th');
-		tagsColumn.classList.add('table__th', 'table__th-heading');
-		tagsColumn.innerText = 'Теги';
-		containerColumn.append(tagsColumn);*/
+		const columnImages = document.createElement('th');
+		columnImages.classList.add('table__th', 'table__th-heading');
+		columnImages.innerText = 'изображение';
 
 		const columnAction = document.createElement('th');
 		columnAction.classList.add('table__th', 'table__th-heading');
-		columnAction.innerText = 'Действие';
+		columnAction.innerText = 'действие';
 
-		containerColumn.append(columnAction);
+		const addButton = document.createElement('button');
+		addButton.classList.add('form__button', 'form__button_add');
+		addButton.id = 'addOpen';
+		addButton.innerText = 'Добавить';
+		addButton.addEventListener('click', this.handleAddButtonClick.bind(this));
+
+		containerColumn.append(columnImages, columnAction);
 		table.append(containerColumn);
 
+		this.itemsContainer.append(addButton);
 
 		this.itemsContainer.append(table, this.renderForm());
 
 		this.items.forEach((item) => {
 			table.append(item.render());
-		})
+		});
 	}
 
 	renderForm()
@@ -293,8 +537,7 @@ export class ProductList
 		form.classList.add('form');
 
 		const spanId = document.createElement('span');
-		spanId.id = 'productId';
-		spanId.style.display = 'none';
+		spanId.id = 'productId'
 
 		const titleLabel = document.createElement('label');
 		titleLabel.classList.add('form__label');
@@ -329,31 +572,100 @@ export class ProductList
 		priceInput.type = 'text';
 		priceInput.name = 'price';
 
-		/*const tagsLabel = document.createElement('label');
+		const tagsLabel = document.createElement('label');
 		tagsLabel.classList.add('form__label');
 		tagsLabel.htmlFor = 'tags';
 		tagsLabel.innerText = 'Теги';
 
-		const tagsInput = document.createElement('input');
-		tagsInput.classList.add('form__input');
-		tagsInput.id = 'tags';
-		tagsInput.type = 'text';
-		tagsInput.name = 'tags';*/
+		const containerTagsSelect = document.createElement('div');
+		containerTagsSelect.classList.add('form__container-tag');
 
 		const acceptButton = document.createElement('button');
-		acceptButton.classList.add('form__button','form__button_change');
+		acceptButton.classList.add('form__button', 'form__button_change');
 		acceptButton.id = 'changed';
 		acceptButton.type = 'submit';
 		acceptButton.name = 'changeProduct';
 		acceptButton.innerText = 'Редактировать';
-		acceptButton.addEventListener('click', this.handleAcceptEditButtonClick.bind(this))
+		acceptButton.addEventListener('click', this.handleAcceptEditButtonClick.bind(this));
+
+		const spinnerAdd = document.createElement('div');
+		spinnerAdd.classList.add('spinner-border', 'text-light', 'spinner-action');
+		const spinnerLoadingAdd = document.createElement('span');
+		spinnerLoadingAdd.innerText = 'Loading...';
+		spinnerLoadingAdd.classList.add('visually-hidden');
+		spinnerAdd.append(spinnerLoadingAdd);
+
+		const acceptAddButton = document.createElement('button');
+		acceptAddButton.classList.add('form__button', 'form__button_add');
+		acceptAddButton.id = 'add';
+		acceptAddButton.type = 'submit';
+		acceptAddButton.name = 'addProduct';
+		acceptAddButton.innerText = 'Добавить';
+		acceptAddButton.addEventListener('click', this.handleAcceptAddButtonClick.bind(this));
+
+		const addTags = document.createElement('button');
+		addTags.classList.add('form__add-tag');
+		addTags.innerText = 'Добавить тег';
+		addTags.addEventListener('click', this.handleAddTags.bind(this));
+
+		const icon = document.createElement('i');
+		icon.classList.add('material-icons', 'form__icon-add');
+		icon.innerText = 'add';
+
+		addTags.append(icon);
+
+		acceptAddButton.append(spinnerAdd);
 
 		form.append(spanId, titleLabel, titleInput, descLabel, descInput,
-			priceLabel, priceInput, /*tagsLabel, tagsInput,*/ acceptButton);
+			priceLabel, priceInput, tagsLabel, containerTagsSelect, addTags, acceptButton, acceptAddButton);
 		formContainer.append(closeButton, form);
 		formBox.append(formContainer);
 
 		return formBox;
 	}
 
+	createSelectTags(tags)
+	{
+		const tagsContainer = document.querySelector('.form__container-tag');
+
+		tagsContainer.innerHTML = '';
+
+		let tagsSelect;
+
+		tags.forEach(tag => {
+			const selectContainer = document.createElement('div');
+			selectContainer.classList.add('form__select-container');
+
+			const deleteTag = document.createElement('button');
+			deleteTag.classList.add('form__delete-tag');
+			deleteTag.addEventListener('click', this.handleDeleteTag.bind(this));
+
+			const iconDelete = document.createElement('i');
+			iconDelete.classList.add('material-icons', 'form__icon-delete');
+			iconDelete.innerText = 'close';
+
+			tagsSelect = document.createElement('select');
+			tagsSelect.classList.add('form__select-input-tag', 'form-select')
+			tagsSelect.name = 'tags';
+
+			this.tags.forEach(tagAll => {
+				const option = document.createElement('option');
+				option.classList.add('form__option');
+				option.value = tagAll['id'];
+				option.innerText = tagAll['title'];
+
+				if (option.value === tag['tagId'])
+				{
+					option.selected = true;
+				}
+
+				tagsSelect.append(option);
+			})
+
+			selectContainer.append(tagsSelect);
+			deleteTag.append(iconDelete);
+			selectContainer.append(deleteTag);
+			tagsContainer.append(selectContainer);
+		})
+	}
 }

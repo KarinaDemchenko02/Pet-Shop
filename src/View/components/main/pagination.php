@@ -62,10 +62,10 @@ if (empty($nextPage))
 		<?php
 	} ?>
 	<?php
-	if (!empty($nextPage)) { ?>
-		<a class="pagination__button-switch pagination__button_next" href='/?<?= http_build_query(
-			array_merge($_GET, ['page' => $activePage + 1])
-		) ?>'>Вперед</a>
-		<?php
-	} ?>
+//	if (!empty($nextPage)) { ?>
+<!--		<a class="pagination__button-switch pagination__button_next" href='/?--><?php //= http_build_query(
+//			array_merge($_GET, ['page' => $activePage + 1])
+//		) ?><!--'>Вперед</a>-->
+<!--		--><?php
+//	} ?>
 </div>

@@ -61,6 +61,7 @@ class Application
 		/*$this->setHeaders();*/
 
 		$request = $this->handleRequest();
+		/*var_dump($request); die;*/
 		$response = $this->sendRequestThroughRouter($request);
 		$this->sendResponse($response);
 	}
@@ -92,8 +93,8 @@ class Application
 		$imagesCompressed = new Util\Compression\CompressionImages
 		(
 			ROOT . '/public/images/',
-			ROOT . '/public/compressImages/'
-		);
+			ROOT . '/public/compressImages/');
+
 		$imagesCompressed->compressImages();
 	}
 

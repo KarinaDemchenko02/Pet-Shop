@@ -31,13 +31,12 @@ class AuthController extends Controller
 		}
 		catch (\Error)
 		{
-			return new Response(Status::UNAUTHORIZED, ['errors' => $this->authService->getErrors(), 'redirect' => '/']);
+			return new Response(Status::UNAUTHORIZED, ['errors' => $this->authService->getErrors()]);
 		}
 	}
 
 	private function logInAction(Request $request): Response
 	{
-		/*var_dump($request->getDataByKey('password')); die;*/
 		try
 		{
 			$user = UserService::getUserByEmail($request->getDataByKey('email'));
@@ -45,7 +44,7 @@ class AuthController extends Controller
 		catch (UserNotFound)
 		{
 			$this->errors[] = 'Неправильно введён Email';
-			return new Response(Status::UNAUTHORIZED, ['result' => false, 'errors' => $this->authService->getErrors(), 'redirect' => '/']); //,'redirect' => '/']);
+			return new Response(Status::UNAUTHORIZED, ['result' => false, 'errors' => $this->authService->getErrors()]); //,'redirect' => '/']);
 		}
 		if ($this->authService->verifyUser($user, $request->getDataByKey('password')))
 		{
@@ -55,9 +54,9 @@ class AuthController extends Controller
 		}
 		else
 		{
-			return new Response(Status::UNAUTHORIZED, ['result' => false,'errors' => $this->authService->getErrors(), 'redirect' => '/']); //,'redirect' => '/']);
+			return new Response(Status::UNAUTHORIZED, ['result' => false,'errors' => $this->authService->getErrors()]); //,'redirect' => '/']);
 		}
-		return new Response(Status::OK, ['result' => true, 'redirect' => '/']);//, ['redirect' => '/']);
+		return new Response(Status::OK, ['result' => true]);
 	}
 
 	public function logInAdminAction(Request $request): Response
@@ -93,13 +92,13 @@ class AuthController extends Controller
 		{
 			$this->errors[] = $this->authService->getErrors();
 		}
-		return new Response(Status::OK, ['errors' => $this->errors, 'redirect' => '/']);
+		return new Response(Status::OK, ['result' => true, 'errors' => $this->errors]);
 	}
 
 	private function logOutAction(Request $request): Response
 	{
 		Session::delete();
 		self::$user = null;
-		return new Response(Status::OK, ['redirect' => '/']);
+		return new Response(Status::OK, ['result' => true]);
 	}
 }

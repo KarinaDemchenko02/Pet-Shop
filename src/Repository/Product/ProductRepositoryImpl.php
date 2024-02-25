@@ -8,9 +8,8 @@ use Up\Entity\Product;
 use Up\Exceptions\Admin\ProductNotChanged;
 use Up\Exceptions\Admin\ProductNotDisabled;
 use Up\Exceptions\Admin\ProductNotRestored;
-use Up\Exceptions\Product\ProductNotFound;
+use Up\Exceptions\Images\ImageNotAdd;
 use Up\Repository\Tag\TagRepositoryImpl;
-use Up\Util\Database\Connector;
 use Up\Util\Database\Query;
 
 class ProductRepositoryImpl implements ProductRepository
@@ -151,18 +150,12 @@ class ProductRepositoryImpl implements ProductRepository
 				VALUES ('{$escapedTitle}', '{$escapedDescription}', {$productAddingDto->price})";
 			$query->getQueryResult($addNewProductSQL);
 			$lastItem = $query->last();
-			$addImgNewProductSQL = "INSERT INTO up_image (path, item_id) VALUES ('{$productAddingDto->imagePath}', {$lastItem})";
-			$query->getQueryResult($addImgNewProductSQL);
-			TagRepositoryImpl::add($productAddingDto->tag);
-			$lastTag = $query->last();
-			$addTagNewProductSQL = "INSERT INTO up_item_tag (id_item, id_tag) VALUES ({$lastItem}, {$lastTag})";
-			$query->getQueryResult($addTagNewProductSQL);
-			//			$last = mysqli_insert_id($connection);
-			//			foreach ($tags as $tag)
-			//			{
-			//				$addLinkToTagSQL = "INSERT INTO up_item_tag (id_item, id_tag) VALUES ({$last}, {$tag})";
-			//				QueryResult::getQueryResult($addLinkToTagSQL);
-			//			}
+
+			foreach ($productAddingDto->tags as $tag)
+			{
+				$addLinkToTagSQL = "INSERT INTO up_item_tag (id_item, id_tag) VALUES ({$lastItem}, {$tag})";
+				$query->getQueryResult($addLinkToTagSQL);
+			}
 			$query->commit();
 			return $lastItem;
 		}
@@ -172,22 +165,6 @@ class ProductRepositoryImpl implements ProductRepository
 			throw $e;
 		}
 	}
-
-	/*	public static function delete($id): void
-		{
-			$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
-			try
-			{
-				mysqli_begin_transaction($connection);
-				QueryResult::getQueryResult($addNewProductSQL);
-				mysqli_commit($connection);
-			}
-			catch (\Throwable $e)
-			{
-				mysqli_rollback($connection);
-				throw $e;
-			}
-		}*/
 
 	/**
 	 * @throws ProductNotDisabled
@@ -232,6 +209,29 @@ class ProductRepositoryImpl implements ProductRepository
 	}
 
 	/**
+	 * @throws ImageNotAdd
+	 */
+	public static function addImage(string $imagePath, int $id): void
+	{
+		$query = Query::getInstance();
+		try
+		{
+			$escapedImage = $query->escape($imagePath);
+
+			$addImageSQL = "UPDATE up_image SET path='{$escapedImage}' where id = {$id}";
+			$query->getQueryResult($addImageSQL);
+			if (Query::affectedRows() === 0)
+			{
+				throw new ImageNotAdd();
+			}
+		}
+		catch (\Throwable)
+		{
+			throw new ImageNotAdd();
+		}
+	}
+
+	/**
 	 * @throws ProductNotChanged
 	 */
 	public static function change(ProductChangeDto $productChangeDto): void
@@ -240,12 +240,13 @@ class ProductRepositoryImpl implements ProductRepository
 		$time = new \DateTime();
 		$now = $time->format('Y-m-d H:i:s');
 
-		/*foreach ($tags as $tag)
-		{
-			$tagIds[] = $tag->id;
-		}*/
+		$tagsChange = $productChangeDto->tags;
+		$tagsExisting = self::getTagByProduct($productChangeDto->id);
 
-		/*$strTags = implode(', ', $tagIds);*/
+		$tags = array_diff($tagsChange, $tagsExisting);
+
+		$strTags = implode(', ', $productChangeDto->tags);
+
 		$escapedName = $query->escape($productChangeDto->title);
 		$escapedDescription = $query->escape($productChangeDto->description);
 		try
@@ -257,13 +258,14 @@ class ProductRepositoryImpl implements ProductRepository
 			{
 				throw new ProductNotRestored();
 			}
-			/*$deleteProductSQL = "DELETE FROM up_item_tag WHERE id_item={$productChangeDto->id} AND id_tag NOT IN ({$strTags})";
-			QueryResult::getQueryResult($deleteProductSQL);
+
+			$deleteProductSQL = "DELETE FROM up_item_tag WHERE id_item={$productChangeDto->id} AND id_tag NOT IN ({$strTags})";
+			$query->getQueryResult($deleteProductSQL);
 			foreach ($tags as $tag)
 			{
-				$addLinkToTagSQL = "INSERT IGNORE INTO up_item_tag (id_item, id_tag) VALUES ({$id}, {$tag->id})";
-				QueryResult::getQueryResult($addLinkToTagSQL);
-			}*/
+				$addLinkToTagSQL = "INSERT INTO up_item_tag (id_item, id_tag) VALUES ({$productChangeDto->id}, {$tag})";
+				$query->getQueryResult($addLinkToTagSQL);
+			}
 			$query->commit();
 		}
 		catch (\Throwable)
@@ -271,6 +273,24 @@ class ProductRepositoryImpl implements ProductRepository
 			$query->rollback();
 			throw new ProductNotChanged();
 		}
+	}
+
+	public static function getTagByProduct(int $idProduct): array
+	{
+		$query = Query::getInstance();
+
+		$sql = "SELECT id_tag FROM `up_item_tag` WHERE id_item = {$idProduct}";
+
+		$result = $query->getQueryResult($sql);
+
+		$tagsId = [];
+
+		while ($id = mysqli_fetch_column($result))
+		{
+			$tagsId[] = $id;
+		}
+
+		return $tagsId;
 	}
 
 	public static function getByTag(int $tagId, int $page = 1): array

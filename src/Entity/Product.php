@@ -19,7 +19,7 @@ class Product implements Entity
 		string $title,
 		string $description,
 		float  $price,
-		array  $tag,
+		array  $tags,
 		bool   $isActive,
 		string $addedAt,
 		string $editedAt,
@@ -30,7 +30,7 @@ class Product implements Entity
 		$this->title = $title;
 		$this->description = $description;
 		$this->price = $price;
-		$this->tags = $tag;
+		$this->tags = $tags;
 		$this->isActive = $isActive;
 		$this->addedAt = strtotime($addedAt);
 		$this->editedAt = strtotime($editedAt);

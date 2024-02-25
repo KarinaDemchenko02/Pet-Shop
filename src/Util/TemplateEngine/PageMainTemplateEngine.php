@@ -9,12 +9,12 @@ class PageMainTemplateEngine implements TemplateEngine
 	public function getPageTemplate(array $variables): Template
 	{
 		$products = $variables['products'];
-		$tags = $variables['tags'];
+		$tags = $variables['tag'];
 		$isLogIn = $variables['isLogIn'];
 		$nextPage = $variables['nextPage'];
 
 		$footer = new Template('components/main/footer');
-		$header = $this->getHeaderTemplate($isLogIn);
+		$header = new Template('components/main/header');
 		$form = new Template('components/main/formAuthorization');
 		$basket = $this->getBasketTemplate(Session::get('shoppingSession')->getProducts());
 		$pagination = new Template('components/main/pagination', [
@@ -23,8 +23,8 @@ class PageMainTemplateEngine implements TemplateEngine
 		]);
 
 		$mainPageTemplate = new Template('page/main/main', [
-			'tags' => $this->getTagsSectionTemplate($tags),
-			'products' => $this->getProductsSectionTemplate($products),
+			'tag' => $tags,
+			'products' => $products,
 			'form' => $form,
 			'basket' => $basket,
 			'pagination' => $pagination
@@ -64,38 +64,5 @@ class PageMainTemplateEngine implements TemplateEngine
 			]);
 		}
 		return new Template('components/main/basket', ['items' => $basketItemsTemplates]);
-	}
-
-	public function getTagsSectionTemplate(array $tags): array
-	{
-		$tagsTemplates = [];
-		foreach ($tags as $tag)
-		{
-			$tagsTemplates[] = new Template('components/main/tag',
-				[
-					'title' => $tag->title,
-					'id' => $tag->id,
-				]
-			);
-		}
-		return $tagsTemplates;
-	}
-
-	public function getProductsSectionTemplate(array $products): array
-	{
-		$productTemplates = [];
-		foreach ($products as $product)
-		{
-			$productTemplates[] = new Template('components/main/product',
-				[
-					'title' => $product->title,
-					'desc' => $product->description,
-					'price' => $product->price,
-					'id' => $product->id,
-					'imagePath' => $product->imagePath,
-				]
-			);
-		}
-		return $productTemplates;
 	}
 }

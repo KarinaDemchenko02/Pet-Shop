@@ -9,13 +9,14 @@ class CompressionImages
 {
 	private string $path;
 	private string $destination;
+	private array $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
 
 	public function __construct(string $path, string $destination)
 	{
 		$this->path = $path;
 		$this->destination = $destination;
 	}
-	public function compressImages(): bool | array
+	public function compressImages(): bool
 	{
 		$images = $this->getImages($this->getPath());
 
@@ -37,11 +38,6 @@ class CompressionImages
 			}
 		}
 
-		if (!empty($this->getErrors()))
-		{
-			return $this->getErrors();
-		}
-
 		return true;
 	}
 
@@ -56,6 +52,7 @@ class CompressionImages
 			foreach ($files as $file)
 			{
 				$newPath = $path . '/' . $file;
+				$nameNewPath = basename($newPath);
 
 				if (is_dir($newPath))
 				{
@@ -63,12 +60,12 @@ class CompressionImages
 					$imagesName = [...$subFiles, ...$imagesName];
 				}
 				else
-					if (!file_exists($this->getDestination() . basename($newPath)))
+					if (!file_exists($this->getDestination() . $nameNewPath) && $this->checkImage(basename($nameNewPath)))
 					{
 						try
 						{
-							$imagesName[] = basename($newPath);
-							copy($newPath, $this->getDestination() . basename($newPath));
+							$imagesName[] = $nameNewPath;
+							copy($newPath, $this->getDestination() . $nameNewPath);
 						}
 						catch (ImageNotCopy $e)
 						{
@@ -82,9 +79,25 @@ class CompressionImages
 		return $imagesName;
 	}
 
+	private function checkImage(string $filePath): bool
+	{
+		$fileExtension = pathinfo($filePath, PATHINFO_EXTENSION);
+
+		if (in_array($fileExtension, $this->allowedExtensions, true)) {
+			return true;
+		}
+
+		return false;
+	}
+
 	private function resizeImage(string $path, string $movePath, string $nameImage): void
 	{
 		$imageSize = getimagesize($path);
+
+		if (!$imageSize)
+		{
+			return;
+		}
 
 		switch ($imageSize['mime']) {
 			case 'image/jpeg':
@@ -103,6 +116,7 @@ class CompressionImages
 				$image = imagecreatefromjpeg($path);
 				imagejpeg($image, $movePath .  '/' . $nameImage, 80);
 		}
+
 	}
 	public function getDestination(): string
 	{

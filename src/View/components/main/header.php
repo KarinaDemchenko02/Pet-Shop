@@ -1,16 +1,7 @@
 <header class="header">
 	<div class="header__top-menu">
 		<img class="header__logo" src="/../compressImages/logoMadagascar.png" alt="logo">
-		<div class="header__form">
-			<form class="header__main-form" action="/" method="get">
-				<label class="header__label">
-					<input name="title" class="header__input" placeholder="Поиск товаров">
-				</label>
-				<button class="header__button" type="submit">
-					<i class="header__search material-icons">search</i>
-				</button>
-			</form>
-		</div>
+		<div class="header__form"></div>
 		<div class="header__phone">
 			<i class="header__call material-icons">call</i>
 			<a class="header__link-phone" href="tel:+79521132415">+7 (952) 113-24-15</a>
@@ -51,7 +42,7 @@
 					</button>
 				</li>
 			</ul>
-			<?php $this->getVariable('authSection')->display() ?>
+			<div id="header__auth"></div>
 		</nav>
 	</div>
 </header>

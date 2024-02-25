@@ -2,14 +2,18 @@
 
 namespace Up\Controller;
 
+use Up\Http\Request;
+use Up\Http\Response;
+use Up\Http\Status;
 use Up\Repository\Product\ProductRepositoryImpl;
 use Up\Repository\ShoppingSession\ShoppingSessionRepositoryImpl;
 use Up\Util\Session;
 
 class BasketController extends Controller
 {
-	public function addProductAction(int $id)
+	public function addProductAction(Request $request): Response
 	{
+		$id = $request->getVariable('id');
 		$shoppingSession = Session::get('shoppingSession');
 		$shoppingSession->addProduct(ProductRepositoryImpl::getById($id), 1);
 		$user = Session::get('user');
@@ -17,11 +21,12 @@ class BasketController extends Controller
 		{
 			ShoppingSessionRepositoryImpl::change($shoppingSession);
 		}
-		header('Location: ' . "/");
+		return new Response(Status::OK, ['redirect' => '/']);
 	}
 
-	public function deleteProductAction(int $id)
+	public function deleteProductAction(Request $request): Response
 	{
+		$id = $request->getVariable('id');
 		$shoppingSession = Session::get('shoppingSession');
 		$shoppingSession->deleteProduct(ProductRepositoryImpl::getById($id));
 		$user = Session::get('user');
@@ -29,6 +34,6 @@ class BasketController extends Controller
 		{
 			ShoppingSessionRepositoryImpl::change($shoppingSession);
 		}
-		header('Location: ' . "/");
+		return new Response(Status::OK, ['redirect' => '/']);
 	}
 }

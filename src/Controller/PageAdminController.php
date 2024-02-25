@@ -58,9 +58,9 @@ class PageAdminController extends Controller
 				];
 			}
 		}
-		elseif ($entity === 'tags')
+		elseif ($entity === 'tag')
 		{
-			$contentName = 'tags';
+			$contentName = 'tag';
 			$tags = TagService::getAllTags();
 			$columns = TagService::getColumn();
 			foreach ($tags as $tag)
@@ -104,6 +104,18 @@ class PageAdminController extends Controller
 		{
 			$products = ProductService::getAllProductsForAdmin($page);
 			$columns = ProductService::getColumn();
+			$allTags = TagService::getAllTags();
+
+			$tagsArray = [];
+
+			foreach ($allTags as $tag)
+			{
+				$tagsArray[] = [
+					'id' => $tag->id,
+					'title' => $tag->title
+				];
+			}
+
 			foreach ($products as $product)
 			{
 				$tags = [];
@@ -120,6 +132,7 @@ class PageAdminController extends Controller
 						'description' => $product->description,
 						'price' => $product->price,
 						'id' => $product->id,
+						'imagePath' => $product->imagePath,
 						'isActive' => (int) $product->isActive,
 						'addedAt' => $product->addedAt,
 						'editedAt' => $product->editedAt,
@@ -132,6 +145,7 @@ class PageAdminController extends Controller
 			'contentName' => $contentName,
 			'content' => $content,
 			'columns' => $columns,
+			'tag' => $tagsArray ?? []
 		]);
 
 		return new Response(Status::OK, ['template' => $template]);

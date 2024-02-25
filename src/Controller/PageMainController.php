@@ -22,11 +22,11 @@ class PageMainController extends Controller
 		$titleParam = $request->getVariable('title');
 		$tagParam = $request->getVariable('tag');
 
-		$tags = TagService::getAllTags();
-		if (!(is_numeric($page) && $page > 0))
+		if (!(is_numeric($page) || $page > 0))
 		{
 			$page = 1;
 		}
+		$tags = TagService::getAllTags();
 
 		if (!is_null($titleParam))
 		{
@@ -41,13 +41,110 @@ class PageMainController extends Controller
 			$products = ProductService::getAllProducts($page);
 		}
 
+		$content = [];
+
+		foreach ($products as $product)
+		{
+			$content[] =
+				[
+					'title' => $product->title,
+					'description' => $product->description,
+					'price' => $product->price,
+					'id' => $product->id,
+					'imagePath' => $product->imagePath,
+				];
+		}
+
 		$template = $this->engine->getPageTemplate([
-			'products' => $products,
-			'tags' => $tags,
+			'products' => $content,
+			'tag' => $tags,
 			'nextPage' => ProductService::getAllProducts($page + 1),
 			'isLogIn' => (bool)$request->getDataByKey('user'),
 			]);
 
 		return new Response(Status::OK, ['template' => $template]);
 	}
+
+	public function getTagsJsonAction(Request $request): Response
+	{
+		$page = $request->getVariable('page');
+		$tagParam = $request->getVariable('tag');
+
+		if (!(is_numeric($page) || $page > 0))
+		{
+			$page = 1;
+		}
+
+		$products = ProductService::getProductsByTag((int)$tagParam, $page);
+
+		$content = [];
+		foreach ($products as $product)
+		{
+			$content[] = [
+				'title' => $product->title,
+				'description' => $product->description,
+				'price' => $product->price,
+				'id' => $product->id,
+				'imagePath' => $product->imagePath,
+			];
+		}
+
+		return new Response(Status::OK, ['products' => $content]);
+	}
+
+	public function getSearchJsonAction(Request $request): Response
+	{
+		$page = $request->getVariable('page');
+		$titleParam = $request->getVariable('title');
+
+		if (!(is_numeric($page) || $page > 0))
+		{
+			$page = 1;
+		}
+
+		$products = ProductService::getProductByTitle($titleParam, $page);
+
+		$content = [];
+		foreach ($products as $product)
+		{
+			$content[] = [
+				'title' => $product->title,
+				'description' => $product->description,
+				'price' => $product->price,
+				'id' => $product->id,
+				'imagePath' => $product->imagePath,
+			];
+		}
+
+		return new Response(Status::OK, ['products' => $content]);
+	}
+
+	public function getProductsJsonAction(Request $request): Response
+	{
+		$page = $request->getVariable('page');
+
+		if (!(is_numeric($page) || $page > 0))
+		{
+			$page = 1;
+		}
+
+		$products = ProductService::getAllProducts($page);
+		$content = [];
+		foreach ($products as $product)
+		{
+			$content[] = [
+				'title' => $product->title,
+				'description' => $product->description,
+				'price' => $product->price,
+				'id' => $product->id,
+				'imagePath' => $product->imagePath,
+			];
+		}
+
+		return new Response(Status::OK, [
+			'products' => $content,
+			'nextPage' => ProductService::getAllProducts($page + 1),
+			]);
+	}
+
 }

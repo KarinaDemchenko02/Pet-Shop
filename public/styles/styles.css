@@ -774,6 +774,7 @@ button {
 }
 
 .form__button {
+	position: relative;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -806,6 +807,28 @@ button {
 
 .form__button:focus {
 	outline: none;
+}
+
+.spinner-action {
+	position: absolute;
+	right: 30%;
+	width: 20px;
+	height: 20px;
+	display: none;
+}
+
+.spinner-register {
+	right: 5%;
+	top: 26%;
+}
+
+.form__button:disabled {
+	opacity: 0.5;
+	pointer-events: none;
+}
+
+.form__button:disabled .spinner-action {
+	display: inline-block;
 }
 
 .form__container-email, .form__container-password {
@@ -927,6 +950,7 @@ button {
 	background-color: white;
 	box-shadow: 5px 5px 30px rgba(0, 0, 0, .3);
 }
+
 
 .form-product__main-form {
 	display: flex;
@@ -1309,6 +1333,11 @@ button {
 	transition: all .3s ease-in-out;
 }
 
+.pagination__button-switch:disabled {
+	opacity: 0.5;
+	pointer-events: none;
+}
+
 .pagination__button_return {
 	margin-right: 5px;
 	background-color: #1c7430;
@@ -1408,7 +1437,22 @@ button {
 	width: 30%;
 }
 
+#product__list-container {
+	position: relative;
+}
+
+.spinner-product {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	width: 100px;
+	height: 100px;
+	z-index: 10;
+	display: none;
+}
+
 .disabled {
+	display: block;
 	opacity: 0.5;
 	pointer-events: none;
 	cursor: default;

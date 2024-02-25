@@ -4,22 +4,25 @@ export class ProductItem
 	title;
 	description;
 	price;
-	tags
+	tags;
+	imagePath;
 	addedAt;
 	editedAt;
 	isActive;
 	editButtonHandler;
 	removeButtonHandler;
 	restoreButtonHandler;
+	addImageButtonHandler;
 
-	constructor({ id, title, description, tags, price, addedAt, editedAt, isActive, editButtonHandler, removeButtonHandler, restoreButtonHandler })
+	constructor({ id, title, description, tags, price, imagePath,addedAt, editedAt, isActive, editButtonHandler, removeButtonHandler, restoreButtonHandler, addImageButtonHandler })
 	{
 		this.id = Number(id);
 		this.title = String(title);
 		this.description = String(description);
 		this.price = Number(price);
-		this.addedAt = new Date(Number(addedAt)*1000).toDateString();
-		this.editedAt = new Date(Number(editedAt)*1000).toDateString();
+		this.imagePath = String(imagePath);
+		this.addedAt = this.renderDate(addedAt);
+		this.editedAt = this.renderDate(editedAt);
 		this.isActive = Boolean(isActive);
 		this.tags = tags;
 
@@ -36,6 +39,11 @@ export class ProductItem
 		if (typeof restoreButtonHandler === 'function')
 		{
 			this.restoreButtonHandler = restoreButtonHandler;
+		}
+
+		if (typeof addImageButtonHandler === "function")
+		{
+			this.addImageButtonHandler = addImageButtonHandler;
 		}
 	}
 
@@ -61,9 +69,6 @@ export class ProductItem
 		priceColumn.classList.add('table__th', 'table__th_price');
 		priceColumn.innerText = this.price;
 
-		const tagsColumn = this.createTagColumn();
-		tagsColumn.classList.add('table__th', 'table__th_tags');
-
 		const addedAtColumn = document.createElement('td');
 		addedAtColumn.classList.add('table__th');
 		addedAtColumn.innerText = this.addedAt;
@@ -75,6 +80,9 @@ export class ProductItem
 		const isActiveColumn = document.createElement('td');
 		isActiveColumn.classList.add('table__th');
 		isActiveColumn.innerText = this.isActive;
+
+		const tagsColumn = this.createTagColumn();
+		tagsColumn.classList.add('table__th', 'table__th_tags');
 
 		const spinnerRemove = document.createElement('div');
 		spinnerRemove.classList.add('spinner-border', 'text-light', 'spinner-action');
@@ -118,11 +126,46 @@ export class ProductItem
 		restoreButton.append(spinnerRestore);
 		restoreButton.addEventListener('click', this.handleRestoreButtonClick.bind(this));
 
+		const imagesFormContainer = document.createElement('td');
+		imagesFormContainer.classList.add('form__images');
+
+		const formImage = document.createElement('form');
+		formImage.classList.add('form__image');
+		formImage.method = 'POST'
+		formImage.enctype = "multipart/form-data";
+		formImage.addEventListener('submit', function(event) {
+			event.preventDefault();
+			this.handleAddImageButtonClick();
+		}.bind(this));
+
+		const nowPathImage = document.createElement('span');
+		nowPathImage.classList.add('form__now-image');
+		nowPathImage.id = this.id + 'path';
+		nowPathImage.innerText = 'Текущее изображение: ' + this.imagePath;
+
+		const imageInputContainer = document.createElement('label');
+		imageInputContainer.classList.add('form__label-image');
+
+		const inputImage = document.createElement('input');
+		inputImage.classList.add('form__input-image');
+		inputImage.id = this.id + 'image';
+		inputImage.type = 'file';
+		inputImage.name = 'fileToUpload';
+
+		const buttonImage = document.createElement('button')
+		buttonImage.classList.add('form__button-image');
+		buttonImage.innerText = 'Изменить';
+		buttonImage.type = 'submit';
+
+		imageInputContainer.append(inputImage, buttonImage);
+		formImage.append(nowPathImage, imageInputContainer);
+		imagesFormContainer.append(formImage);
+
 		const actionsColumn = document.createElement('td');
 		actionsColumn.classList.add('table__th', 'table__th_button');
 		actionsColumn.append(editButton, removeButton, restoreButton);
 
-		trProduct.append(idColumn, titleColumn, descColumn, priceColumn, addedAtColumn, editedAtColumn, isActiveColumn, tagsColumn, actionsColumn);
+		trProduct.append(idColumn, titleColumn, descColumn, priceColumn, addedAtColumn, editedAtColumn, isActiveColumn, tagsColumn, imagesFormContainer, actionsColumn);
 		return trProduct;
 	}
 
@@ -148,6 +191,37 @@ export class ProductItem
 		{
 			this.restoreButtonHandler(this);
 		}
+	}
+
+	handleAddImageButtonClick()
+	{
+		if (this.addImageButtonHandler)
+		{
+			this.addImageButtonHandler(this);
+		}
+	}
+
+	renderDate(timestamp = null)
+	{
+		let date;
+
+		if (timestamp === null)
+		{
+			date = new Date();
+		}
+		else
+		{
+			date = new Date(timestamp * 1000);
+		}
+
+		const year = date.getFullYear();
+		const month = ("0" + (date.getMonth() + 1)).slice(-2);
+		const day = date.getDate();
+		const hours =  ("0" + date.getHours()).slice(-2);
+		const minutes = ("0" + date.getMinutes()).slice(-2);
+		const seconds = ("0" + date.getSeconds()).slice(-2);
+
+		return year + "-" + month + "-" + day + " " + hours + ":" + minutes + ":" + seconds;
 	}
 
 	createTagColumn()
