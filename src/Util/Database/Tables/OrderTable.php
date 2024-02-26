@@ -31,4 +31,9 @@ class OrderTable extends Table
 		return 'up_order';
 	}
 
+	public static function delete(array $condition): int
+	{
+		throw new \RuntimeException("The order cannot be deleted, only the status changed to cancelled");
+	}
+
 }

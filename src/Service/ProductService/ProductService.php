@@ -35,7 +35,7 @@ class ProductService
 
 	public static function getProductsByTag(int $tagId, int $page = 1): array
 	{
-		$products = ProductRepositoryImpl::getByTag($tagId, $page);
+		$products = ProductRepositoryImpl::getByTags([$tagId], $page);
 
 		$productsDto = [];
 		foreach ($products as $product)

@@ -58,7 +58,7 @@ class Migration
 				continue;
 			}
 			$migration = file_get_contents($dir . '/' . $file);
-			$orm->execute($migration);
+			$orm->executeMulti($migration);
 			$lastFile = $file;
 		}
 		closedir($dh);

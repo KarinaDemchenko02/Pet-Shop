@@ -6,28 +6,28 @@ class Product implements Entity
 {
 	public readonly int $id;
 	public readonly string $title;
-	public readonly string $description;
+	public readonly ?string $description;
 	public readonly float $price;
 	private array $tags;
-	public readonly bool $isActive;
-	public readonly int $addedAt;
-	public readonly int $editedAt;
-	public readonly string $imagePath;
+	public readonly ?bool $isActive;
+	public readonly ?int $addedAt;
+	public readonly ?int $editedAt;
+	public readonly ?string $imagePath;
 	private array $specialOffer;
-	public readonly int $priority;
+	public readonly ?int $priority;
 
 	public function __construct(
 		int     $id,
-		string  $title,
-		string  $description,
+		?string  $title,
+		?string  $description,
 		float   $price,
-		array   $tag,
-		bool    $isActive,
-		string  $addedAt,
-		string  $editedAt,
-		string  $imagePath,
-		array $specialOffer,
-		int     $priority
+		?array  $tag,
+		?bool    $isActive,
+		?string $addedAt,
+		?string $editedAt,
+		?string $imagePath,
+		array   $specialOffer,
+		?int     $priority
 	)
 	{
 		$this->id = $id;
@@ -36,8 +36,8 @@ class Product implements Entity
 		$this->price = $price;
 		$this->tags = $tag;
 		$this->isActive = $isActive;
-		$this->addedAt = strtotime($addedAt);
-		$this->editedAt = strtotime($editedAt);
+		$this->addedAt = !is_null($addedAt) ? strtotime($addedAt) : null;
+		$this->editedAt = !is_null($addedAt) ? strtotime($addedAt) : null;
 		$this->imagePath = $imagePath;
 		$this->priority = $priority;
 		$this->specialOffer = $specialOffer;
@@ -47,16 +47,13 @@ class Product implements Entity
 	{
 		if (!in_array($tag, $this->tags, true))
 		{
-			$this->tags[] = $tag;
+			$this->tags[$tag->id] = $tag;
 		}
 	}
 
-	public function addSpecialOffer(string $specialOffer)
+	public function addSpecialOffer(SpecialOffer $specialOffer)
 	{
-		if (!in_array($specialOffer, $this->specialOffer, true))
-		{
-			$this->specialOffer[] = $specialOffer;
-		}
+		$this->specialOffer[$specialOffer->id] = $specialOffer;
 	}
 	// public function addImage(Image $image)
 	// {
@@ -74,4 +71,8 @@ class Product implements Entity
 	// {
 	// 	return $this->images;
 	// }
+	public function getSpecialOffer(): ?array
+	{
+		return $this->specialOffer;
+	}
 }
