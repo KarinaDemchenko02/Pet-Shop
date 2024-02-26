@@ -6,9 +6,12 @@ use Up\Dto\ProductAddingDto;
 use Up\Dto\ProductChangeDto;
 use Up\Dto\ProductDto;
 use Up\Dto\ProductDtoAdmin;
+use Up\Exceptions\Admin\ProductNotAdd;
 use Up\Exceptions\Admin\ProductNotChanged;
 use Up\Exceptions\Admin\ProductNotDisabled;
 use Up\Exceptions\Admin\ProductNotRestored;
+use Up\Exceptions\Images\ImageNotAdd;
+use Up\Exceptions\Product\ProductNotFound;
 use Up\Repository\Product\ProductRepositoryImpl;
 
 
@@ -27,6 +30,10 @@ class ProductService
 
 		return $productsDto;
 	}
+
+	/**
+	 * @throws ProductNotFound
+	 */
 	public static function getProductById(int $id): ProductDto
 	{
 		$product = ProductRepositoryImpl::getById($id);
@@ -81,8 +88,7 @@ class ProductService
 		{
 			$productsDto[] = new ProductDtoAdmin($product);
 		}
-		/*echo "<pre>";
-		var_dump($productsDto); die;*/
+
 		return $productsDto;
 	}
 
@@ -102,9 +108,12 @@ class ProductService
 		ProductRepositoryImpl::disable($id);
 	}
 
-	public static function addProduct(ProductAddingDto $productAddingDto): void
+	/**
+	 * @throws ProductNotAdd
+	 */
+	public static function addProduct(ProductAddingDto $productAddingDto): int
 	{
-		ProductRepositoryImpl::add($productAddingDto);
+		return ProductRepositoryImpl::add($productAddingDto);
 	}
 
 	/**
@@ -115,10 +124,18 @@ class ProductService
 		ProductRepositoryImpl::restore($id);
 	}
 
-	public static function getColumn()
+	/**
+	 * @throws ImageNotAdd
+	 */
+	public static function addImage(string $pathImage, int $id): void
+	{
+		ProductRepositoryImpl::addImage($pathImage, $id);
+	}
+
+	public static function getColumn(): array
 	{
 		$columns = ProductRepositoryImpl::getColumn();
-		$columns[] = 'tags';
+		$columns[] = 'tag';
 		return $columns;
 	}
 }

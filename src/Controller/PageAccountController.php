@@ -3,6 +3,9 @@
 namespace Up\Controller;
 
 use Up\Dto\UserDto;
+use Up\Http\Request;
+use Up\Http\Response;
+use Up\Http\Status;
 use Up\Repository\User\UserRepositoryImpl;
 use Up\Service\ProductService\ProductService;
 use Up\Service\UserService\UserService;
@@ -10,35 +13,33 @@ use Up\Util\Session;
 use Up\Util\TemplateEngine\PageAccountTemplateEngine;
 use Up\Util\TemplateEngine\Template;
 
-class PageAccountController extends BaseController
+class PageAccountController extends Controller
 {
 	public function __construct()
 	{
 		$this->engine = new PageAccountTemplateEngine();
 	}
 
-	public function indexAction(): void
+	public function indexAction(Request $request): Response
 	{
-		if ($this->isLogIn())
+		if ($request->getDataByKey('email') !== null)
 		{
-			$this->accountAction();
+			return $this->accountAction($request);
 		}
-		else
-		{
-			$this->logInAction();
-		}
+
+		return $this->logInAction($request);
 	}
 
-	private function logInAction(): void
+	private function logInAction(Request $request): Response
 	{
-		$this->engine->getAuthPageTemplate([
-			'isLogIn' => $this->isLogIn()
-		])->display();
+		return new Response(Status::UNAUTHORIZED, ['template' => $this->engine->getAuthPageTemplate([
+			'isLogIn' => false,
+		])]);
 	}
 
-	public function accountAction(): void
+	public function accountAction(Request $request): Response
 	{
-		$userId = Session::get('user')->id;
+		$userId = $request->getDataByKey('userId');
 
 		$user = UserService::getUserById($userId);
 
@@ -54,7 +55,6 @@ class PageAccountController extends BaseController
 			'user' => $dataUser
 		]);
 
-		$template->display();
+		return new Response(Status::OK, ['template' => $template]);
 	}
-
 }

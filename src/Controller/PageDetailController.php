@@ -6,56 +6,66 @@ use Up\Dto\Order\OrderAddingDto;
 use Up\Entity\ProductQuantity;
 use Up\Entity\ShoppingSession;
 use Up\Exceptions\Order\OrderNotCompleted;
+use Up\Exceptions\Product\ProductNotFound;
+use Up\Http\Request;
+use Up\Http\Response;
+use Up\Http\Status;
 use Up\Repository\Product\ProductRepositoryImpl;
 use Up\Service\OrderService\OrderService;
 use Up\Service\ProductService\ProductService;
 use Up\Util\Session;
 use Up\Util\TemplateEngine\PageDetailTemplateEngine;
 
-class PageDetailController extends BaseController
+class PageDetailController extends Controller
 {
 	public function __construct()
 	{
 		$this->engine = new PageDetailTemplateEngine();
 	}
 
-	public function showProductAction(int $id)
+	public function showProductAction(Request $request): Response
 	{
-		$product = ProductService::getProductById($id);
-		$template = $this->engine->getPageTemplate(['productDto' => $product, 'isLogIn' => $this->isLogIn()]);
-		$template->display();
+		$id = $request->getVariable('id');
+
+		$isLogIn = $request->getDataByKey('email') !== null;
+
+		try
+		{
+			$product = ProductService::getProductById($id);
+		}
+		catch (ProductNotFound)
+		{
+			return new Response(Status::NOT_FOUND, ['errors' => 'Product not found']);
+		}
+		$template = $this->engine->getPageTemplate(['productDto' => $product, 'isLogIn' => $isLogIn]);
+		return new Response(Status::OK, ['template' => $template]);
 	}
 
-	public function buyProductAction(int $id)
+	public function buyProductAction(Request $request): Response
 	{
+		$id = $request->getVariable('id');
+		$data = $request->getDataByKey('jwt')['data'];
+		$userId = $data['id'];
+
 		$product = ProductRepositoryImpl::getById($id);
 		try
 		{
-			if ($this->isLogIn())
-			{
-				$userId = Session::get('user')->id;
-			}
-			else
-			{
-				$userId = null;
-			}
-
 			$orderDto = new OrderAddingDto(
 				new ShoppingSession(
 					null, $userId, [new ProductQuantity($product, 1)]
-				), $_POST['name'], $_POST['surname'], $_POST['address'],
+				), $request->getDataByKey('name'),  $request->getDataByKey('surname'), $request->getDataByKey('address'),
 			);
 			OrderService::createOrder($orderDto);
-			header('Location: /success/');
+			return new Response(Status::OK, ['result' => true]);
 		}
 		catch (OrderNotCompleted)
 		{
-			echo "fail";
+			return new Response(Status::BAD_REQUEST);
 		}
 	}
 
-	public function showModalSuccess(): void
+	public function showModalSuccess(Request $request): Response
 	{
-		$this->engine->viewModalSuccess()->display();
+		return new Response(Status::OK, ['template' => $this->engine->viewModalSuccess()]);
 	}
 }

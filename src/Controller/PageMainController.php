@@ -2,48 +2,148 @@
 
 namespace Up\Controller;
 
+use Up\Http\Request;
+use Up\Http\Response;
+use Up\Http\Status;
 use Up\Service\ProductService\ProductService;
 use Up\Service\TagService\TagService;
 use Up\Util\TemplateEngine\PageMainTemplateEngine;
 
-class PageMainController extends BaseController
+class PageMainController extends Controller
 {
 	public function __construct()
 	{
 		$this->engine = new PageMainTemplateEngine();
 	}
 
-	public function showProductsAction(): void
+	public function showProductsAction(Request $request): Response
 	{
-		$tags = TagService::getAllTags();
-		if (isset($_GET['page']) && is_numeric($_GET['page']) && $_GET['page'] > 0)
-		{
-			$page = $_GET['page'];
-		}
-		else
+		$page = $request->getVariable('page');
+		$titleParam = $request->getVariable('title');
+		$tagParam = $request->getVariable('tag');
+
+		if (!(is_numeric($page) || $page > 0))
 		{
 			$page = 1;
 		}
-		if (isset($_GET['title']))
+		$tags = TagService::getAllTags();
+
+		if (!is_null($titleParam))
 		{
-			$products = ProductService::getProductByTitle($_GET['title'], $page);
+			$products = ProductService::getProductByTitle($titleParam, $page);
 		}
-		elseif (isset($_GET['tag']) && is_numeric($_GET['tag']) && $_GET['tag'] > 0)
+		elseif (is_null($tagParam) && is_numeric($tagParam) && $tagParam > 0)
 		{
-			$products = ProductService::getProductsByTag((int)$_GET['tag'], $page);
+			$products = ProductService::getProductsByTag((int)$tagParam, $page);
 		}
 		else
 		{
 			$products = ProductService::getAllProducts($page);
 		}
 
+		$content = [];
+
+		foreach ($products as $product)
+		{
+			$content[] =
+				[
+					'title' => $product->title,
+					'description' => $product->description,
+					'price' => $product->price,
+					'id' => $product->id,
+					'imagePath' => $product->imagePath,
+				];
+		}
+
 		$template = $this->engine->getPageTemplate([
-			'products' => $products,
-			'tags' => $tags,
+			'products' => $content,
+			'tag' => $tags,
 			'nextPage' => ProductService::getAllProducts($page + 1),
-			'isLogIn' => $this->isLogIn(),
+			'isLogIn' => (bool)$request->getDataByKey('email'),
 			]);
 
-		$template->display();
+		return new Response(Status::OK, ['template' => $template]);
 	}
+
+	public function getTagsJsonAction(Request $request): Response
+	{
+		$page = $request->getVariable('page');
+		$tagParam = $request->getVariable('tag');
+
+		if (!(is_numeric($page) || $page > 0))
+		{
+			$page = 1;
+		}
+
+		$products = ProductService::getProductsByTag((int)$tagParam, $page);
+
+		$content = [];
+		foreach ($products as $product)
+		{
+			$content[] = [
+				'title' => $product->title,
+				'description' => $product->description,
+				'price' => $product->price,
+				'id' => $product->id,
+				'imagePath' => $product->imagePath,
+			];
+		}
+
+		return new Response(Status::OK, ['products' => $content]);
+	}
+
+	public function getSearchJsonAction(Request $request): Response
+	{
+		$page = $request->getVariable('page');
+		$titleParam = $request->getVariable('title');
+		if (!(is_numeric($page) || $page > 0))
+		{
+			$page = 1;
+		}
+
+		$products = ProductService::getProductByTitle((string)$titleParam, $page);
+
+		$content = [];
+		foreach ($products as $product)
+		{
+			$content[] = [
+				'title' => $product->title,
+				'description' => $product->description,
+				'price' => $product->price,
+				'id' => $product->id,
+				'imagePath' => $product->imagePath,
+			];
+		}
+
+		return new Response(Status::OK, ['products' => $content]);
+	}
+
+	public function getProductsJsonAction(Request $request): Response
+	{
+		$page = $request->getVariable('page');
+
+		if (!(is_numeric($page) || $page > 0))
+		{
+			$page = 1;
+		}
+
+		$products = ProductService::getAllProducts($page);
+		$content = [];
+		foreach ($products as $product)
+		{
+			$content[] = [
+				'title' => $product->title,
+				'description' => $product->description,
+				'price' => $product->price,
+				'id' => $product->id,
+				'imagePath' => $product->imagePath,
+			];
+		}
+
+		return new Response(Status::OK, [
+			'products' => $content,
+			'nextPage' => ProductService::getAllProducts($page + 1),
+			]);
+	}
+
 }

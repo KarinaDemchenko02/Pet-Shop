@@ -2,53 +2,36 @@
 
 namespace Up\Controller;
 
+use Up\Http\Request;
+use Up\Http\Response;
+use Up\Http\Status;
 use Up\Entity\ProductQuantity;
 use Up\Service\OrderService\OrderService;
 use Up\Service\ProductService\ProductService;
 use Up\Service\TagService\TagService;
 use Up\Service\UserService\UserService;
 use Up\Util\TemplateEngine\PageAdminTemplateEngine;
-use Up\Util\Upload;
 
-class PageAdminController extends BaseController
+class PageAdminController extends Controller
 {
 	public function __construct()
 	{
 		$this->engine = new PageAdminTemplateEngine();
 	}
 
-	public function indexAction()
+	public function logInAction(Request $request): Response
 	{
-		if ($this->isLogInAdmin())
-		{
-			$this->showProductsAction();
-		}
-		else
-		{
-			$this->logInAction();
-		}
+		return new Response(Status::OK, ['template' => $this->engine->getAuthPageTemplate()]);
 	}
 
-	public function uploadAction(): void
-	{
-		Upload::upload();
-		$this->indexAction();
-	}
-	private function logInAction()
-	{
-		$this->engine->getAuthPageTemplate()->display();
-	}
-
-	public function showProductsAction()
+	public function showProductsAction(Request $request): Response
 	{
 		$contentName = 'products';
-		$entity = $_GET['entity'] ?? 'products';
+		$entity = $request->getVariable('entity') ?? 'products';
+		$page = (int)($request->getVariable('page') ?? 1);
+
 		$content = [];
-		$page = 1;
-		if (isset($_GET['page']))
-		{
-			$page = (int)$_GET['page'];
-		}
+
 		if ($entity === 'users')
 		{
 			$contentName = 'users';
@@ -112,6 +95,18 @@ class PageAdminController extends BaseController
 		{
 			$products = ProductService::getAllProductsForAdmin($page);
 			$columns = ProductService::getColumn();
+			$allTags = TagService::getAllTags();
+
+			$tagsArray = [];
+
+			foreach ($allTags as $tag)
+			{
+				$tagsArray[] = [
+					'id' => $tag->id,
+					'title' => $tag->title
+				];
+			}
+
 			foreach ($products as $product)
 			{
 				$tags = [];
@@ -128,6 +123,7 @@ class PageAdminController extends BaseController
 						'description' => $product->description,
 						'price' => $product->price,
 						'id' => $product->id,
+						'imagePath' => $product->imagePath,
 						'isActive' => (int) $product->isActive,
 						'addedAt' => $product->addedAt,
 						'editedAt' => $product->editedAt,
@@ -140,8 +136,9 @@ class PageAdminController extends BaseController
 			'contentName' => $contentName,
 			'content' => $content,
 			'columns' => $columns,
+			'tag' => $tagsArray ?? []
 		]);
 
-		$template->display();
+		return new Response(Status::OK, ['template' => $template]);
 	}
 }

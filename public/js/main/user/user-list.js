@@ -28,9 +28,7 @@ export class UserList
 
 	createItem(itemData)
 	{
-		itemData.removeButtonHandler = this.handleRemoveButtonClick.bind(this);
 		itemData.editButtonHandler = this.handleEditButtonClick.bind(this);
-		itemData.restoreButtonHandler = this.handleRestoreButtonClick.bind(this);
 		return new UserItem(itemData);
 	}
 
@@ -100,15 +98,6 @@ export class UserList
 					buttonSave.disabled = false;
 				})
 		}
-	}
-	handleRemoveButtonClick(item)
-	{
-
-	}
-
-	handleRestoreButtonClick(item)
-	{
-
 	}
 	render()
 	{

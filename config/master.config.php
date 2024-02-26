@@ -3,8 +3,13 @@
 return [
 	'APP_NAME' => 'MadagascarShop',
 	'APP_LANG' => 'en',
-	'NUMBER_OF_PRODUCTS_PER_PAGE' => 4,
+	'IMAGE_COMPRESSION_VALUE_JPEG' => 80,
+	'IMAGE_COMPRESSION_VALUE_PNG' => 9,
+	'NUMBER_OF_PRODUCTS_PER_PAGE' => 6,
 	'MAX_FILE_SIZE' => 1024 * 1024 * 5,
 	'ALLOWED_IMAGES_TYPE' => ['jpg', 'jpeg', 'png', 'gif'],
-	'NUMBER_OF_PRODUCTS_PER_PREVIEW' => 3,
+	'JWT_ALG' => 'HS256',
+	'JWT_EXP_ACCESS' => 60 * 5,
+	'JWT_EXP_REFRESH' => 60 * 60 * 24,
+	'TIMEZONE' => "Europe/Kaliningrad",
 ];

@@ -2,6 +2,8 @@
 $contentName = $this->getVariable('contentName');
 $content = $this->getVariable('content');
 $columns = $this->getVariable('columns');
+$tags = $this->getVariable('tag');
+
 ?>
 
 <div class="table__container">
@@ -25,6 +27,7 @@ $columns = $this->getVariable('columns');
 			attachToNodeId: 'item-list',
 			items: <?= \Up\Util\Json::encode($content) ?>,
 			columns: <?= \Up\Util\Json::encode($columns) ?>,
+			tags: <?= \Up\Util\Json::encode($tags) ?>,
 		});
 		mainList.render();
 	}

@@ -4,19 +4,17 @@ namespace Up\Controller;
 
 use Up\Exceptions\Auth\InvalidPassword;
 use Up\Exceptions\User\UserNotFound;
+use Up\Http\Request;
+use Up\Http\Response;
+use Up\Http\Status;
 use Up\Service\UserService\UserService;
 use Up\Util\Json;
 
-class ChangeAccountController extends BaseController
+class ChangeAccountController extends Controller
 {
-	public function changeAction(): void
+	public function changeAction(Request $request): Response
 	{
-		$data = Json::decode(file_get_contents("php://input"));
-
-		/*if (!$this->isLogIn() || !($this->getUser()->id === (int)$data['id']))
-		{
-			return;
-		}*/
+		$data = $request->getData();
 
 		$response = [];
 		$response['errors'] = [];
@@ -41,13 +39,14 @@ class ChangeAccountController extends BaseController
 
 		if ($response['result'])
 		{
-			http_response_code(200);
+			$response['errors'] = [];
+			$status = Status::OK;
 		}
 		else
 		{
-			$response['errors'] = 'Товар не удалён';
-			http_response_code(400);
+			$response['errors'][] = 'Данные не изменены';
+			$status = Status::BAD_REQUEST;
 		}
-		echo Json::encode($response);
+		return new Response($status, $response);
 	}
 }

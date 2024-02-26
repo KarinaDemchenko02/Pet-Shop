@@ -7,6 +7,8 @@
     },
     "require": {
         "ext-mysqli": "*",
-        "ext-gd": "*"
-    }
+        "ext-gd": "*",
+        "firebase/php-jwt": "^6.10",
+		"ext-curl": "*"
+	}
 }
