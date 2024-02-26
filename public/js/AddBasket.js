@@ -19,6 +19,7 @@ export default class AddBasket {
 		})
 	}
 
+
 	clicked(action) {
 		let parentElement = event.target.parentElement;
 		let parents;

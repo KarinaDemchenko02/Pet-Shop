@@ -1,6 +1,8 @@
 <?php
 $products = $this->getVariable('products');
 $tags = $this->getVariable('tag');
+$basketItem = $this->getVariable('basketItem');
+$isLogin = $this->getVariable('isLogIn');
 ?>
 
 <div class="main__container">
@@ -27,6 +29,7 @@ $tags = $this->getVariable('tag');
 	const mainList = new ProductList({
 		attachToNodeId: 'product__list-container',
 		items: <?= \Up\Util\Json::encode($products) ?>,
+		basketItem: <?= \Up\Util\Json::encode($basketItem) ?>,
 	});
 	mainList.render();
 
@@ -39,6 +42,7 @@ $tags = $this->getVariable('tag');
 
 	const auth = new Auth({
 		attachToNodeId: 'form-auth',
+		login: <?= \Up\Util\Json::encode($isLogin) ?>,
 	})
 
 	auth.render();

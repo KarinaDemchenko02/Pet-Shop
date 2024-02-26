@@ -1,4 +1,6 @@
 import {ProductItem} from "./product-item.js";
+import AddBasket from "../../AddBasket.js";
+import {BasketItem} from "../basket/basket-item.js";
 
 export class ProductList
 {
@@ -6,9 +8,10 @@ export class ProductList
 	rootNode;
 	itemsContainer;
 	items = [];
+	basketItem = [];
 	currentPagination = new URLSearchParams(window.location.search).get('page');
 
-	constructor({ attachToNodeId = '', items })
+	constructor({ attachToNodeId = '', items, basketItem })
 	{
 		if (attachToNodeId === '')
 		{
@@ -26,12 +29,21 @@ export class ProductList
 			return this.createItem(itemData)
 		})
 
+		this.basketItem = basketItem.map((itemData) => {
+			return this.createBasket(itemData);
+		})
+
 		this.createItemsContainer();
 	}
 
 	createItem(itemData)
 	{
 		return new ProductItem(itemData);
+	}
+
+	createBasket(itemData)
+	{
+		return new BasketItem(itemData);
 	}
 
 	createItemsContainer()
@@ -252,6 +264,98 @@ export class ProductList
 			});
 	}
 
+	handleBasketAddButtonSubmit(item) {
+		const numberPattern = /\d+/g;
+		const itemId = item.target.parentNode.parentNode.id;
+		const id = itemId.match(numberPattern);
+
+		fetch(
+			`/addToBasket/${id}/`,
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json;charset=utf-8'
+				},
+			}
+		)
+			.then((response) => {
+				if (!response.ok) {
+					throw new Error('Network response was not ok');
+				}
+				return response.json();
+			})
+			.then((response) => {
+				if (response.result) {
+					const counterOrder = document.querySelector('.header__basket-number');
+					counterOrder.innerText = Number(counterOrder.innerText) + 1;
+					this.items.forEach(item => {
+						if (item.id === Number(id)) {
+							const basketContainer = document.getElementById('basket-list');
+							basketContainer.innerHTML += new BasketItem(item).render();
+
+							this.basketItem.push(new BasketItem(item));
+
+							const buttonDelete = document.querySelectorAll('.basket__delete');
+							buttonDelete.forEach(btn => {
+								btn.addEventListener('click', this.handleBasketRemoveButtonSubmit.bind(this));
+							})
+							return true;
+						}
+					})
+				}
+			})
+			.catch((error) => {
+				console.error('Error while changing item:', error);
+			});
+	}
+
+	handleBasketRemoveButtonSubmit(item)
+	{
+		const numberPattern = /\d+/g;
+		const itemId = item.target.parentNode.parentNode.id;
+		const id = itemId.match(numberPattern);
+
+		fetch(
+			`/deleteFromBasket/${id}/`,
+			{
+				method: 'DELETE',
+				headers: {
+					'Content-Type': 'application/json;charset=utf-8'
+				},
+			}
+		)
+			.then((response) => {
+				if (!response.ok) {
+					throw new Error('Network response was not ok');
+				}
+				return response.json();
+			})
+			.then((response) => {
+				if (response.result) {
+					const counterOrder = document.querySelector('.header__basket-number');
+					counterOrder.innerText = Number(counterOrder.innerText) - 1;
+					this.items.forEach(item => {
+						if (item.id === Number(id)) {
+							const basketItem = document.getElementById(`itemBasket${id}`);
+							basketItem.remove();
+							this.basketItem.forEach((item, index) => {
+								if (item.id === Number(id)) {
+									this.basketItem.splice(index, 1);
+									return true;
+								}
+							});
+							const bottomMenu = document.getElementById(`bottom${id}`)
+							bottomMenu.classList.remove('clicked');
+							return true;
+						}
+					})
+				}
+			})
+			.catch((error) => {
+				console.error('Error while changing item:', error);
+			});
+	}
+
 	render()
 	{
 		this.rootNode.innerHTML = '';
@@ -272,6 +376,29 @@ export class ProductList
 		this.itemsContainer.innerHTML = itemsHtml;
 		this.itemsContainer.append(spinner);
 		this.rootNode.append(this.itemsContainer);
+
+		const buttonBuy = document.querySelectorAll('.product__buy');
+		const buttonRemove = document.querySelectorAll('.product__right-remove');
+		new AddBasket(buttonBuy, buttonRemove, 'product__bottom-content').addBasket();
+
+		this.items.forEach((item) => {
+			const id = item.id;
+			this.basketItem.forEach(basket => {
+				if (basket.id === id) {
+					const bottomMenu = document.getElementById(`bottom${id}`)
+					bottomMenu.classList.add('clicked');
+					return true;
+				}
+			})
+		});
+
+		buttonBuy.forEach(btn => {
+			btn.addEventListener('click', this.handleBasketAddButtonSubmit.bind(this))
+		})
+
+		buttonRemove.forEach(btn => {
+			btn.addEventListener('click', this.handleBasketRemoveButtonSubmit.bind(this))
+		})
 
 		this.renderPagination();
 		this.renderSearchForm();

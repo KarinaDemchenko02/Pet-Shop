@@ -2,22 +2,17 @@ import AddBasket from './AddBasket.js';
 import Tabs from './Tabs.js';
 import Form from "./Form.js";
 
-const btnsItem = document.querySelectorAll('.details__btn-item');
-const blocksWithInfo = document.querySelectorAll('.details__info-items');
-new Tabs(btnsItem, blocksWithInfo).tabs();
-
-if (document.querySelector('.details__buy')) {
-	const buttonBuyOpen = document.querySelector('.details__buy');
-	const buttonBuyClose = document.querySelector('.form-product__close');
-	const formBuy = document.querySelector('.form-product');
-	const objectBuyForm = new Form(buttonBuyOpen, buttonBuyClose, formBuy)
-	objectBuyForm.open();
-	objectBuyForm.close();
-}
-
 const buttonBuy = document.querySelectorAll('.product__buy');
 const buttonRemove = document.querySelectorAll('.product__right-remove');
 new AddBasket(buttonBuy, buttonRemove, 'product__bottom-content').addBasket();
+
+const buttonBasketOpen = document.getElementById('buttonBasket');
+const buttonBasketClose = document.querySelector('.basket__button-close');
+const formBasket = document.querySelector('.basket');
+const objectFormBasket = new Form(buttonBasketOpen, buttonBasketClose, formBasket);
+objectFormBasket.open();
+objectFormBasket.close();
+
 
 if (document.getElementById("img-container")) {
 	let options = {
@@ -64,10 +59,18 @@ buttonMinus.forEach(btn => {
 	})
 })
 
-// const buttonBasketOpen = document.getElementById('.header__button-item_basket');
-// const buttonBasketClose = document.querySelector('.basket__button-close');
-// const formBasket = document.querySelector('.basket');
-// const objectFormBasket = new Form(buttonBasketOpen, buttonBasketClose, formBasket);
-// objectFormBasket.open();
-// objectFormBasket.close();
+const btnsItem = document.querySelectorAll('.details__btn-item');
+const blocksWithInfo = document.querySelectorAll('.details__info-items');
+new Tabs(btnsItem, blocksWithInfo).tabs();
+
+if (document.querySelector('.details__buy')) {
+	const buttonBuyOpen = document.querySelector('.details__buy');
+	const buttonBuyClose = document.querySelector('.form-product__close');
+	const formBuy = document.querySelector('.form-product');
+	const objectBuyForm = new Form(buttonBuyOpen, buttonBuyClose, formBuy)
+	objectBuyForm.open();
+	objectBuyForm.close();
+}
+
+
 

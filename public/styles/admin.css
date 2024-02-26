@@ -148,6 +148,10 @@ td {
 	display: block;
 }
 
+.form__button_add {
+	margin-bottom: 10px;
+}
+
 .open {
 	display: block;
 }
@@ -173,7 +177,7 @@ td {
 }
 
 .form__button {
-	padding: 15px 20px;
+	padding: 15px 26px;
 	margin: 0 auto;
 	border: none;
 	background-color: #1c7430;
@@ -192,6 +196,15 @@ td {
 	font-size: 15px;
 	line-height: 15px;
 	color: #000000;
+}
+
+.form__button:disabled {
+	opacity: 0.5;
+	pointer-events: none;
+}
+
+.form__button:disabled .spinner-action {
+	display: inline-block;
 }
 
 .form__close {
@@ -359,8 +372,3 @@ td {
 .productsRowContainer .productLabel label {
 	padding: 6px;
 }
-
-/*.products li:hover {
-	background-color: #0979ad;
-	color: white;
-}*/
