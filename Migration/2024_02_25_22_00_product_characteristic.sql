@@ -17,9 +17,9 @@ create table IF NOT EXISTS up_item_characteristic
 		foreign key (item_id) references up_item (id)
 );
 
-INSERT INTO eshop.up_characteristic (id, title) VALUES (1, 'страна производитель');
-INSERT INTO eshop.up_characteristic (id, title) VALUES (2, 'материал');
+INSERT INTO up_characteristic (id, title) VALUES (1, 'страна производитель');
+INSERT INTO up_characteristic (id, title) VALUES (2, 'материал');
 
-INSERT INTO eshop.up_item_characteristic (item_id, characteristic_id, value) VALUES (1, 1, 'Россия');
-INSERT INTO eshop.up_item_characteristic (item_id, characteristic_id, value) VALUES (1, 2, 'Дерево');
-INSERT INTO eshop.up_item_characteristic (item_id, characteristic_id, value) VALUES (2, 1, 'Испания');
+INSERT INTO up_item_characteristic (item_id, characteristic_id, value) VALUES (1, 1, 'Россия');
+INSERT INTO up_item_characteristic (item_id, characteristic_id, value) VALUES (1, 2, 'Дерево');
+INSERT INTO up_item_characteristic (item_id, characteristic_id, value) VALUES (2, 1, 'Испания');
