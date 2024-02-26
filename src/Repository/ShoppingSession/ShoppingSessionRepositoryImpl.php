@@ -2,9 +2,12 @@
 
 namespace Up\Repository\ShoppingSession;
 
+use Up\Entity\ProductQuantity;
 use Up\Entity\ShoppingSession;
 use Up\Repository\Product\ProductRepositoryImpl;
+use Up\Util\Database\Orm;
 use Up\Util\Database\Query;
+use Up\Util\Database\Tables\ShoppingSessionProductTable;
 use Up\Util\Database\Tables\ShoppingSessionTable;
 
 class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
@@ -59,72 +62,83 @@ class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
 
 	public static function add($userId, array $productsQuantities): void
 	{
-		$query = Query::getInstance();
+		$orm = Orm::getInstance();
 		try
 		{
-			$query->begin();
-			$addNewShoppingSessionSQL = "INSERT INTO up_shopping_session (user_id) 
-				VALUES ({$userId})";
-			$query->getQueryResult($addNewShoppingSessionSQL);
-			$last = $query->last();
+			$orm->begin();
+			ShoppingSessionTable::add(['user_id' => $userId]);
+			$last = $orm->last();
+			/** @var ProductQuantity $product */
 			foreach ($productsQuantities as $product)
 			{
-				$addLinkToItemSQL = "INSERT INTO up_shopping_session_item (item_id, shopping_session_id, quantities)
-									VALUES ({$product->info->id}, {$last}, {$product->getQuantity()})";
-				$query->getQueryResult($addLinkToItemSQL);
+				ShoppingSessionProductTable::add(
+					[
+						'item_id' => $product->info->id,
+						'shopping_session_id' => $last,
+						'quantities' => $product->getQuantity(),
+					]
+				);
 			}
-			$query->commit();
+			$orm->commit();
 		}
 		catch (\Throwable $e)
 		{
-			$query->rollback();
+			$orm->rollback();
 			throw $e;
 		}
 	}
 
 	public static function change(ShoppingSession $shoppingSession): void
 	{
-		$query = Query::getInstance();
+		$orm = Orm::getInstance();
 		$time = new \DateTime();
 		$now = $time->format('Y-m-d H:i:s');
-		$strProduct = implode(', ', self::getProductIds($shoppingSession->getProducts()));
 		try
 		{
-			$query->begin();
-			$changeProductSQL = "UPDATE up_shopping_session SET updated_at='{$now}' where id = {$shoppingSession->id}";
-			$query->getQueryResult($changeProductSQL);
-			$deleteProductSQL = "DELETE FROM up_shopping_session_item WHERE shopping_session_id={$shoppingSession->id} AND item_id NOT IN ({$strProduct})";
-			$query->getQueryResult($deleteProductSQL);
+			$orm->begin();
+			ShoppingSessionTable::update(['updated_at' => $now], ['AND', ['=id' => $shoppingSession->id]]);
+			ShoppingSessionProductTable::delete(
+				[
+					'AND',
+					[
+						'shopping_session_id' => $shoppingSession->id,
+						'!in=item_id' => self::getProductIds($shoppingSession->getProducts()),
+					],
+				]
+			);
 			foreach ($shoppingSession->getProducts() as $item)
 			{
-				$addLinkToTagSQL = "INSERT IGNORE INTO up_shopping_session_item (item_id, shopping_session_id, quantities)
-					VALUES ({$item->info->id}, {$shoppingSession->id}, {$item->getQuantity()})";
-				$query->getQueryResult($addLinkToTagSQL);
+				ShoppingSessionProductTable::add(
+					[
+						'item_id' => $item->info->id,
+						'shopping_session_id' => $shoppingSession->id,
+						'quantities' => $item->getQuantity(),
+					],
+					true
+				);
 			}
-			$query->commit();
+			$orm->commit();
 		}
 		catch (\Throwable $e)
 		{
-			$query->rollback();
+			$orm->rollback();
 			throw $e;
 		}
 	}
 
 	public static function delete($id)
 	{
-		$query = Query::getInstance();
+		$orm = Orm::getInstance();
 		try
 		{
-			$query->begin();
-			$deleteLinkShoppingSessionSQL = "DELETE FROM up_shopping_session_item WHERE shopping_session_id=$id";
-			$query->getQueryResult($deleteLinkShoppingSessionSQL);
-			$deleteShoppingSessionSQL = "DELETE FROM up_shopping_session WHERE id=$id";
-			$query->getQueryResult($deleteShoppingSessionSQL);
-			$query->commit();
+			$orm->begin();
+			ShoppingSessionProductTable::delete(['AND', ['=shopping_session_id' => $id]]);
+			ShoppingSessionTable::delete(['AND', ['=id' => $id]]);
+			$orm->commit();
 		}
 		catch (\Throwable $e)
 		{
-			$query->rollback();
+			$orm->rollback();
 			throw $e;
 		}
 	}

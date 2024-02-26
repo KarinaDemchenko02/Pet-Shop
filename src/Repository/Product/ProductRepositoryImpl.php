@@ -10,13 +10,14 @@ use Up\Exceptions\Admin\ProductNotAdd;
 use Up\Exceptions\Admin\ProductNotChanged;
 use Up\Exceptions\Admin\ProductNotDisabled;
 use Up\Exceptions\Admin\ProductNotRestored;
-use Up\Repository\ProductCharacteristic\ProductCharacteristicImpl;
+use Up\Repository\Image\ImageRepositoryImpl;
 use Up\Repository\SpecialOffer\SpecialOfferRepositoryImpl;
 use Up\Exceptions\Images\ImageNotAdd;
 use Up\Repository\Tag\TagRepositoryImpl;
 use Up\Util\Database\Orm;
 use Up\Util\Database\Query;
 use Up\Util\Database\Tables\ProductTable;
+use Up\Util\Database\Tables\ProductTagTable;
 
 class ProductRepositoryImpl implements ProductRepository
 {
@@ -31,6 +32,10 @@ class ProductRepositoryImpl implements ProductRepository
 			limit:                      $limit,
 			offset:                     $offset);
 		$ids = self::getIds($result);
+		if (empty($ids))
+		{
+			return [];
+		}
 
 		return self::createProductList(self::getProductList(['AND', ['in=id' => $ids]]));
 	}
@@ -45,28 +50,36 @@ class ProductRepositoryImpl implements ProductRepository
 			limit:                      $limit,
 			offset:                     $offset);
 		$ids = self::getIds($result);
+		if (empty($ids))
+		{
+			return [];
+		}
 
-		return self::createProductList(self::getProductList(['AND', ['in=id' => $ids]]));
+		return self::createProductList(self::getAllProductList(['AND', ['in=id' => $ids]]));
 	}
 
 	public static function getById(int $id): Product
 	{
-		return self::createProductList(self::getProductList(['AND', ['=id' => $id, '=is_active' => 1]]))[$id];
+		return self::createProductList(self::getAllProductList(['AND', ['=id' => $id, '=is_active' => 1]]))[$id];
 	}
 
 	public static function getByTitle(string $title, int $page = 1): array
 	{
-		$orm = Orm::getInstance();
-		$escapedTitle = $orm->escapeString($title);
 
 		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
 		$offset = $limit * ($page - 1);
 
-		$ids = ProductTable::getList(['id'],
-			conditions:              ['AND', ['=is_active' => 1, '%=name' => $escapedTitle]],
-			orderBy:                 ['priority' => 'ASC'],
-			limit:                   $limit,
-			offset:                  $offset);
+		$ids = self::getIds(
+			ProductTable::getList(['id'],
+				conditions:       ['AND', ['=is_active' => 1, '%=name' => $title]],
+				orderBy:          ['priority' => 'ASC'],
+				limit:            $limit,
+				offset:           $offset)
+		);
+		if (empty($ids))
+		{
+			return [];
+		}
 		$result = self::getProductList(['AND', ['in=id' => $ids]]);
 
 		return self::createProductList($result);
@@ -82,7 +95,7 @@ class ProductRepositoryImpl implements ProductRepository
 			orderBy:                 ['priority' => 'ASC'],
 			limit:                   $limit,
 			offset:                  $offset);
-		$result = self::getProductList(['AND', ['in=id' => $ids]]);
+		$result = self::getAllProductList(['AND', ['in=id' => $ids]]);
 
 		return self::createProductList($result);
 	}
@@ -92,65 +105,36 @@ class ProductRepositoryImpl implements ProductRepository
 	 */
 	public static function add(ProductAddingDto $productAddingDto): int
 	{
-		$query = Query::getInstance();
+		$orm = Orm::getInstance();
 		try
 		{
-			$query->begin();
-			$escapedTitle = $query->escape($productAddingDto->title);
-			$escapedDescription = $query->escape($productAddingDto->description) ? : "NULL";
-
-			$addNewProductSQL = "INSERT INTO up_item (name, description, price) 
-				VALUES ('{$escapedTitle}', '{$escapedDescription}', {$productAddingDto->price})";
-			$query->getQueryResult($addNewProductSQL);
-			$lastItem = $query->last();
-
-			foreach ($productAddingDto->tags as $tag)
-			{
-				$addLinkToTagSQL = "INSERT INTO up_item_tag (id_item, id_tag) VALUES ({$lastItem}, {$tag})";
-				$query->getQueryResult($addLinkToTagSQL);
-			}
-			$query->commit();
-			return $lastItem;
+			$orm->begin();
+			$description = $productAddingDto->description ? : "NULL";
+			ProductTable::add(
+				['name' => $productAddingDto->title, 'description' => $description, 'price' => $productAddingDto->price]
+			);
+			$lastItem = $orm->last();
+			ImageRepositoryImpl::add($productAddingDto->imagePath, $lastItem);
+			TagRepositoryImpl::add($productAddingDto->tag);
+			$lastTag = $orm->last();
+			ProductTagTable::add(['id_item' => $lastItem, 'id_tag' => $lastTag]);
+			$orm->commit();
 		}
-		catch (\Throwable)
+		catch (\Throwable $e)
 		{
-			$query->rollback();
-			throw new ProductNotAdd();
+			$orm->rollback();
+			throw $e;
 		}
 	}
-
-	/*	public static function delete($id): void
-		{
-			$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
-			try
-			{
-				mysqli_begin_transaction($connection);
-				QueryResult::getQueryResult($addNewProductSQL);
-				mysqli_commit($connection);
-			}
-			catch (\Throwable $e)
-			{
-				mysqli_rollback($connection);
-				throw $e;
-			}
-		}*/
 
 	/**
 	 * @throws ProductNotDisabled
 	 */
 	public static function disable($id): void
 	{
-		$query = Query::getInstance();
-		try
-		{
-			$disableProductSQL = "UPDATE up_item SET is_active=0 where id = {$id}";
-			$query->getQueryResult($disableProductSQL);
-			if (Query::affectedRows() === 0)
-			{
-				throw new ProductNotDisabled();
-			}
-		}
-		catch (\Throwable)
+		$orm = Orm::getInstance();
+		ProductTable::update(['is_active' => 0], ['AND', ['=id' => $id]]);
+		if ($orm->affectedRows() === 0)
 		{
 			throw new ProductNotDisabled();
 		}
@@ -161,17 +145,9 @@ class ProductRepositoryImpl implements ProductRepository
 	 */
 	public static function restore($id): void
 	{
-		$query = Query::getInstance();
-		try
-		{
-			$restoreProductSQL = "UPDATE up_item SET is_active=1 where id = {$id}";
-			$query->getQueryResult($restoreProductSQL);
-			if (Query::affectedRows() === 0)
-			{
-				throw new ProductNotRestored();
-			}
-		}
-		catch (\Throwable)
+		$orm = Orm::getInstance();
+		ProductTable::update(['is_active' => 1], ['AND', ['id' => $id]]);
+		if ($orm->affectedRows() === 0)
 		{
 			throw new ProductNotRestored();
 		}
@@ -205,68 +181,52 @@ class ProductRepositoryImpl implements ProductRepository
 	 */
 	public static function change(ProductChangeDto $productChangeDto): void
 	{
-		$query = Query::getInstance();
+		$orm = Orm::getInstance();
 		$time = new \DateTime();
 		$now = $time->format('Y-m-d H:i:s');
 
-		$tagsChange = $productChangeDto->tags;
-		$tagsExisting = self::getTagByProduct($productChangeDto->id);
+		/*foreach ($tags as $tag)
+		{
+			$tagIds[] = $tag->id;
+		}*/
 
-		$tags = array_diff($tagsChange, $tagsExisting);
-
-		$strTags = implode(', ', $productChangeDto->tags);
-
-		$escapedName = $query->escape($productChangeDto->title);
-		$escapedDescription = $query->escape($productChangeDto->description);
+		/*$strTags = implode(', ', $tagIds);*/
 		try
 		{
-			$query->begin();
-			$changeProductSQL = "UPDATE up_item SET name='{$escapedName}', description='{$escapedDescription}', price= {$productChangeDto->price}, edited_at='{$now}' where id = {$productChangeDto->id}";
-			$query->getQueryResult($changeProductSQL);
-			if ($query->affectedRows() === 0)
+			$orm->begin();
+			ProductTable::update(
+				[
+					'name' => $productChangeDto->title,
+					'description' => $productChangeDto->description,
+					'price' => $productChangeDto->price,
+					'edited_at' => $now,
+				], ['AND', ['=id' => $productChangeDto->id]]
+			);
+			if ($orm->affectedRows() === 0)
 			{
 				throw new ProductNotRestored();
 			}
-
-			$deleteProductSQL = "DELETE FROM up_item_tag WHERE id_item={$productChangeDto->id} AND id_tag NOT IN ({$strTags})";
-			$query->getQueryResult($deleteProductSQL);
+			/*$deleteProductSQL = "DELETE FROM up_item_tag WHERE id_item={$productChangeDto->id} AND id_tag NOT IN ({$strTags})";
+			QueryResult::getQueryResult($deleteProductSQL);
 			foreach ($tags as $tag)
 			{
-				$addLinkToTagSQL = "INSERT INTO up_item_tag (id_item, id_tag) VALUES ({$productChangeDto->id}, {$tag})";
-				$query->getQueryResult($addLinkToTagSQL);
-			}
-			$query->commit();
+				$addLinkToTagSQL = "INSERT IGNORE INTO up_item_tag (id_item, id_tag) VALUES ({$id}, {$tag->id})";
+				QueryResult::getQueryResult($addLinkToTagSQL);
+			}*/
+			$orm->commit();
 		}
 		catch (\Throwable $e)
 		{
-			$query->commit();
+			$orm->commit();
 			throw $e;
 		}
 	}
 
-	public static function getTagByProduct(int $idProduct): array
-	{
-		$query = Query::getInstance();
-
-		$sql = "SELECT id_tag FROM `up_item_tag` WHERE id_item = {$idProduct}";
-
-		$result = $query->getQueryResult($sql);
-
-		$tagsId = [];
-
-		while ($id = mysqli_fetch_column($result))
+	/*	public static function getByTag(int $tagId, int $page = 1): array
 		{
-			$tagsId[] = $id;
-		}
-
-		return $tagsId;
-	}
-
-	public static function getByTag(int $tagId, int $page = 1): array
-	{
-		$query = Query::getInstance();
-		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
-		$offset = $limit * ($page - 1);
+			$query = Query::getInstance();
+			$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
+			$offset = $limit * ($page - 1);
 
 			$sql = "select up_item.id, up_item.name, description, price, id_tag, is_active,
 					added_at, edited_at, up_image.id as image_id, path, up_item_special_offer.special_offer_id, priority
@@ -313,19 +273,21 @@ class ProductRepositoryImpl implements ProductRepository
 			{
 				$products[$row['id']] = self::createProductEntity($row);
 			}
-			if (!is_null($row['id_tag']))
+			if (isset($row['id_tag']) && !is_null($row['id_tag']))
 			{
 				$products[$row['id']]->addTag(TagRepositoryImpl::createTagEntity($row));
 			}
-			if (!is_null($row['special_offer_id']))
+			if (isset($row['special_offer_id']) && !is_null($row['special_offer_id']))
 			{
 				$products[$row['id']]->addSpecialOffer(
 					SpecialOfferRepositoryImpl::createSpecialOfferEntity($row)
 				);
 			}
-			if (!is_null($row['characteristic_id']))
+			if (isset($row['characteristic_id']) && !is_null($row['characteristic_id']))
 			{
-				$products[$row['id']]->addCharacteristic(new ProductCharacteristic($row['characteristic_title'], $row['value']));
+				$products[$row['id']]->addCharacteristic(
+					new ProductCharacteristic($row['characteristic_title'], $row['value'])
+				);
 			}
 
 			// if (!is_null($row['image_id']))
@@ -345,13 +307,9 @@ class ProductRepositoryImpl implements ProductRepository
 		// $image = [new Image(404, '/images/imgNotFound.png', 'main')];
 		$imagePath = '/images/imgNotFound.png';
 		if (isset($row['image_id']))
-
 		{
-			if (!is_null($row['id_tag']))
-			{
-				// $image = [new Image($row['image_id'], $row['path'], 'main')];
-				$imagePath = $row['path'];
-			}
+			// $image = [new Image($row['image_id'], $row['path'], 'main')];
+			$imagePath = $row['path'];
 		}
 
 		return new Product(
@@ -402,7 +360,7 @@ class ProductRepositoryImpl implements ProductRepository
 		{
 			return [];
 		}
-		$result = self::getProductList(['AND', ['in=id' => $ids]]);
+		$result = self::getAllProductList(['AND', ['in=id' => $ids]]);
 
 		return self::createProductList($result);
 	}
@@ -418,7 +376,7 @@ class ProductRepositoryImpl implements ProductRepository
 		return $ids;
 	}
 
-	private static function getProductList($where = []): \mysqli_result|bool
+	private static function getAllProductList($where = []): \mysqli_result|bool
 	{
 		return ProductTable::getList([
 										 'id',
@@ -443,6 +401,23 @@ class ProductRepositoryImpl implements ProductRepository
 											 'characteristic_title' => 'title',
 											 'value',
 										 ],
+									 ],
+									 $where,
+									 ['priority' => 'ASC']);
+	}
+
+	public static function getProductList($where = []): \mysqli_result|bool
+	{
+		return ProductTable::getList([
+										 'id',
+										 'name',
+										 'description',
+										 'price',
+										 'is_active',
+										 'priority',
+									 ],
+									 [
+										 'image' => ['image_id' => 'id', 'path'],
 									 ],
 									 $where,
 									 ['priority' => 'ASC']);

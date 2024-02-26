@@ -6,6 +6,7 @@ use Up\Dto\UserAddingDto;
 use Up\Entity\User;
 use Up\Exceptions\User\UserAdding;
 use Up\Exceptions\User\UserNotFound;
+use Up\Util\Database\Orm;
 use Up\Util\Database\Query;
 use Up\Util\Database\Tables\UserTable;
 
@@ -39,35 +40,17 @@ class UserRepositoryImpl implements UserRepository
 	 */
 	public static function add(UserAddingDto $user): void
 	{
-		$query = Query::getInstance();
-		$sql = "select id from up_role where title = '{$user->roleTitle}';";
-
-		$result = $query->getQueryResult($sql);
-
-		$row = mysqli_fetch_assoc($result);
-		if (is_null($row))
-		{
-			throw new \RuntimeException('This role was not found');
-		}
-		$roleId = $row['id'];
-
-		$connection = \Up\Util\Database\Connector::getInstance()->getDbConnection();
-		$escapedUserName = mysqli_real_escape_string($connection, $user->name);
-		$escapedUserPassword = mysqli_real_escape_string($connection, $user->password);
-		try
-		{
-			mysqli_begin_transaction($connection);
-			$sql = "INSERT INTO up_users (email, password, role_id, tel, name) 
-				VALUES ('{$user->email}', '{$escapedUserPassword}', {$roleId}, '{$user->phoneNumber}', '{$escapedUserName}');";
-
-			$query->getQueryResult($sql);
-			mysqli_commit($connection);
-		}
-		catch (\Throwable $e)
-		{
-			mysqli_rollback($connection);
-			throw new UserAdding('Failed to add a user');
-		}
+		UserTable::add(
+			[
+				'name' => $user->name,
+				'surname' => $user->surname,
+				'email' => $user->email,
+				'password' => $user->password,
+				'role_id' => $user->roleId,
+				'tel' => $user->phoneNumber,
+			]
+		);
+		throw new UserAdding('Failed to add a user');
 	}
 
 	/**
@@ -75,28 +58,13 @@ class UserRepositoryImpl implements UserRepository
 	 */
 	public static function change($id, $name, $email, $phoneNumber, $password): void
 	{
-		$query = Query::getInstance();
+		$orm = Orm::getInstance();
+		UserTable::update(['name' => $name, 'email' => $email, 'tel' => $phoneNumber, 'password' => $password],
+						  ['AND', ['id' => $id]]);
 
-		$escapedName = $query->escape($name);
-		$escapedEmail = $query->escape($email);
-		$escapedPhoneNumber = $query->escape($phoneNumber);
-		$escapedPassword = $query->escape($password);
-
-		try
+		if ($orm->affectedRows() === 0)
 		{
-			$query->begin();
-			$changeUsersSQL = "UPDATE up_users SET name='{$escapedName}', email='{$escapedEmail}', tel= '{$escapedPhoneNumber}', password = '{$escapedPassword}' where id = {$id}";
-			$query->getQueryResult($changeUsersSQL);
-			if ($query->affectedRows() === 0)
-			{
-				throw new UserNotFound();
-			}
-			$query->commit();
-		}
-		catch (\Throwable $e)
-		{
-			$query->rollback();
-			throw $e;
+			throw new UserNotFound();
 		}
 	}
 
@@ -118,7 +86,7 @@ class UserRepositoryImpl implements UserRepository
 	public static function createUserEntity(array $row): User
 	{
 		return new User(
-			$row['user_id'],
+			$row['user_id'] ?? null,
 			$row['user_name'] ?? null,
 			$row['tel'] ?? null,
 			$row['email'] ?? null,
@@ -142,15 +110,15 @@ class UserRepositoryImpl implements UserRepository
 	private static function getUserList($where = []): \mysqli_result|bool
 	{
 		return UserTable::getList(
-			[
-				'user_id' => 'id',
-				'user_name' => 'name',
-				'tel',
-				'email',
-				'password',
-				'user_is_active' => 'is_active',
-			],
-			['role' => ['user_role' => 'title']],
+						[
+							'user_id' => 'id',
+							'user_name' => 'name',
+							'tel',
+							'email',
+							'password',
+							'user_is_active' => 'is_active',
+						],
+						['role' => ['user_role' => 'title']],
 			conditions: $where
 		);
 	}

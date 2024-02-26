@@ -4,7 +4,7 @@ namespace Up\Entity;
 
 class User implements Entity
 {
-	public readonly int $id;
+	public readonly ?int $id;
 	public readonly ?string $name;
 	public readonly ?string $phoneNumber;
 	public readonly ?string $email;
@@ -13,7 +13,7 @@ class User implements Entity
 	public readonly ?bool $isActive;
 
 	public function __construct(
-		int    $id,
+		? int    $id,
 		?string $name,
 		?string $phoneNumber,
 		?string $email,

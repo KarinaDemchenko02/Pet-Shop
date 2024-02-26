@@ -7,7 +7,7 @@ use Up\Util\Database\Orm;
 
 abstract class Table implements TableInterface
 {
-	public static function add(array $data): int
+	public static function add(array $data, $isIgnore = false): int
 	{
 		$orm = Orm::getInstance();
 		/**
@@ -17,9 +17,14 @@ abstract class Table implements TableInterface
 		$insertData = [];
 		foreach ($fields as $field)
 		{
-			if (!isset($data[$field->getName()]) && !$field->isDefaultExists())
+			if (
+				!isset($data[$field->getName()])
+				&& !($field->getType() === 'reference'
+					|| $field->getType() === 'reflection')
+				&& !$field->isDefaultExists()
+			)
 			{
-				throw new \RuntimeException('Error: too few arguments');
+				throw new \RuntimeException("Error: too few arguments, field {$field->getName()} not found");
 			}
 			if (isset($data[$field->getName()]))
 			{
@@ -27,7 +32,7 @@ abstract class Table implements TableInterface
 			}
 		}
 
-		return $orm->insert(static::getTableName(), $insertData);
+		return $orm->insert(static::getTableName(), $insertData, $isIgnore);
 	}
 
 	/*foreach ($joins as $join => $joinData)
@@ -115,18 +120,16 @@ abstract class Table implements TableInterface
 				$alias = array_search($fieldName, $selectedColumns, true);
 				$columnName = "$tableName.$fieldName";
 
-				if ($alias)
+				if (is_int($alias))
 				{
-					if (is_int($alias))
-					{
-						$tableAlias[$fieldName] = $columnName;
-					}
-					else
-					{
-						$tableAlias[$alias] = $columnName;
-						$columnName .= " AS $alias";
-					}
+					$tableAlias[$fieldName] = $columnName;
 				}
+				else
+				{
+					$tableAlias[$alias] = $columnName;
+					$columnName .= " AS $alias";
+				}
+
 				$columns[] = $columnName;
 			}
 
@@ -164,14 +167,14 @@ abstract class Table implements TableInterface
 						'condition' => $joinCondition,
 					];
 
-					$joinResult = $referenceTable->getColumnJoin(
+					$columnJoin = $referenceTable->getColumnJoin(
 						$selectedColumnsForJoin,
 						$selectedRelatedColumns,
 						$joins
 					);
-					$tableAlias = array_merge($tableAlias, $joinResult['alias']);
-					$joins = array_merge($joins, $joinResult['joins']);
-					$columns = array_unique(array_merge($columns, $joinResult['columns']));
+					$tableAlias = array_merge($tableAlias, $columnJoin['alias']);
+					$joins = array_merge($joins, $columnJoin['joins']);
+					$columns = array_unique(array_merge($columns, $columnJoin['columns']));
 				}
 			}
 		}
@@ -200,7 +203,7 @@ abstract class Table implements TableInterface
 				{
 					if ($func === '%')
 					{
-						$preparedCondition = "%$preparedCondition";
+						$preparedCondition = "%$preparedCondition%";
 					}
 					$preparedCondition = self::prepareString($preparedCondition);
 				}
@@ -215,16 +218,22 @@ abstract class Table implements TableInterface
 						array_map('\Up\Util\Database\Tables\Table::prepareString', $condition)
 					);
 				}
+				$not = '';
+				if (!empty($func) && $func[0] === '!')
+				{
+					$func = substr($func, 1);
+					$not = 'NOT ';
+				}
 				switch ($func)
 				{
 					case '':
-						$where[] = "$fieldName=$preparedCondition";
+						$where[] = "{$not}$fieldName=$preparedCondition";
 						break;
 					case 'in':
-						$where[] = "$fieldName IN ($preparedCondition)";
+						$where[] = "$fieldName {$not}IN ($preparedCondition)";
 						break;
 					case '%':
-						$where[] = "$fieldName LIKE $preparedCondition";
+						$where[] = "$fieldName {$not}LIKE $preparedCondition";
 						break;
 				} //up_item.id in (2, 4)
 			}
@@ -250,15 +259,19 @@ abstract class Table implements TableInterface
 		return implode(', ', $orderByCondition);
 	}
 
-	public static function update(array $data, array $condition): int
+	public static function update(array $data, array $condition, $isIgnore = false): int
 	{
 		$where = self::makeWhere($condition[0], $condition[1]);
 
-		return Orm::getInstance()->update(static::getTableName(), $data, $where);
+		return Orm::getInstance()->update(static::getTableName(), $data, $where, $isIgnore);
 	}
 
 	public static function delete(array $condition): int
 	{
+		if (empty($condition))
+		{
+			throw new \RuntimeException("Error! Condition is cannot be empty");
+		}
 		$where = self::makeWhere($condition[0], $condition[1]);
 
 		return Orm::getInstance()->delete(static::getTableName(), $where);
@@ -266,12 +279,13 @@ abstract class Table implements TableInterface
 
 	private static function prepareString($string): string
 	{
+		$orm = Orm::getInstance();
 		if (!is_string($string))
 		{
 			return $string;
 		}
 
-		return "'$string'";
+		return $orm->escapeString($string);
 	}
 
 	abstract public static function getMap(): array;
