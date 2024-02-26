@@ -27,6 +27,7 @@ class ProductTable extends Table
 			new Reflection('shoppingSession', new ShoppingSessionTable(), 'product'),
 			new Reflection('order', new OrderProductTable(), 'product'),
 			new Reflection('specialOffer', new ProductSpecialOfferTable(), 'product'),
+			new Reflection('characteristic', new CharacteristicProductTable(), 'product')
 		];
 	}
 

@@ -3,57 +3,40 @@
 namespace Up\Repository\ProductCharacteristic;
 
 use Up\Entity\Characteristic;
-use Up\Entity;
-use Up\Repository\ProductCharacteristic\ProductCharacteristic;
-use Up\Util\Database\Query;
+use Up\Util\Database\Tables\CharacteristicTable;
 
 class ProductCharacteristicImpl implements ProductCharacteristic
 {
 
 	public static function getAll(): array
 	{
-		$query = Query::getInstance();
-		$sql = "select * from up_characteristic;";
+		return self::createCharacteristicList(self::getCharacteristicList());
+	}
 
-		$result = $query->getQueryResult($sql);
+	public static function getById(int $id): Characteristic
+	{
+		return self::createCharacteristicList(self::getCharacteristicList(['AND', ['=characteristic_id' => $id]]))[$id];
+	}
 
+	public static function createCharacteristicEntity(array $row): Characteristic
+	{
+		return new Characteristic($row['characteristic_id'], $row['characteristic_title']);
+	}
+
+	private static function createCharacteristicList(\mysqli_result $result): array
+	{
 		$characteristics = [];
-
 		while ($row = mysqli_fetch_assoc($result))
 		{
-			$characteristics[$row['id']] = new Characteristic($row['id'], $row['title']);
+			$characteristics[$row['characteristic_id']] = self::createCharacteristicEntity($row);
 		}
 
 		return $characteristics;
 	}
 
-	public static function getById(int $id): Characteristic
+	private static function getCharacteristicList($where = []): \mysqli_result|bool
 	{
-		$query = Query::getInstance();
-		$sql = "select * from up_characteristic where id = {$id};";
-
-		$result = $query->getQueryResult($sql);
-
-		$row = mysqli_fetch_assoc($result);
-
-		return new Characteristic($row['id'], $row['title']);
-	}
-
-	public static function getAllByProductId(int $id): array
-	{
-		$query = Query::getInstance();
-		$sql = "select id, title, value
-				from up_characteristic
-				inner join eshop.up_item_characteristic uic on up_characteristic.id = uic.characteristic_id
-				where item_id = {$id};";
-
-		$result = $query->getQueryResult($sql);
-		$productCharacteristics = [];
-		while ($row = mysqli_fetch_assoc($result))
-		{
-			$productCharacteristics[$row['id']] = new Entity\ProductCharacteristic($row['title'], $row['value']);
-		}
-
-		return $productCharacteristics;
+		return CharacteristicTable::getList(['characteristic_id' => 'id', 'characteristic_title' => 'title'],
+			conditions:                     $where);
 	}
 }

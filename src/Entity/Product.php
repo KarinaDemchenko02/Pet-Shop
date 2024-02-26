@@ -15,21 +15,21 @@ class Product implements Entity
 	public readonly ?string $imagePath;
 	private array $specialOffer;
 	public readonly ?int $priority;
-	public readonly array $characteristics;
+	private array $characteristics;
 
 	public function __construct(
-		int    $id,
+		int     $id,
 		?string $title,
 		?string $description,
-		float  $price,
+		float   $price,
 		?array  $tag,
 		?bool   $isActive,
 		?string $addedAt,
 		?string $editedAt,
 		?string $imagePath,
-		array  $specialOffer,
+		array   $specialOffer,
 		?int    $priority,
-		array  $characteristics,
+		array   $characteristics,
 	)
 	{
 		$this->id = $id;
@@ -54,9 +54,20 @@ class Product implements Entity
 		}
 	}
 
-	public function addSpecialOffer(SpecialOffer $specialOffer)
+	public function addSpecialOffer(SpecialOffer $specialOffer): void
 	{
-		$this->specialOffer[$specialOffer->id] = $specialOffer;
+		if (!isset($this->specialOffer[$specialOffer->id]))
+		{
+			$this->specialOffer[$specialOffer->id] = $specialOffer;
+		}
+	}
+
+	public function addCharacteristic(ProductCharacteristic $characteristic): void
+	{
+		if (!in_array($characteristic, $this->characteristics, true))
+		{
+			$this->characteristics[] = $characteristic;
+		}
 	}
 	// public function addImage(Image $image)
 	// {
@@ -77,5 +88,10 @@ class Product implements Entity
 	public function getSpecialOffer(): ?array
 	{
 		return $this->specialOffer;
+	}
+
+	public function getCharacteristics(): array
+	{
+		return $this->characteristics;
 	}
 }

@@ -21,11 +21,6 @@ class ProductDto implements Dto
 		$this->description = $product->description;
 		$this->price = $product->price;
 		$this->imagePath = $product->imagePath;
-		$this->characteristics = $product->characteristics;
+		$this->characteristics = $product->getCharacteristics();
 	}
-
-	/*public static function from(Entity $entity): void
-	{
-		// TODO: from() function
-	}*/
 }

@@ -5,6 +5,7 @@ namespace Up\Repository\Product;
 use Up\Dto\ProductAddingDto;
 use Up\Dto\ProductChangeDto;
 use Up\Entity\Product;
+use Up\Entity\ProductCharacteristic;
 use Up\Exceptions\Admin\ProductNotChanged;
 use Up\Exceptions\Admin\ProductNotDisabled;
 use Up\Exceptions\Admin\ProductNotRestored;
@@ -263,14 +264,12 @@ class ProductRepositoryImpl implements ProductRepository
 	private static function createProductList(\mysqli_result $result): array
 	{
 		$products = [];
-
 		while ($row = mysqli_fetch_assoc($result))
 		{
 			if (!isset($products[$row['id']]))
 			{
 				$products[$row['id']] = self::createProductEntity($row);
 			}
-
 			if (!is_null($row['id_tag']))
 			{
 				$products[$row['id']]->addTag(TagRepositoryImpl::createTagEntity($row));
@@ -281,6 +280,11 @@ class ProductRepositoryImpl implements ProductRepository
 					SpecialOfferRepositoryImpl::createSpecialOfferEntity($row)
 				);
 			}
+			if (!is_null($row['characteristic_id']))
+			{
+				$products[$row['id']]->addCharacteristic(new ProductCharacteristic($row['characteristic_title'], $row['value']));
+			}
+
 			// if (!is_null($row['image_id']))
 			// {
 			// 	$products[$row['id']]->addImage(new Image($row['image_id'], $row['path'], 'main'));
@@ -298,12 +302,13 @@ class ProductRepositoryImpl implements ProductRepository
 		// $image = [new Image(404, '/images/imgNotFound.png', 'main')];
 		$imagePath = '/images/imgNotFound.png';
 		if (isset($row['image_id']))
-		$characteristics = ProductCharacteristicImpl::getAllByProductId($row['id']);
 
-		if (!is_null($row['id_tag']))
 		{
-			// $image = [new Image($row['image_id'], $row['path'], 'main')];
-			$imagePath = $row['path'];
+			if (!is_null($row['id_tag']))
+			{
+				// $image = [new Image($row['image_id'], $row['path'], 'main')];
+				$imagePath = $row['path'];
+			}
 		}
 
 		return new Product(
@@ -318,7 +323,7 @@ class ProductRepositoryImpl implements ProductRepository
 			$imagePath,
 			$specialOffer,
 			$row['priority'] ?? null,
-			$characteristics,
+			[],
 		);
 	}
 
@@ -389,6 +394,11 @@ class ProductRepositoryImpl implements ProductRepository
 											 'special_offer_id' => 'id',
 											 'special_offer_title' => 'title',
 											 'special_offer_description' => 'description',
+										 ],
+										 'characteristic' => [
+											 'characteristic_id' => 'id',
+											 'characteristic_title' => 'title',
+											 'value',
 										 ],
 									 ],
 									 $where,
