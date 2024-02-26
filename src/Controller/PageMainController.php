@@ -96,13 +96,12 @@ class PageMainController extends Controller
 	{
 		$page = $request->getVariable('page');
 		$titleParam = $request->getVariable('title');
-
 		if (!(is_numeric($page) || $page > 0))
 		{
 			$page = 1;
 		}
 
-		$products = ProductService::getProductByTitle($titleParam, $page);
+		$products = ProductService::getProductByTitle((string)$titleParam, $page);
 
 		$content = [];
 		foreach ($products as $product)

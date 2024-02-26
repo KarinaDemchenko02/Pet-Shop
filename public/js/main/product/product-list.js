@@ -244,16 +244,21 @@ export class ProductList
 			}
 		)
 			.then((response) => {
-				if (!response.ok) {
+				if (response.status >= 300 || response.status < 200) {
 					throw new Error('Network response was not ok');
 				}
 				return response.json();
 			})
 			.then((response) => {
-				this.items = response.products.map((itemData) => {
-					return this.createItem(itemData)
-				})
-
+				/*if (response.status === 204) {
+					this.items = [];
+				}
+				if (response.status === 200) {*/
+					this.items = response.products.map((itemData) => {
+						return this.createItem(itemData)
+					})
+				/*}
+*/
 				this.render();
 
 				spinner.classList.remove('disabled');
