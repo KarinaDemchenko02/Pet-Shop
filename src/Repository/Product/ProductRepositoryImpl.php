@@ -119,6 +119,7 @@ class ProductRepositoryImpl implements ProductRepository
 			$lastTag = $orm->last();
 			ProductTagTable::add(['id_item' => $lastItem, 'id_tag' => $lastTag]);
 			$orm->commit();
+			return $lastItem;
 		}
 		catch (\Throwable $e)
 		{

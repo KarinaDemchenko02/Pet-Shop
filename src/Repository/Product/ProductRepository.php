@@ -17,7 +17,7 @@ interface ProductRepository extends Repository
 	public static function getByTags(array $tags): array;
 	
 
-	public static function add(ProductAddingDto $productAddingDto): void;
+	public static function add(ProductAddingDto $productAddingDto): int;
 
 	public static function disable($id): void;
 
