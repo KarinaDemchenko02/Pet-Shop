@@ -12,6 +12,7 @@ export class TagItem
 		{
 			this.filterTagButtonHandler = filterTagButtonHandler;
 		}
+
 	}
 
 	render()

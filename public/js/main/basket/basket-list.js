@@ -72,6 +72,28 @@ export class BasketList
 				})
 		}
 	}
+
+	openFormBuyProduct()
+	{
+		this.renderFormBuy();
+		console.log(this.items);
+		const items = this.items;
+
+		let html = '';
+
+		for (let i = 0; i < items.length; i++) {
+			const item = items[i];
+
+			html += `
+			<div class="form-product__item form__basket-add ">
+				<img class="form-product__images" src="${item.imagePath}" alt="product">
+				<h2 class="form-product__heading">${item.title}</h2>
+				<p class="form-product__price">${item.price} ₽</p>
+		  	</div>`;
+		}
+
+		document.querySelector('.form-product__modal').innerHTML = html;
+	}
 	render()
 	{
 		this.rootNode.innerHTML = '';
@@ -87,6 +109,43 @@ export class BasketList
 		const buttonDelete = document.querySelectorAll('.basket__delete');
 		buttonDelete.forEach(btn => {
 			btn.addEventListener('click', this.handleRemoveButtonClick.bind(this))
-		})
+		});
+
+		const buttonBuy = document.querySelector('.basket__buy');
+		buttonBuy.addEventListener('click', this.openFormBuyProduct.bind(this))
+	}
+
+	renderFormBuy()
+	{
+		this.rootNode.innerHTML = `
+			<div class="form-product__container">
+				<button class="form-product__close">
+					<i class="form-product__close-icon material-icons">close</i>
+				</button>
+				<div class="form-product__modal form__basket-add-container">
+					<div class="form-product__round"></div>
+				</div>
+				<div class="form-product__container-info">
+					<div class="form-product__info">
+					<h2 class="form-product__info-heading">Оформление заказа</h2>
+					</div>
+					<form class="form-product__main-form" id="form__order-add">
+						<div class="form-product__container-input">
+						<label class="form-product__label" for="name">Имя</label>
+						<input class="form-product__input" id="nameOrder" name="name" type="text" required>
+						</div>
+						<div class="form-product__container-input">
+						<label class="form-product__label" for="surname">Фамилия</label>
+						<input class="form-product__input" id="surnameOrder" name="surname" type="text" required>
+						</div>
+						<div class="form-product__container-input">
+						<label class="form-product__label" for="address">Адрес доставки</label>
+						<input class="form-product__input" id="addressOrder" name="address" type="text" required>
+						</div>
+						<button class="form-product__submit" type="submit">Купить</button>
+					</form>
+				</div>
+			</div>
+			`;
 	}
 }

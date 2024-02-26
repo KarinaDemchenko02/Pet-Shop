@@ -4,9 +4,7 @@
 	</button>
 	<h2 class="basket__heading">Корзина</h2>
 	<ul class="basket__list" id="basket-list"></ul>
-	<form method="post" action="/createOrder/">
-		<button class="basket__buy">Купить</button>
-	</form>
+	<button class="basket__buy">Купить</button>
 </div>
 
 <script type="module">

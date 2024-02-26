@@ -6,7 +6,6 @@ $userList = [
 	'name' => 'test',
 	'phoneNumber' => $this->getVariable('user')['phoneNumber'],
 ];
-
 ?>
 
 <div class="account">

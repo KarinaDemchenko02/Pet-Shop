@@ -1,14 +1,16 @@
 import {TagItem} from "./tag-item.js";
 import {ProductItem} from "../product/product-item.js";
 import {ProductList} from "../product/product-list.js";
+import {BasketItem} from "../basket/basket-item.js";
 
 export class TagList
 {
 	attachToNodeId = '';
 	rootNode;
 	items = [];
+	basketItem = [];
 
-	constructor({ attachToNodeId = '', items })
+	constructor({ attachToNodeId = '', items, basketItem })
 	{
 		if (attachToNodeId === '')
 		{
@@ -25,6 +27,10 @@ export class TagList
 		this.items = items.map((itemData) => {
 			return this.createItem(itemData)
 		})
+
+		this.basketItem = basketItem.map((itemData) => {
+			return this.createBasket(itemData);
+		})
 	}
 
 	createItem(itemData)
@@ -36,6 +42,11 @@ export class TagList
 	createProduct(itemData)
 	{
 		return new ProductItem(itemData);
+	}
+
+	createBasket(itemData)
+	{
+		return new BasketItem(itemData)
 	}
 	handleFilterTagButtonClick(item)
 	{
@@ -77,6 +88,7 @@ export class TagList
 					const productsList = new ProductList({
 						attachToNodeId: 'product__list-container',
 						items: products,
+						basketItem: this.basketItem
 					});
 
 					productsList.render();
@@ -85,7 +97,7 @@ export class TagList
 					spinner.classList.remove('disabled');
 				})
 				.catch((error) => {
-					console.error('Error while deleting item.');
+					console.error('Error while deleting item.', error);
 					const spinner = document.querySelector('.spinner-product');
 					spinner.classList.remove('disabled');
 				})

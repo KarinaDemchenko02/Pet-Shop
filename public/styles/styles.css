@@ -817,17 +817,22 @@ button {
 	display: none;
 }
 
+.spinner-order {
+	right: 8%;
+	top: 29%;
+}
+
 .spinner-register {
 	right: 5%;
 	top: 26%;
 }
 
-.form__button:disabled {
+.form__button:disabled, .form-product__submit:disabled {
 	opacity: 0.5;
 	pointer-events: none;
 }
 
-.form__button:disabled .spinner-action {
+.form__button:disabled .spinner-action, .form-product__submit:disabled .spinner-action {
 	display: inline-block;
 }
 
@@ -1076,6 +1081,7 @@ button {
 }
 
 .form-product__submit {
+	position: relative;
 	margin-top: auto;
 	padding: 15px 35px;
 	color: white;
@@ -1257,6 +1263,10 @@ button {
 
 .basket.open::before  {
 	display: block;
+}
+
+.success {
+	display: none;
 }
 
 .success__container {
@@ -1456,6 +1466,16 @@ button {
 	opacity: 0.5;
 	pointer-events: none;
 	cursor: default;
+}
+
+.form__basket-add-container {
+	position: static;
+	background-color: #2ca02c;
+}
+
+.form__basket-add {
+	position: inherit;
+	transform: inherit;
 }
 
 .is-active {

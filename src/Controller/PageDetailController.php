@@ -13,6 +13,7 @@ use Up\Http\Status;
 use Up\Repository\Product\ProductRepositoryImpl;
 use Up\Service\OrderService\OrderService;
 use Up\Service\ProductService\ProductService;
+use Up\Util\Json;
 use Up\Util\Session;
 use Up\Util\TemplateEngine\PageDetailTemplateEngine;
 
@@ -39,9 +40,11 @@ class PageDetailController extends Controller
 		return new Response(Status::OK, ['template' => $template]);
 	}
 
-	public function buyProductAction(int $id)
+	public function buyProductAction(Request $request): Response
 	{
-		$product = ProductRepositoryImpl::getById($id);
+		$data = Json::decode(file_get_contents("php://input"));
+
+		$product = ProductRepositoryImpl::getById((int) $data['id']);
 		try
 		{
 			if ($this->isLogIn())
@@ -56,15 +59,16 @@ class PageDetailController extends Controller
 			$orderDto = new OrderAddingDto(
 				new ShoppingSession(
 					null, $userId, [new ProductQuantity($product, 1)]
-				), $_POST['name'], $_POST['surname'], $_POST['address'],
+				), $data['name'], $data['surname'], $data['address'],
 			);
 			OrderService::createOrder($orderDto);
-			header('Location: /success/');
 		}
 		catch (OrderNotCompleted)
 		{
 			echo "fail";
 		}
+
+		return new Response(Status::OK, ['result' => true]);
 	}
 
 	public function showModalSuccess(): void

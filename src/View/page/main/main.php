@@ -36,6 +36,7 @@ $isLogin = $this->getVariable('isLogIn');
 	const tagList = new TagList({
 		attachToNodeId: 'tags-list',
 		items: <?= \Up\Util\Json::encode($tags) ?>,
+		basketItem: <?= \Up\Util\Json::encode($basketItem) ?>,
 	})
 
 	tagList.render();

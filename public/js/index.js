@@ -63,14 +63,6 @@ const btnsItem = document.querySelectorAll('.details__btn-item');
 const blocksWithInfo = document.querySelectorAll('.details__info-items');
 new Tabs(btnsItem, blocksWithInfo).tabs();
 
-if (document.querySelector('.details__buy')) {
-	const buttonBuyOpen = document.querySelector('.details__buy');
-	const buttonBuyClose = document.querySelector('.form-product__close');
-	const formBuy = document.querySelector('.form-product');
-	const objectBuyForm = new Form(buttonBuyOpen, buttonBuyClose, formBuy)
-	objectBuyForm.open();
-	objectBuyForm.close();
-}
 
 
 

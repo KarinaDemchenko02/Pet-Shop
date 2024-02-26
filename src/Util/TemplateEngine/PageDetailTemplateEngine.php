@@ -9,6 +9,7 @@ class PageDetailTemplateEngine implements TemplateEngine
 	public function getPageTemplate($variables): Template
 	{
 		$productDto = $variables['productDto'];
+		$isLogIn = $variables['isLogIn'];
 
 		$form = new Template('components/main/formAuthorization');
 		$formBuyProduct = new Template('components/detail/formBuyProduct', [
@@ -28,6 +29,7 @@ class PageDetailTemplateEngine implements TemplateEngine
 			'form' => $form,
 			'formBuyProduct' => $formBuyProduct,
 			'basket' => $basket,
+			'isLogin' => $isLogIn,
 		]);
 		$footer = new Template('components/main/footer');
 		$isLogIn = $variables['isLogIn'];

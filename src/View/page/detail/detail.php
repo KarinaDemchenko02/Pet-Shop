@@ -58,13 +58,35 @@
 			</div>
 		</div>
 	</section>
-	<section class="form">
-		<?php $this->getVariable('form')->display(); ?>
-	</section>
-	<section class="form-product">
-		<?php $this->getVariable('formBuyProduct')->display(); ?>
-	</section>
+	<section class="form" id="form-auth-detail"></section>
+	<section class="form-product" id="form-product"></section>
 	<section class="basket">
 		<?php $this->getVariable('basket')->display(); ?>
 	</section>
+	<section class="success" id="success">
+		<div class="success__container">
+			<h2 class="success__heading">Заказ создан! С вами свяжется оператор.</h2>
+			<a href="/" class="success__button">Перейти на главную страницу</a>
+		</div>
+	</section>
 </div>
+<script type="module">
+	import { Order } from "/js/main/order/order.js";
+	import {Auth} from "/js/main/auth/auth.js";
+
+	const mainList = new Order({
+		attachToNodeId: 'form-product',
+		id: <?= \Up\Util\Json::encode($this->getVariable('id')) ?>,
+		title: <?= \Up\Util\Json::encode($this->getVariable('title')) ?>,
+		price: <?= \Up\Util\Json::encode($this->getVariable('price')) ?>,
+		imagePath: <?= \Up\Util\Json::encode($this->getVariable('imagePath'))?>
+	});
+	mainList.render();
+
+	const auth = new Auth({
+		attachToNodeId: 'form-auth-detail',
+		login: <?= \Up\Util\Json::encode($this->getVariable('isLogin')) ?>,
+	})
+
+	auth.render();
+</script>
