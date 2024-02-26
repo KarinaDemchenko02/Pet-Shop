@@ -25,11 +25,3 @@ class SpecialOfferTable extends Table
 		return 'up_special_offer';
 	}
 }
-
-/*create table up_special_offer
-(
-	id          int auto_increment
-		primary key,
-	title       varchar(45)  not null,
-	description varchar(255) not null
-);*/

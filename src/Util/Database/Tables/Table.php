@@ -79,11 +79,12 @@ abstract class Table implements TableInterface
 		{
 			$where = self::makeWhere($conditions[0], $conditions[1], $columnJoin['alias']);
 		}
+
 		return $orm->select(
 			static::getTableName(),
 			$columnJoin['columns'],
 			$where,
-			self::makeOrderBy($orderBy),
+			self::makeOrderBy($orderBy, $columnJoin['alias']),
 			$limit ?? '',
 			$offset ?? '',
 			$columnJoin['joins']
@@ -114,10 +115,17 @@ abstract class Table implements TableInterface
 				$alias = array_search($fieldName, $selectedColumns, true);
 				$columnName = "$tableName.$fieldName";
 
-				if ($alias && !is_int($alias))
+				if ($alias)
 				{
-					$tableAlias[$alias] = $columnName;
-					$columnName .= " AS $alias";
+					if (is_int($alias))
+					{
+						$tableAlias[$fieldName] = $columnName;
+					}
+					else
+					{
+						$tableAlias[$alias] = $columnName;
+						$columnName .= " AS $alias";
+					}
 				}
 				$columns[] = $columnName;
 			}
@@ -186,22 +194,22 @@ abstract class Table implements TableInterface
 			{
 
 				[$func, $fieldName] = explode('=', $logic);
-				if (isset($alias[$fieldName]))
-				{
-					$aliasColumn = $alias[$fieldName];
-					$fieldName = $aliasColumn;
-				}
+				$fieldName = $alias[$fieldName] ?? "$tableName.$fieldName";
 				$preparedCondition = $condition;
 				if (is_string($condition))
 				{
 					if ($func === '%')
 					{
-						$preparedCondition = "%$condition%";
+						$preparedCondition = "%$preparedCondition";
 					}
 					$preparedCondition = self::prepareString($preparedCondition);
 				}
 				if (is_array($condition))
 				{
+					if (empty($condition))
+					{
+						continue;
+					}
 					$preparedCondition = implode(
 						', ',
 						array_map('\Up\Util\Database\Tables\Table::prepareString', $condition)
@@ -211,10 +219,13 @@ abstract class Table implements TableInterface
 				{
 					case '':
 						$where[] = "$fieldName=$preparedCondition";
+						break;
 					case 'in':
 						$where[] = "$fieldName IN ($preparedCondition)";
+						break;
 					case '%':
 						$where[] = "$fieldName LIKE $preparedCondition";
+						break;
 				} //up_item.id in (2, 4)
 			}
 		}
@@ -222,7 +233,7 @@ abstract class Table implements TableInterface
 		return implode(" $logicCondition ", $where);
 	}
 
-	private static function makeOrderBy($orderBy): string
+	private static function makeOrderBy($orderBy, $alias): string
 	{
 		$tableName = static::getTableName();
 		$orderByCondition = [];
@@ -232,7 +243,8 @@ abstract class Table implements TableInterface
 			{
 				throw new \RuntimeException('Error! Sorting directions can only be DESC or ASC');
 			}
-			$orderByCondition[] = "$tableName.$fieldName $direction";
+			$fieldName = $alias[$fieldName] ?? "$tableName.$fieldName";
+			$orderByCondition[] = "$fieldName $direction";
 		}
 
 		return implode(', ', $orderByCondition);

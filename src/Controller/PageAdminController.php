@@ -2,6 +2,7 @@
 
 namespace Up\Controller;
 
+use Up\Entity\ProductQuantity;
 use Up\Service\OrderService\OrderService;
 use Up\Service\ProductService\ProductService;
 use Up\Service\TagService\TagService;
@@ -87,10 +88,11 @@ class PageAdminController extends BaseController
 				$products = [];
 				foreach ($order->products as $product)
 				{
+					/** @var ProductQuantity $product */
 					$products[] = [
-						'itemId' => $product->id,
-						'quantities' => $product->quantity,
-						'price' => $product->price,
+						'itemId' => $product->info->id,
+						'quantities' => $product->getQuantity(),
+						'price' => $product->info->price,
 					];
 				}
 				$content[] = [

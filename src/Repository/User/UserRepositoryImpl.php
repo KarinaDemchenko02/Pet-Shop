@@ -4,72 +4,33 @@ namespace Up\Repository\User;
 
 use Up\Dto\UserAddingDto;
 use Up\Entity\User;
-use Up\Exceptions\Admin\Tag\TagNotChanged;
 use Up\Exceptions\User\UserAdding;
 use Up\Exceptions\User\UserNotFound;
 use Up\Util\Database\Query;
+use Up\Util\Database\Tables\UserTable;
 
 class UserRepositoryImpl implements UserRepository
 {
 
 	public static function getAll(): array
 	{
-		$query = Query::getInstance();
-		$sql = "select up_users.id, email, password, up_role.title as role, tel, name
-				from up_users inner join up_role on up_users.role_id = up_role.id;";
-
-		$result = $query->getQueryResult($sql);
-
-		$users = [];
-
-		while ($row = mysqli_fetch_assoc($result))
-		{
-			$users[$row['id']] = new User(
-				$row['id'], $row['name'], $row['tel'], $row['email'], $row['password'], $row['role']
-			);
-
-		}
-
-		return $users;
-
+		return self::createUserList(self::getUserList());
 	}
 
 	public static function getById(int $id): User
 	{
-		$query = Query::getInstance();
-		$sql = "select up_users.id, email, password, up_role.title as role, tel, name
-				from up_users inner join up_role on up_users.role_id = up_role.id
-				where up_users.id = {$id};";
-
-		$result = $query->getQueryResult($sql);
-
-		$row = mysqli_fetch_assoc($result);
-
-		return new User(
-			$row['id'], $row['name'], $row['tel'], $row['email'], $row['password'], $row['role']
-		);
+		return self::createUserList(self::getUserList(['AND', ['=user_id' => $id]]))[$id];
 	}
 
 	public static function getByEmail(string $email): ?User
 	{
-
-		$query = Query::getInstance();
-		$sql = "select up_users.id, up_users.email, up_users.password, up_role.title as role, up_users.tel, up_users.name
-				from up_users inner join up_role on up_users.role_id = up_role.id
-				where up_users.email = '{$email}'";
-
-		$result = $query->getQueryResult($sql);
-
-		$row = mysqli_fetch_assoc($result);
-
-		if (is_null($row))
+		$user = array_values(self::createUserList(self::getUserList(['AND', ['=email' => $email]])));
+		if (empty($user))
 		{
 			return null;
 		}
 
-		return new User(
-			$row['id'], $row['name'], $row['tel'], $row['email'], $row['password'], $row['role']
-		);
+		return $user[0];
 	}
 
 	/**
@@ -152,6 +113,35 @@ class UserRepositoryImpl implements UserRepository
 		}
 
 		return $columns;
+	}
 
+	public static function createUserEntity(array $row): User
+	{
+		return new User(
+			$row['user_id'],
+			$row['user_name'] ?? null,
+			$row['tel'] ?? null,
+			$row['email'] ?? null,
+			$row['password'] ?? null,
+			$row['user_role'] ?? null
+		);
+	}
+
+	private static function createUserList(\mysqli_result $result): array
+	{
+		$users = [];
+		while ($row = mysqli_fetch_assoc($result))
+		{
+			$users[$row['user_id']] = self::createUserEntity($row);
+		}
+
+		return $users;
+	}
+
+	private static function getUserList($where = []): \mysqli_result|bool
+	{
+		return UserTable::getList(['user_id' => 'id', 'user_name' => 'name', 'tel', 'email', 'password'],
+								  ['role' => ['user_role' => 'title']],
+			conditions:           $where);
 	}
 }

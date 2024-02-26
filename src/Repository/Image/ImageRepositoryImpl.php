@@ -4,26 +4,18 @@ namespace Up\Repository\Image;
 
 use Up\Entity\Image;
 use Up\Util\Database\Query;
+use Up\Util\Database\Tables\ImageTable;
 
 class ImageRepositoryImpl implements ImageRepository
 {
-	private const SELECT_SQL = "select id, path, item_id from up_image ";
-
 	public static function getById(int $id)
 	{
-		$query = Query::getInstance();
-		$sql = self::SELECT_SQL . " where id={$id}";
-		$result = $query->getQueryResult($sql);
-
-		return self::createImageList($result)[$id];
+		return self::createImageList(self::getImageList())[$id];
 	}
 
-	public static function getAll()
+	public static function getAll(): array
 	{
-		$query = Query::getInstance();
-		$result = $query->getQueryResult(self::SELECT_SQL);
-
-		return self::createImageList($result);
+		return self::createImageList(self::getImageList());
 	}
 
 	public static function delete($id)
@@ -38,9 +30,19 @@ class ImageRepositoryImpl implements ImageRepository
 		$images = [];
 		while ($row = mysqli_fetch_assoc($result))
 		{
-			$images[$row['id']] = new Image($row['id'], $row['path'], $row['item_id'], 'base');
+			$images[$row['id']] = self::createImageEntity($row);
 		}
 
 		return $images;
+	}
+
+	public static function createImageEntity($row): Image
+	{
+		return new Image($row['image_id'], $row['path'], $row['item_id'], 'base');
+	}
+
+	private static function getImageList($where = []): \mysqli_result|bool
+	{
+		return ImageTable::getList(['image_id' => 'id', 'path', 'item_id'], conditions: $where);
 	}
 }

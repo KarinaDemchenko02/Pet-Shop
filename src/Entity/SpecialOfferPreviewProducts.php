@@ -17,7 +17,7 @@ class SpecialOfferPreviewProducts implements Entity
 	{
 		if (!in_array($product, $this->products, true))
 		{
-			$this->products[] = $product;
+			$this->products[$product->id] = $product;
 		}
 	}
 

@@ -5,19 +5,19 @@ namespace Up\Entity;
 class User implements Entity
 {
 	public readonly int $id;
-	public readonly string $name;
-	public readonly string $phoneNumber;
-	public readonly string $email;
-	public readonly string $password;
-	public readonly string $role;
+	public readonly ?string $name;
+	public readonly ?string $phoneNumber;
+	public readonly ?string $email;
+	public readonly ?string $password;
+	public readonly ?string $role;
 
 	public function __construct(
 		int    $id,
-		string $name,
-		string $phoneNumber,
-		string $email,
-		string $password,
-		string $role
+		?string $name,
+		?string $phoneNumber,
+		?string $email,
+		?string $password,
+		?string $role
 	)
 	{
 		$this->id = $id;

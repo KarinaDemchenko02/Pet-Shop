@@ -4,41 +4,21 @@ namespace Up\Repository\Tag;
 
 use Up\Dto\Tag\TagChangingDto;
 use Up\Entity\Tag;
-use Up\Exceptions\Admin\Order\OrderNotChanged;
-use Up\Exceptions\Admin\Order\OrderNotDeleted;
 use Up\Exceptions\Admin\Tag\TagNotChanged;
 use Up\Util\Database\Query;
+use Up\Util\Database\Tables\TagTable;
 
 class TagRepositoryImpl implements TagRepository
 {
 
 	public static function getAll(): array
 	{
-		$query = Query::getInstance();
-		$sql = "select * from up_tags;";
-
-		$result = $query->getQueryResult($sql);
-
-		$tags = [];
-
-		while ($row = mysqli_fetch_assoc($result))
-		{
-			$tags[$row['id']] = new Tag($row['id'], $row['name']);
-		}
-
-		return $tags;
+		return self::createTagList(self::getTagList());
 	}
 
 	public static function getById(int $id): Tag
 	{
-		$query = Query::getInstance();
-		$sql = "select * from up_tags where id = {$id};";
-
-		$result = $query->getQueryResult($sql);
-
-		$row = mysqli_fetch_assoc($result);
-
-		return new Tag($row['id'], $row['name']);
+		return self::createTagList(self::getTagList(['AND', ['=tag_id' => $id]]))[$id];
 	}
 
 	public static function add(string $title): bool
@@ -62,6 +42,7 @@ class TagRepositoryImpl implements TagRepository
 		{
 			$columns[] = $column;
 		}
+
 		return $columns;
 	}
 
@@ -122,5 +103,26 @@ class TagRepositoryImpl implements TagRepository
 			$query->rollback();
 			throw new TagNotChanged();
 		}
+	}
+
+	public static function createTagEntity(array $row): Tag
+	{
+		return new Tag($row['id_tag'], $row['name_tag']);
+	}
+
+	private static function createTagList(\mysqli_result $result): array
+	{
+		$tags = [];
+		while ($row = mysqli_fetch_assoc($result))
+		{
+			$tags[$row['id_tag']] = self::createTagEntity($row);
+		}
+
+		return $tags;
+	}
+
+	private static function getTagList($where = []): \mysqli_result|bool
+	{
+		return TagTable::getList(['id_tag' => 'id', 'name_tag' => 'name'], conditions: $where);
 	}
 }

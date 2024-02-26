@@ -5,71 +5,53 @@ namespace Up\Repository\ShoppingSession;
 use Up\Entity\ShoppingSession;
 use Up\Repository\Product\ProductRepositoryImpl;
 use Up\Util\Database\Query;
+use Up\Util\Database\Tables\ShoppingSessionTable;
 
 class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
 {
-	private const SELECT_SQL = "select id, user_id, item_id, quantities ,created_at, updated_at
-				from up_shopping_session
-				left join up_shopping_session_item on id = up_shopping_session_item.shopping_session_id ";
-
 	public static function getById(int $id): ShoppingSession
 	{
-		$query = Query::getInstance();
-		$sql = self::SELECT_SQL . "where id = {$id}";
-
-		$result = $query->getQueryResult($sql);
-
-		return self::createShoppingSessionList($result);
+		return self::createShoppingSessionList(
+			self::getSpecialSessionList(['AND', ['=shopping_session_id' => $id]])
+		)[$id];
 	}
 
 	public static function getAll(): array
 	{
-		$query = Query::getInstance();
-
-		$result = $query->getQueryResult(self::SELECT_SQL);
-
-		return self::createShoppingSessionList($result);
+		return self::createShoppingSessionList(self::getSpecialSessionList());
 	}
 
 	public static function getByUser($id): ShoppingSession
 	{
-		$query = Query::getInstance();
-		$sql = self::SELECT_SQL . "where user_id = {$id};";
-
-		$result = $query->getQueryResult($sql);
-		$shoppingSession = self::createShoppingSessionList($result);
-		if (is_array($shoppingSession))
+		$shoppingSession = array_values(
+			self::createShoppingSessionList(self::getSpecialSessionList(['AND', ['=user_id' => $id]]))
+		);
+		if (empty($shoppingSession))
 		{
 			self::add($id, []);
+
 			return self::getByUser($id);
 		}
 
-		return $shoppingSession;
+		return $shoppingSession[0];
 	}
 
-	private static function createShoppingSessionList(\mysqli_result $result): array|ShoppingSession
+	private static function createShoppingSessionList(\mysqli_result $result): array
 	{
 		$shoppingSessions = [];
 		while ($row = mysqli_fetch_assoc($result))
 		{
-			if (!isset($shoppingSessions[$row['id']]))
+			if (!isset($shoppingSessions[$row['shopping_session_id']]))
 			{
-				$id = $row['id'];
-				$shoppingSessions[$id] = new ShoppingSession(
-					$id, $row['user_id'], []
-				);
+				$shoppingSessions[$row['shopping_session_id']] = self::createShoppingSessionEntity($row);
 			}
-			if (!is_null($row['item_id']))
+			if (!is_null($row['id']))
 			{
-				$shoppingSessions[$row['id']]->addProduct(
-					ProductRepositoryImpl::getById($row['item_id']),
+				$shoppingSessions[$row['shopping_session_id']]->addProduct(
+					ProductRepositoryImpl::createProductEntity($row),
 					$row['quantities']
 				);
 			}
-		}
-		if (count($shoppingSessions) === 1)
-		{
-			return $shoppingSessions[$id];
 		}
 
 		return $shoppingSessions;
@@ -158,4 +140,30 @@ class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
 		return $productIds;
 	}
 
+	public static function createShoppingSessionEntity(array $row): ShoppingSession
+	{
+		return new ShoppingSession(
+			$row['shopping_session_id'], $row['user_id'], []
+		);
+	}
+
+	private static function getSpecialSessionList($where = []): \mysqli_result|bool
+	{
+		return ShoppingSessionTable::getList([
+												 'shopping_session_id' => 'id',
+											 ], [
+												 'product' => [
+													 'quantities',
+													 'id',
+													 'name',
+													 'price',
+													 'is_active',
+												 ],
+												 'image' => [
+													 'image_id' => 'id',
+													 'path',
+												 ],
+												 'user' => ['user_id' => 'id'],
+											 ], conditions: $where);
+	}
 }

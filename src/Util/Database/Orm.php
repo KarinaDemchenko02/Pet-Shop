@@ -55,7 +55,7 @@ class Orm
 		$offset = '',
 		$joins = [],
 		$groupBy = ''
-	)
+	): \mysqli_result|bool
 	{
 		if (!is_string($columns))
 		{
@@ -90,13 +90,8 @@ class Orm
 		{
 			$query .= " OFFSET $offset";
 		}
-		$stmt = $this->db->query($query);
-		if ($error = $this->db->error)
-		{
-			throw new \RuntimeException($error);
-		}
 
-		return $stmt;
+		return $this->execute($query);
 	}
 
 	public function insert(string $table, array $data): int
@@ -105,13 +100,7 @@ class Orm
 		$values = implode(', ', array_map([$this, 'escapeString'], array_values($data)));
 		$query = "INSERT INTO $table ($columns) VALUES ($values)";
 
-		$result = $this->db->query($query);
-		if ($error = $this->db->error)
-		{
-			throw new \RuntimeException($error);
-		}
-
-		return $result;
+		return $this->execute($query);
 	}
 
 	public function update(string $table, array $data, string $where): int
@@ -125,29 +114,17 @@ class Orm
 		$columns = implode(', ', $columns);
 		$query = "UPDATE $table SET $columns WHERE $where";
 
-		$result = $this->db->query($query);
-		if ($error = $this->db->error)
-		{
-			throw new \RuntimeException($error);
-		}
-
-		return $result;
+		return $this->execute($query);
 	}
 
 	public function delete(string $table, string $where): int
 	{
 		$query = "DELETE FROM $table WHERE $where";
-		$result = $this->db->query($query);
 
-		if ($error = $this->db->error)
-		{
-			throw new \RuntimeException($error);
-		}
-
-		return $result;
+		return $this->execute($query);
 	}
 
-	public function execute($sql): void
+	public function executeMulti($sql): void
 	{
 		$this->db->multi_query($sql);
 		do
@@ -158,6 +135,17 @@ class Orm
 			}
 		}
 		while ($this->db->next_result());
+	}
+
+	public function execute($sql): \mysqli_result|bool
+	{
+		$result = $this->db->query($sql);
+		if ($error = $this->db->error)
+		{
+			throw new \RuntimeException($error);
+		}
+
+		return $result;
 	}
 
 	public function begin()
@@ -175,7 +163,7 @@ class Orm
 		$this->db->rollback();
 	}
 
-	private function escapeString($string)
+	public function escapeString($string)
 	{
 		if (!is_string($string))
 		{
@@ -183,5 +171,10 @@ class Orm
 		}
 
 		return "'{$this->db->real_escape_string($string)}'";
+	}
+
+	public function affectedRows(): int|string
+	{
+		return $this->db->affected_rows;
 	}
 }
