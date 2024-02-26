@@ -14,7 +14,7 @@
                     <path clip-rule="evenodd" d="M14.2 12.1143C13.3242 12.1143 12.6143 12.8242 12.6143 13.7C12.6143 14.5758 13.3242 15.2857 14.2 15.2857C15.0758 15.2857 15.7857 14.5758 15.7857 13.7C15.7857 12.8242 15.0758 12.1143 14.2 12.1143ZM10.5 13.7C10.5 11.6565 12.1565 10 14.2 10C16.2435 10 17.9 11.6565 17.9 13.7C17.9 15.7435 16.2435 17.4 14.2 17.4C12.1565 17.4 10.5 15.7435 10.5 13.7Z" fill="#1c7430" fill-rule="evenodd"/>
                 </svg>
             </button>
-            <form class="form__main-container" method="post" action="/logging/">
+            <form class="form__main-container" method="post" action="<?=$this->getVariable('destination') ?? '/logging/'?>">
                 <div class="form__input-container">
                     <div class="form__input-container form__container-name form__input-register">
                         <label class="form__label" for="name">ИМЯ</label>

@@ -40,6 +40,11 @@ final class Response implements Passable
 		return $this->data[$key] ?? null;
 	}
 
+	public function setRedirect(string $destination)
+	{
+			$this->data['redirect'] = $destination;
+	}
+
 	/**
 	 * @throws \JsonException
 	 */

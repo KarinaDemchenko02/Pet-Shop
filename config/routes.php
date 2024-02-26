@@ -43,6 +43,8 @@ Router::post('/product/:id/', new \Up\Controller\PageDetailController(), 'buyPro
 
 Router::get('/success/', new \Up\Controller\PageDetailController(), 'showModalSuccess');
 
+
+Router::post('/account/logging/', new \Up\Controller\PageAccountController(), 'signUpAction');
 Router::group(['preMiddleware' => ['isLogin']], [
 	Router::get('/account/', new \Up\Controller\PageAccountController(), 'indexAction'),
 	Router::patch('/account/edit/', new \Up\Controller\ChangeAccountController(), 'changeAction'),
