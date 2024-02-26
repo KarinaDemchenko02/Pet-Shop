@@ -4,8 +4,12 @@ namespace Up\Controller;
 
 use Up\Dto\Order\OrderAddingDto;
 use Up\Exceptions\Order\OrderNotCompleted;
+use Up\Http\Request;
+use Up\Http\Response;
+use Up\Http\Status;
 use Up\Repository\ShoppingSession\ShoppingSessionRepositoryImpl;
 use Up\Service\OrderService\OrderService;
+use Up\Util\Json;
 use Up\Util\Session;
 
 class OrderController extends Controller
@@ -36,13 +40,15 @@ class OrderController extends Controller
 		}
 	}
 
-	public function createOrder()
+	public function createOrder(Request $request): Response
 	{
+		$data = Json::decode(file_get_contents("php://input"));
+
 		$shoppingSession = Session::get('shoppingSession');
 		try
 		{
 			$orderDto = new OrderAddingDto(
-				$shoppingSession, 'Имя', 'Фамилия', 'Адрес',
+				$shoppingSession, $data['name'], $data['surname'], $data['address'],
 			);
 			OrderService::createOrder($orderDto);
 			if (!is_null($shoppingSession->id))
@@ -55,11 +61,12 @@ class OrderController extends Controller
 			{
 				Session::unset('shoppingSession');
 			}
-			header('Location: /success/');
 		}
 		catch (OrderNotCompleted)
 		{
 			echo "fail";
 		}
+
+		return new Response(Status::OK, ['result' => true]);
 	}
 }
