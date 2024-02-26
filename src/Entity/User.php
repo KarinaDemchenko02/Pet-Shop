@@ -10,6 +10,7 @@ class User implements Entity
 	public readonly ?string $email;
 	public readonly ?string $password;
 	public readonly ?string $role;
+	public readonly ?bool $isActive;
 
 	public function __construct(
 		int    $id,
@@ -17,7 +18,8 @@ class User implements Entity
 		?string $phoneNumber,
 		?string $email,
 		?string $password,
-		?string $role
+		?string $role,
+		?bool $isActive
 	)
 	{
 		$this->id = $id;
@@ -26,6 +28,7 @@ class User implements Entity
 		$this->email = $email;
 		$this->password = $password;
 		$this->role = $role;
+		$this->isActive = $isActive;
 	}
 
 }

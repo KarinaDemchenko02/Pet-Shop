@@ -123,7 +123,8 @@ class UserRepositoryImpl implements UserRepository
 			$row['tel'] ?? null,
 			$row['email'] ?? null,
 			$row['password'] ?? null,
-			$row['user_role'] ?? null
+			$row['user_role'] ?? null,
+			$row['user_is_active'] ?? null,
 		);
 	}
 
@@ -140,8 +141,17 @@ class UserRepositoryImpl implements UserRepository
 
 	private static function getUserList($where = []): \mysqli_result|bool
 	{
-		return UserTable::getList(['user_id' => 'id', 'user_name' => 'name', 'tel', 'email', 'password'],
-								  ['role' => ['user_role' => 'title']],
-			conditions:           $where);
+		return UserTable::getList(
+			[
+				'user_id' => 'id',
+				'user_name' => 'name',
+				'tel',
+				'email',
+				'password',
+				'user_is_active' => 'is_active',
+			],
+			['role' => ['user_role' => 'title']],
+			conditions: $where
+		);
 	}
 }

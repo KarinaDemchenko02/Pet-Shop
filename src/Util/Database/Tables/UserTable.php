@@ -2,6 +2,7 @@
 
 namespace Up\Util\Database\Tables;
 
+use Up\Util\Database\Fields\BooleanField;
 use Up\Util\Database\Fields\IntegerField;
 use Up\Util\Database\Fields\Reflection;
 use Up\Util\Database\Fields\Reference;
@@ -20,6 +21,7 @@ class UserTable extends Table
 			new Reference('role', new RoleTable, 'this.role_id=ref.id'),
 			new StringField('tel', isNullable: false),
 			new StringField('name'),
+			new BooleanField('is_active', false, true, true),
 			new Reflection('order', new OrderTable(), 'user')
 		];
 	}
@@ -27,5 +29,10 @@ class UserTable extends Table
 	public static function getTableName(): string
 	{
 		return 'up_users';
+	}
+
+	public static function delete(array $condition): int
+	{
+		throw new \RuntimeException("User cannot be deleted, only disabled");
 	}
 }
