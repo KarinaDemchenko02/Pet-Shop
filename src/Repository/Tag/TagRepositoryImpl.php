@@ -5,6 +5,7 @@ namespace Up\Repository\Tag;
 use Up\Dto\Tag\TagChangingDto;
 use Up\Entity\Tag;
 use Up\Exceptions\Admin\Tag\TagNotChanged;
+use Up\Util\Database\Orm;
 use Up\Util\Database\Query;
 use Up\Util\Database\Tables\TagTable;
 
@@ -21,14 +22,9 @@ class TagRepositoryImpl implements TagRepository
 		return self::createTagList(self::getTagList(['AND', ['=tag_id' => $id]]))[$id];
 	}
 
-	public static function add(string $title): bool
+	public static function add(string $title): void
 	{
-		$query = Query::getInstance();
-		$sql = "INSERT INTO up_tags (name) VALUES ('{$title}');";
-
-		$result = $query->getQueryResult($sql);
-
-		return true;
+		TagTable::add(['name' => $title]);
 	}
 
 	public static function getColumn(): array
@@ -46,27 +42,9 @@ class TagRepositoryImpl implements TagRepository
 		return $columns;
 	}
 
-	public static function delete(int $id)
+	public static function delete(int $id): void
 	{
-		/*$query = Query::getInstance();
-		try
-		{
-			$query->begin();
-			$deleteLinkOrderSQL = "DELETE FROM up_order_item WHERE order_id=$id";
-			$query->getQueryResult($deleteLinkOrderSQL);
-			$deleteOrderSQL = "DELETE FROM up_order WHERE id=$id";
-			$query->getQueryResult($deleteOrderSQL);
-			if (Query::affectedRows() === 0)
-			{
-				throw new OrderNotDeleted();
-			}
-			$query->commit();
-		}
-		catch (\Throwable)
-		{
-			$query->rollback();
-			throw new OrderNotDeleted();
-		}*/
+		TagTable::delete(['AND', ['id' => $id]]);
 	}
 
 	/**
@@ -74,33 +52,10 @@ class TagRepositoryImpl implements TagRepository
 	 */
 	public static function change(TagChangingDto $dto): void
 	{
-		$query = Query::getInstance();
-		try
+		$orm = Orm::getInstance();
+		TagTable::update(['name' => $dto->title], ['AND', ['id' => $dto->id]]);
+		if ($orm->affectedRows() === 0)
 		{
-			$query->begin();
-			$changeOrderSQL = "
-				UPDATE up_tags
-				SET name='{$dto->title}'
-				WHERE id={$dto->id}";
-			$query->getQueryResult($changeOrderSQL);
-
-			// $deleteItemLinkSQL = "DELETE FROM up_order_item WHERE item_id NOT IN ($itemIds)";
-			// $query->getQueryResult($deleteItemLinkSQL);
-			// foreach ($order->getProducts() as $item)
-			// {
-			// 	$addLinkToItemSQL = "INSERT IGNORE INTO up_order_item (order_id, item_id, quantities, price)
-			// 						VALUES ({$order->id}, {$item->info->id}, {$item->getQuantity()}, {$item->info->price})";
-			// 	$query->getQueryResult($addLinkToItemSQL);
-			// }
-			if ($query->affectedRows() === 0)
-			{
-				throw new TagNotChanged();
-			}
-			$query->commit();
-		}
-		catch (\Throwable|TagNotChanged)
-		{
-			$query->rollback();
 			throw new TagNotChanged();
 		}
 	}

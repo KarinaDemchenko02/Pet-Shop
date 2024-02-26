@@ -16,9 +16,10 @@ class ShoppingSessionTable extends Table
 		return [
 			new IntegerField('id', true, false, true),
 			new Reference('user', new UserTable, 'this.user_id=ref.id'),
+			new IntegerField('user_id', false, false),
 			new StringField('created_at', isDefaultExists: true),
 			new StringField('updated_at', isDefaultExists: true),
-			new Reflection('product', new ShoppingSessionItemTable(), 'shoppingSession')
+			new Reflection('product', new ShoppingSessionProductTable(), 'shoppingSession')
 		];
 	}
 

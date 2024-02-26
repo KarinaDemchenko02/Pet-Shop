@@ -52,9 +52,9 @@ class OrderService
 	/**
 	 * @throws OrderNotDeleted
 	 */
-	public static function deleteOrder(int $id): void
+	public static function disableOrder(int $id): void
 	{
-		OrderRepositoryImpl::delete($id);
+		OrderRepositoryImpl::disable($id);
 	}
 
 	/**

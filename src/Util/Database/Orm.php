@@ -94,11 +94,16 @@ class Orm
 		return $this->execute($query);
 	}
 
-	public function insert(string $table, array $data): int
+	public function insert(string $table, array $data, $isIgnore = false): int
 	{
+		$ignore = '';
+		if ($isIgnore)
+		{
+			$ignore = 'IGNORE ';
+		}
 		$columns = implode(', ', array_keys($data));
 		$values = implode(', ', array_map([$this, 'escapeString'], array_values($data)));
-		$query = "INSERT INTO $table ($columns) VALUES ($values)";
+		$query = "INSERT {$ignore}INTO $table ($columns) VALUES ($values)";
 
 		return $this->execute($query);
 	}
@@ -165,7 +170,7 @@ class Orm
 
 	public function escapeString($string)
 	{
-		if (!is_string($string))
+		if (!is_string($string) || $string === 'NULL')
 		{
 			return $string;
 		}
@@ -176,5 +181,10 @@ class Orm
 	public function affectedRows(): int|string
 	{
 		return $this->db->affected_rows;
+	}
+
+	public function last(): int
+	{
+		return $this->db->insert_id;
 	}
 }

@@ -13,7 +13,7 @@ class UserAddingDto implements Dto
 		public readonly string $email,
 		public readonly string $password,
 		public readonly string $phoneNumber,
-		public readonly string $roleTitle,
+		public readonly int $roleId,
 	){}
 
 	public static function from(Entity $entity): void

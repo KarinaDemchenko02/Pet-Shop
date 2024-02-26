@@ -13,12 +13,14 @@ use Up\Util\TemplateEngine\PageMainTemplateEngine;
 class AuthController extends BaseController
 {
 	private Auth $authService;
+
 	public function __construct()
 	{
 		Session::init();
 		$this->engine = new PageMainTemplateEngine();
 		$this->authService = new Auth();
 	}
+
 	public function authAction()
 	{
 		if (isset($_POST['logOut']))
@@ -47,6 +49,7 @@ class AuthController extends BaseController
 		catch (UserNotFound)
 		{
 			$this->errors[] = 'Неправильно введён Email';
+
 			return;
 		}
 
@@ -82,12 +85,7 @@ class AuthController extends BaseController
 	private function register(): void
 	{
 		$user = new UserAddingDto(
-			$_POST['name'],
-			$_POST['surname'],
-			$_POST['email'],
-			$_POST['password'],
-			$_POST['phone'],
-			'Пользователь',
+			$_POST['name'], $_POST['surname'], $_POST['email'], $_POST['password'], $_POST['phone'], 2,
 		);
 
 		if (!$this->authService->registerUser($user))

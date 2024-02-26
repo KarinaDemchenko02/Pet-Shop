@@ -16,8 +16,10 @@ class OrderTable extends Table
 		return [
 			new IntegerField('id', true, false, true),
 			new Reference('user', new UserTable, 'this.user_id=ref.id', isNullable: true),
+			new IntegerField('user_id', false, false),
 			new StringField('delivery_address', isNullable: false),
 			new Reference('status', new StatusTable, 'this.status_id=ref.id', isNullable: false),
+			new IntegerField('status_id', false, false),
 			new StringField('created_at', isDefaultExists: true),
 			new StringField('edited_at', isDefaultExists: true),
 			new StringField('name', isNullable: true),

@@ -77,7 +77,7 @@ class OrderAdminController extends BaseController
 		$response = [];
 		try
 		{
-			OrderService::deleteOrder((int)$data['id']);
+			OrderService::disableOrder((int)$data['id']);
 			$result = true;
 		}
 		catch (OrderNotDeleted)

@@ -61,7 +61,7 @@ class Auth
 			$user->email,
 			$password,
 			$user->phoneNumber,
-			$user->roleTitle
+			$user->roleId,
 		);
 		try
 		{

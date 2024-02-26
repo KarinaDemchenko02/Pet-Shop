@@ -3,7 +3,6 @@
 namespace Up\Repository\Image;
 
 use Up\Entity\Image;
-use Up\Util\Database\Query;
 use Up\Util\Database\Tables\ImageTable;
 
 class ImageRepositoryImpl implements ImageRepository
@@ -18,11 +17,14 @@ class ImageRepositoryImpl implements ImageRepository
 		return self::createImageList(self::getImageList());
 	}
 
-	public static function delete($id)
+	public static function add($path, $productId): void
 	{
-		$query = Query::getInstance();
-		$deleteImageSQL = "DELETE FROM up_image WHERE id={$id}";
-		$query->getQueryResult($deleteImageSQL);
+		ImageTable::add(['path' => $path, 'item_id' => $productId]);
+	}
+
+	public static function delete($id): void
+	{
+		ImageTable::delete(['AND', '=id' => $id]);
 	}
 
 	private static function createImageList(\mysqli_result $result): array

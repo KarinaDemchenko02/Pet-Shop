@@ -18,6 +18,7 @@ class UserTable extends Table
 			new IntegerField('id', true, false, true),
 			new StringField('email', isNullable: false),
 			new StringField('password'),
+			new IntegerField('role_id', false, false),
 			new Reference('role', new RoleTable, 'this.role_id=ref.id'),
 			new StringField('tel', isNullable: false),
 			new StringField('name'),
