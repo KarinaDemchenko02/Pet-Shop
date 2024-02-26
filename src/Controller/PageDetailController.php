@@ -56,7 +56,7 @@ class PageDetailController extends Controller
 				), $request->getDataByKey('name'),  $request->getDataByKey('surname'), $request->getDataByKey('address'),
 			);
 			OrderService::createOrder($orderDto);
-			return new Response(Status::OK, ['redirect' => '/success/']);
+			return new Response(Status::OK, ['result' => true]);
 		}
 		catch (OrderNotCompleted)
 		{
