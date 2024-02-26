@@ -37,14 +37,12 @@ class OrderController extends Controller
 
 	public function createOrder(Request $request): Response
 	{
+		$data = $request->getData();
 		$shoppingSession = Session::get('shoppingSession');
 		try
 		{
 			$orderDto = new OrderAddingDto(
-				$shoppingSession,
-				$request->getDataByKey('name'),
-				$request->getDataByKey('surname'),
-				$request->getDataByKey('address'),
+				$shoppingSession, $data['name'], $data['surname'], $data['address'],
 			);
 			OrderService::createOrder($orderDto);
 			if (!is_null($shoppingSession->id))
@@ -57,7 +55,7 @@ class OrderController extends Controller
 			{
 				Session::unset('shoppingSession');
 			}
-			return new Response(Status::CREATED, ['redirect' => '/success/']);
+			return new Response(Status::CREATED, ['result' => true, /*'redirect' => '/success/'*/]);
 		}
 		catch (OrderNotCompleted)
 		{
