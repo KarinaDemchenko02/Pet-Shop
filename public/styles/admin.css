@@ -158,6 +158,10 @@ td {
 	display: block;
 }
 
+.form__button_add {
+	margin-bottom: 10px;
+}
+
 .open {
 	display: block;
 }
@@ -250,6 +254,15 @@ td {
 	font-size: 15px;
 	line-height: 15px;
 	color: #000000;
+}
+
+.form__button:disabled {
+	opacity: 0.5;
+	pointer-events: none;
+}
+
+.form__button:disabled .spinner-action {
+	display: inline-block;
 }
 
 .form__close {

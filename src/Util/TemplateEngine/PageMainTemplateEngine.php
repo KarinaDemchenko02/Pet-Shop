@@ -16,17 +16,34 @@ class PageMainTemplateEngine implements TemplateEngine
 		$footer = new Template('components/main/footer');
 		$header = new Template('components/main/header');
 		$form = new Template('components/main/formAuthorization');
-		$basket = $this->getBasketTemplate(Session::get('shoppingSession')->getProducts());
 		$pagination = new Template('components/main/pagination', [
 			'products' => $products,
 			'nextPage' => $nextPage
 		]);
 
+		$basketItems = Session::get('shoppingSession')->getProducts();
+
+		$basketItemsTemplates = [];
+		foreach ($basketItems as $item)
+		{
+			$basketItemsTemplates[] = [
+				'title' => $item->info->title,
+				'price' => $item->info->price,
+				'id' => $item->info->id,
+				'imagePath' => $item->info->imagePath,
+				'quantity' => $item->getQuantity(),
+			];
+		}
+
+		$basketModal = new Template('components/main/basket', ['items' => $basketItemsTemplates]);
+
 		$mainPageTemplate = new Template('page/main/main', [
 			'tag' => $tags,
 			'products' => $products,
 			'form' => $form,
-			'basket' => $basket,
+			'basket' => $basketModal,
+			'isLogIn' => $isLogIn,
+			'basketItem' => $basketItemsTemplates,
 			'pagination' => $pagination
 		],);
 
@@ -37,32 +54,4 @@ class PageMainTemplateEngine implements TemplateEngine
 		]));
 	}
 
-	public function getHeaderTemplate(bool $isLogIn): Template
-	{
-		if ($isLogIn)
-		{
-			$authSection = new Template('components/main/logOut');
-		}
-		else
-		{
-			$authSection = new Template('components/main/logIn');
-		}
-		return new Template('components/main/header', ['authSection' => $authSection]);
-	}
-
-	public function getBasketTemplate(array $basketItems): Template
-	{
-		$basketItemsTemplates = [];
-		foreach ($basketItems as $item)
-		{
-			$basketItemsTemplates[] = new Template('components/main/basketItem', [
-				'title' => $item->info->title,
-				'price' => $item->info->price,
-				'id' => $item->info->id,
-				'imagePath' => $item->info->imagePath,
-				'quantity' => $item->getQuantity(),
-			]);
-		}
-		return new Template('components/main/basket', ['items' => $basketItemsTemplates]);
-	}
 }

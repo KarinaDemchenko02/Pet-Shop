@@ -22,19 +22,17 @@ export class ProductItem
 					<a href="/product/${this.id}/">
 						<img class="product__images" src="${this.imagePath}" alt="product">
 					</a>
-					<div class="product__bottom-content">
-						<div class="product__left-content">
+					<div  class="product__bottom-content" id="bottom${this.id}">
+						<div class="product__left-content" id="product${this.id}">
 							<div class="product__details">
 								<h2 class="product__heading">${this.title}</h2>
 								<p class="product__price">${this.price} ₽</p>
 							</div>
-							<form method="post" action="/addToBasket/${this.id}/">
-								<button class="product__buy">
-									<i class="material-icons product__icon-buy">add_shopping_cart</i>
-								</button>
-							</form>
+							<button class="product__buy">
+								<i class="material-icons product__icon-buy">add_shopping_cart</i>
+							</button>
 						</div>
-						<div class="product__right-content">
+						<div class="product__right-content" id="content${this.id}">
 							<div class="product__right-done">
 								<i class="material-icons product__done-icon">done</i>
 							</div>

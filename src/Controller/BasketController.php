@@ -21,7 +21,7 @@ class BasketController extends Controller
 		{
 			ShoppingSessionRepositoryImpl::change($shoppingSession);
 		}
-		return new Response(Status::OK, ['redirect' => '/']);
+		return new Response(Status::OK, ['result' => true]);
 	}
 
 	public function deleteProductAction(Request $request): Response
@@ -34,6 +34,6 @@ class BasketController extends Controller
 		{
 			ShoppingSessionRepositoryImpl::change($shoppingSession);
 		}
-		return new Response(Status::OK, ['redirect' => '/']);
+		return new Response(Status::OK, ['result' => true]);
 	}
 }

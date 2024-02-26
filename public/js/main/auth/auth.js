@@ -2,11 +2,13 @@ export class Auth
 {
 	attachToNodeId = '';
 	rootNode;
+	login;
 
-	constructor({ attachToNodeId = '' })
+	constructor({ attachToNodeId = '' , login})
 	{
 		if (attachToNodeId === '')
 		{
+			new basketItem
 			throw new Error('attachToNodeId must be a filled string.');
 		}
 
@@ -17,13 +19,14 @@ export class Auth
 		}
 
 		this.rootNode = rootNode;
+		this.isLogin = login;
 	}
 
 	handleLogInButtonSubmit()
 	{
 		const form = document.querySelector('.form');
-		const email = document.getElementById('email').value;
-		const password = document.getElementById('password').value;
+		let email = document.getElementById('email').value;
+		let password = document.getElementById('password').value;
 
 		const logIn = document.getElementById('logIn');
 		logIn.disabled = true;
@@ -49,11 +52,12 @@ export class Auth
 			.then((response) => {
 				if (response.result)
 				{
+					document.getElementById('email').value = '';
+					document.getElementById('password').value = '';
+
 					form.classList.remove('open');
 					form.style.display = 'none';
 					logIn.disabled = false;
-
-					localStorage.setItem('LogIn', 'true');
 
 					this.renderLogOut();
 				}
@@ -91,7 +95,6 @@ export class Auth
 			.then((response) => {
 				if (response.result)
 				{
-					localStorage.setItem('LogIn', 'false');
 					this.renderLogIn();
 				}
 				else
@@ -106,11 +109,11 @@ export class Auth
 
 	handleRegisterButtonSubmit()
 	{
-		const name = document.getElementById('name').value;
-		const surname = document.getElementById('surname').value;
-		const phone = document.getElementById('phone').value;
-		const email = document.getElementById('email').value;
-		const password = document.getElementById('password').value;
+		let name = document.getElementById('name').value;
+		let surname = document.getElementById('surname').value;
+		let phone = document.getElementById('phone').value;
+		let email = document.getElementById('email').value;
+		let password = document.getElementById('password').value;
 
 		const form = document.querySelector('.form');
 		const register = document.getElementById('register');
@@ -140,6 +143,12 @@ export class Auth
 			.then((response) => {
 				if (response.result)
 				{
+					document.getElementById('name').value = '';
+					document.getElementById('surname').value = '';
+					document.getElementById('phone').value = '';
+					document.getElementById('email').value = '';
+					document.getElementById('password').value = '';
+
 					form.classList.remove('open');
 					form.style.display = 'none';
 
@@ -183,15 +192,25 @@ export class Auth
 		const buttonLogIn = document.querySelector('.form__button');
 		const buttonRegister = document.querySelector('.form__button-register');
 
-		if (localStorage.getItem('isRegister') === 'false') {
+		let name = document.getElementById('name');
+		let surname = document.getElementById('surname');
+		let phone = document.getElementById('phone');
+		let email = document.getElementById('email');
+		let password = document.getElementById('password');
+
+		name.value = '';
+		surname.value = '';
+		phone.value = '';
+		email.value = '';
+		password.value = '';
+
+		if (buttonCreateAccount.textContent === 'Создать аккаунт') {
 			inputsRegister.forEach(input => {
 				input.style.display = 'block';
 				buttonRegister.style.display = 'block';
 				buttonLogIn.style.display = 'none';
 
 				buttonCreateAccount.textContent = 'Войти';
-
-				localStorage.setItem('isRegister', 'true');
 			})
 		} else {
 			inputsRegister.forEach(input => {
@@ -200,8 +219,6 @@ export class Auth
 				buttonLogIn.style.display = 'block';
 
 				buttonCreateAccount.textContent = 'Создать аккаунт';
-
-				localStorage.setItem('isRegister', 'false');
 			})
 		}
 
@@ -266,7 +283,7 @@ export class Auth
 				</div>
 			</div>
 			`;
-		localStorage.setItem('isRegister', 'false');
+
 		const formClose = document.querySelector('.form__button-close');
 		formClose.addEventListener('click', this.handleCloseForm.bind(this));
 
@@ -305,10 +322,10 @@ export class Auth
 			this.handleRegisterButtonSubmit();
 		}.bind(this));
 
-		if (localStorage.getItem('LogIn') === 'false') {
-			this.renderLogIn();
-		} else {
+		if (this.isLogin === '1') {
 			this.renderLogOut();
+		} else {
+			this.renderLogIn();
 		}
 
 		logIn.append(spinner);
