@@ -14,8 +14,8 @@ class OrderProductTable extends Table
 	{
 		return [
 			new Reference('order', new OrderTable(), 'this.order_id=ref.id'),
-			new Reference('product', new ProductTable(), 'this.item_id=ref.id'),
-			new IntegerField('item_id', false, false),
+			new Reference('product', new ProductTable(), 'this.product_id=ref.id'),
+			new IntegerField('product_id', false, false),
 			new IntegerField('order_id', false, false),
 			new IntegerField('quantities', isNullable: false),
 			new FloatField('price', isNullable: false),
@@ -24,6 +24,6 @@ class OrderProductTable extends Table
 
 	public static function getTableName(): string
 	{
-		return 'up_order_item';
+		return 'up_order_product';
 	}
 }

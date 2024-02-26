@@ -14,20 +14,13 @@ class TagTable extends Table
 	{
 		return [
 			new IntegerField('id', true, false, true),
-			new StringField('name', false, false),
-			new Reflection('product', new ProductTagTable, 'tag')
+			new StringField('title', false, false),
+			new Reflection('product', new ProductTagTable(), 'tag'),
 		];
 	}
 
 	public static function getTableName(): string
 	{
 		return 'up_tags';
-	}
-
-	public static function getById($id): \mysqli_result
-	{
-		$tableName = self::getTableName();
-
-		return Orm::getInstance()->select(static::getTableName(), static::getAllColumns(), "$tableName.id=$id");
 	}
 }

@@ -37,5 +37,4 @@ class OrderTable extends Table
 	{
 		throw new \RuntimeException("The order cannot be deleted, only the status changed to cancelled");
 	}
-
 }

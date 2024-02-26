@@ -12,15 +12,15 @@ class ProductTagTable extends Table
 	public static function getMap(): array
 	{
 		return [
-			new IntegerField('id_tag', true, false),
-			new IntegerField('id_item', true, false),
-			new Reference('tag', new TagTable(), 'this.id_tag=ref.id'),
-			new Reference('product', new ProductTable(), 'this.id_item=ref.id'),
+			new IntegerField('tag_id', true, false),
+			new IntegerField('product_id', true, false),
+			new Reference('tag', new TagTable(), 'this.tag_id=ref.id'),
+			new Reference('product', new ProductTable(), 'this.product_id=ref.id'),
 		];
 	}
 
 	public static function getTableName(): string
 	{
-		return 'up_item_tag';
+		return 'up_product_tag';
 	}
 }

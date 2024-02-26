@@ -74,7 +74,7 @@ class OrderRepositoryImpl implements OrderRepository
 				OrderProductTable::add(
 					[
 						'order_id' => $last,
-						'item_id' => $product->info->id,
+						'product_id' => $product->info->id,
 						'quantities' => $product->getQuantity(),
 						'price' => $product->info->price,
 					]
@@ -85,7 +85,6 @@ class OrderRepositoryImpl implements OrderRepository
 		catch (\Throwable $e)
 		{
 			$orm->rollback();
-			throw $e;
 			throw new OrderNotCompleted();
 		}
 	}

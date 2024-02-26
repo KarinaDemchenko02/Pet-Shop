@@ -13,7 +13,7 @@ class CharacteristicProductTable extends Table
 	public static function getMap(): array
 	{
 		return [
-			new Reference('product', new ProductTable(), "this.item_id=ref.id"),
+			new Reference('product', new ProductTable(), "this.product_id=ref.id"),
 			new Reference('characteristic', new CharacteristicTable(), 'this.characteristic_id=ref.id'),
 			new StringField('value', isNullable: false),
 		];
@@ -21,6 +21,6 @@ class CharacteristicProductTable extends Table
 
 	public static function getTableName(): string
 	{
-		return "up_item_characteristic";
+		return "up_product_characteristic";
 	}
 }

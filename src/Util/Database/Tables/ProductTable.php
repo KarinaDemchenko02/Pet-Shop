@@ -33,7 +33,7 @@ class ProductTable extends Table
 
 	public static function getTableName(): string
 	{
-		return 'up_item';
+		return 'up_product';
 	}
 
 	public static function delete(array $condition): int

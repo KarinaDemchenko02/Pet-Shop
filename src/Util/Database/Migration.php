@@ -2,6 +2,8 @@
 
 namespace Up\Util\Database;
 
+use Up\Util\Configuration;
+
 class Migration
 {
 	protected const  migrationPattern = "/\d{4}_(\d{2}_){4}/";
@@ -58,6 +60,11 @@ class Migration
 				continue;
 			}
 			$migration = file_get_contents($dir . '/' . $file);
+			if(str_contains($migration, '_TABLE_NAME_'))
+			{
+				$dbName = Configuration::getInstance()->option('DB_NAME');
+				$migration =  str_replace('_TABLE_NAME_', "'$dbName'", $migration);
+			}
 			$orm->executeMulti($migration);
 			$lastFile = $file;
 		}

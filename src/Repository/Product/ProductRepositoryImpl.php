@@ -114,9 +114,12 @@ class ProductRepositoryImpl implements ProductRepository
 			);
 			$lastItem = $orm->last();
 			ImageRepositoryImpl::add($productAddingDto->imagePath, $lastItem);
-			TagRepositoryImpl::add($productAddingDto->tag);
+			foreach ($productAddingDto->tags as $tag)
+			{
+				TagRepositoryImpl::add($tag);
+			}
 			$lastTag = $orm->last();
-			ProductTagTable::add(['id_item' => $lastItem, 'id_tag' => $lastTag]);
+			ProductTagTable::add(['id_item' => $lastItem, 'tag_id' => $lastTag]);
 			$orm->commit();
 
 			return $lastItem;
@@ -184,11 +187,11 @@ class ProductRepositoryImpl implements ProductRepository
 			{
 				throw new ProductNotChanged();
 			}
-			/*$deleteProductSQL = "DELETE FROM up_item_tag WHERE id_item={$productChangeDto->id} AND id_tag NOT IN ({$strTags})";
+			/*$deleteProductSQL = "DELETE FROM up_item_tag WHERE id_item={$productChangeDto->id} AND tag_id NOT IN ({$strTags})";
 			QueryResult::getQueryResult($deleteProductSQL);
 			foreach ($tags as $tag)
 			{
-				$addLinkToTagSQL = "INSERT IGNORE INTO up_item_tag (id_item, id_tag) VALUES ({$id}, {$tag->id})";
+				$addLinkToTagSQL = "INSERT IGNORE INTO up_item_tag (id_item, tag_id) VALUES ({$id}, {$tag->id})";
 				QueryResult::getQueryResult($addLinkToTagSQL);
 			}*/
 			$orm->commit();
@@ -206,13 +209,13 @@ class ProductRepositoryImpl implements ProductRepository
 			$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
 			$offset = $limit * ($page - 1);
 
-			$sql = "select up_item.id, up_item.name, description, price, id_tag, is_active,
+			$sql = "select up_item.id, up_item.name, description, price, tag_id, is_active,
 					added_at, edited_at, up_image.id as image_id, path, up_item_special_offer.special_offer_id, priority
 					from up_item
 					left join up_image on up_item.id = item_id
 					left join up_item_tag on up_item.id = up_item_tag.id_item
 					left join up_item_special_offer on up_item_special_offer.item_id = up_item.id
-					WHERE id_tag = {$tagId} AND up_item.is_active = 1
+					WHERE tag_id = {$tagId} AND up_item.is_active = 1
 					ORDER BY priority
 					LIMIT {$limit} OFFSET {$offset}";
 
@@ -227,8 +230,8 @@ class ProductRepositoryImpl implements ProductRepository
 		$offset = $limit * ($page - 1);
 
 		$result = ProductTable::getList(['id'],
-			selectedRelatedColumns:     ['tag' => ['id_tag' => 'id']],
-			conditions:                 ['AND', ['=is_active' => 1, 'in=id_tag' => $tags]],
+			selectedRelatedColumns:     ['tag' => ['tag_id' => 'id']],
+			conditions:                 ['AND', ['=is_active' => 1, 'in=tag_id' => $tags]],
 			orderBy:                    ['priority' => 'ASC'],
 			limit:                      $limit,
 			offset:                     $offset);
@@ -251,7 +254,7 @@ class ProductRepositoryImpl implements ProductRepository
 			{
 				$products[$row['id']] = self::createProductEntity($row);
 			}
-			if (isset($row['id_tag']) && !is_null($row['id_tag']))
+			if (isset($row['tag_id']) && !is_null($row['tag_id']))
 			{
 				$products[$row['id']]->addTag(TagRepositoryImpl::createTagEntity($row));
 			}
@@ -368,7 +371,7 @@ class ProductRepositoryImpl implements ProductRepository
 									 ],
 									 [
 										 'image' => ['image_id' => 'id', 'path'],
-										 'tag' => ['id_tag' => 'id', 'name_tag' => 'name'],
+										 'tag' => ['tag_id' => 'id', 'tag_title' => 'title'],
 										 'specialOffer' => [
 											 'special_offer_id' => 'id',
 											 'special_offer_title' => 'title',

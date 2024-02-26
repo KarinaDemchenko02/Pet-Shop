@@ -21,7 +21,7 @@ class ImageRepositoryImpl implements ImageRepository
 
 	public static function add($path, $productId): void
 	{
-		ImageTable::add(['path' => $path, 'item_id' => $productId]);
+		ImageTable::add(['path' => $path, 'product_id' => $productId]);
 	}
 
 	/**
@@ -30,7 +30,7 @@ class ImageRepositoryImpl implements ImageRepository
 	public static function change(string $imagePath, int $id): void
 	{
 		$orm = Orm::getInstance();
-		ImageTable::update(['path' => $imagePath], ['AND', ['=item_id' => $id]]);
+		ImageTable::update(['path' => $imagePath], ['AND', ['=product_id' => $id]]);
 		if ($orm->affectedRows() === 0)
 		{
 			throw new ImageNotAdd();
@@ -55,11 +55,11 @@ class ImageRepositoryImpl implements ImageRepository
 
 	public static function createImageEntity($row): Image
 	{
-		return new Image($row['image_id'], $row['path'], $row['item_id'], 'base');
+		return new Image($row['image_id'], $row['path'], $row['product_id'], 'base');
 	}
 
 	private static function getImageList($where = []): \mysqli_result|bool
 	{
-		return ImageTable::getList(['image_id' => 'id', 'path', 'item_id'], conditions: $where);
+		return ImageTable::getList(['image_id' => 'id', 'path', 'product_id'], conditions: $where);
 	}
 }

@@ -24,7 +24,7 @@ class TagRepositoryImpl implements TagRepository
 
 	public static function add(string $title): void
 	{
-		TagTable::add(['name' => $title]);
+		TagTable::add(['title' => $title]);
 	}
 
 	public static function getColumn(): array
@@ -53,7 +53,7 @@ class TagRepositoryImpl implements TagRepository
 	public static function change(TagChangingDto $dto): void
 	{
 		$orm = Orm::getInstance();
-		TagTable::update(['name' => $dto->title], ['AND', ['id' => $dto->id]]);
+		TagTable::update(['title' => $dto->title], ['AND', ['id' => $dto->id]]);
 		if ($orm->affectedRows() === 0)
 		{
 			throw new TagNotChanged();
@@ -62,7 +62,7 @@ class TagRepositoryImpl implements TagRepository
 
 	public static function createTagEntity(array $row): Tag
 	{
-		return new Tag($row['id_tag'], $row['name_tag']);
+		return new Tag($row['tag_id'], $row['tag_title']);
 	}
 
 	private static function createTagList(\mysqli_result $result): array
@@ -70,7 +70,7 @@ class TagRepositoryImpl implements TagRepository
 		$tags = [];
 		while ($row = mysqli_fetch_assoc($result))
 		{
-			$tags[$row['id_tag']] = self::createTagEntity($row);
+			$tags[$row['tag_id']] = self::createTagEntity($row);
 		}
 
 		return $tags;
@@ -78,6 +78,6 @@ class TagRepositoryImpl implements TagRepository
 
 	private static function getTagList($where = []): \mysqli_result|bool
 	{
-		return TagTable::getList(['id_tag' => 'id', 'name_tag' => 'name'], conditions: $where);
+		return TagTable::getList(['tag_id' => 'id', 'tag_title' => 'title'], conditions: $where);
 	}
 }

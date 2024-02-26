@@ -39,7 +39,7 @@ class Product implements Entity
 		$this->tags = $tag;
 		$this->isActive = $isActive;
 		$this->addedAt = !is_null($addedAt) ? strtotime($addedAt) : null;
-		$this->editedAt = !is_null($addedAt) ? strtotime($addedAt) : null;
+		$this->editedAt = !is_null($addedAt) ? strtotime($editedAt) : null;
 		$this->imagePath = $imagePath;
 		$this->priority = $priority;
 		$this->specialOffer = $specialOffer;

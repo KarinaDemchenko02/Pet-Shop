@@ -73,7 +73,7 @@ class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
 			{
 				ShoppingSessionProductTable::add(
 					[
-						'item_id' => $product->info->id,
+						'product_id' => $product->info->id,
 						'shopping_session_id' => $last,
 						'quantities' => $product->getQuantity(),
 					]
@@ -102,7 +102,7 @@ class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
 					'AND',
 					[
 						'shopping_session_id' => $shoppingSession->id,
-						'!in=item_id' => self::getProductIds($shoppingSession->getProducts()),
+						'!in=product_id' => self::getProductIds($shoppingSession->getProducts()),
 					],
 				]
 			);
@@ -110,7 +110,7 @@ class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
 			{
 				ShoppingSessionProductTable::add(
 					[
-						'item_id' => $item->info->id,
+						'product_id' => $item->info->id,
 						'shopping_session_id' => $shoppingSession->id,
 						'quantities' => $item->getQuantity(),
 					],

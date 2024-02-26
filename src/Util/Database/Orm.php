@@ -113,7 +113,7 @@ class Orm
 		$columns = [];
 		foreach ($data as $column => $value)
 		{
-			$value = $this->escapeString($value);
+			$value = $this->	escapeString($value);
 			$columns[] = "$column=$value";
 		}
 		$columns = implode(', ', $columns);

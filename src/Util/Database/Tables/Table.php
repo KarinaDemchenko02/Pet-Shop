@@ -235,7 +235,7 @@ abstract class Table implements TableInterface
 					case '%':
 						$where[] = "$fieldName {$not}LIKE $preparedCondition";
 						break;
-				} //up_item.id in (2, 4)
+				}
 			}
 		}
 

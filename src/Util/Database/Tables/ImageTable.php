@@ -15,8 +15,8 @@ class ImageTable extends Table
 		return [
 			new IntegerField('id', true, false, true),
 			new StringField('path', false, false, false),
-			new IntegerField('item_id', false, false),
-			new Reference('product', new ProductTable, 'this.item_id=ref.id')
+			new IntegerField('product_id', false, false),
+			new Reference('product', new ProductTable, 'this.product_id=ref.id')
 		];
 	}
 
