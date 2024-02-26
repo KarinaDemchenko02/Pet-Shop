@@ -10,7 +10,6 @@ use Up\Service\ProductService\ProductService;
 use Up\Service\TagService\TagService;
 use Up\Service\UserService\UserService;
 use Up\Util\TemplateEngine\PageAdminTemplateEngine;
-use Up\Util\Upload;
 
 class PageAdminController extends Controller
 {
@@ -18,11 +17,6 @@ class PageAdminController extends Controller
 	{
 		$this->engine = new PageAdminTemplateEngine();
 	}
-
-	/*public function indexAction(Request $request)
-	{
-			$this->logInAction();
-	}*/
 
 	public function logInAction(Request $request): Response
 	{

@@ -59,7 +59,7 @@ class PageMainController extends Controller
 			'products' => $content,
 			'tag' => $tags,
 			'nextPage' => ProductService::getAllProducts($page + 1),
-			'isLogIn' => (bool)$request->getDataByKey('user'),
+			'isLogIn' => (bool)$request->getDataByKey('email'),
 			]);
 
 		return new Response(Status::OK, ['template' => $template]);

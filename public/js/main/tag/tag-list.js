@@ -59,7 +59,6 @@ export class TagList
 			const spinner = document.querySelector('.spinner-product');
 			spinner.classList.add('disabled');
 
-
 			fetch(
 				`/tags-json/?tag=${item.id}`,
 				{
@@ -85,7 +84,7 @@ export class TagList
 					spinner.classList.remove('disabled');
 				})
 				.catch((error) => {
-					console.error('Error while deleting item.');
+					console.error('Error while filter tag.', error);
 					const spinner = document.querySelector('.spinner-product');
 					spinner.classList.remove('disabled');
 				})

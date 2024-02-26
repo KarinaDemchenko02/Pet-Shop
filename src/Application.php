@@ -6,6 +6,7 @@ use Up\Entity\ShoppingSession;
 use Up\Http\Request;
 use Up\Http\Response;
 use Up\Routing\Router;
+use Up\Util\Middleware\PreMiddleware\RequiredLogin;
 use Up\Util\Session;
 
 class Application
@@ -19,9 +20,11 @@ class Application
 		'isLogin' => \Up\Util\Middleware\PreMiddleware\IsLogin::class,
 		'isAdmin' => \Up\Util\Middleware\PreMiddleware\IsAdmin::class,
 		'isNotLogIn' => \Up\Util\Middleware\PreMiddleware\IsNotLogIn::class,
+		'requiredLogin' => \Up\Util\Middleware\PreMiddleware\RequiredLogin::class,
 	];
 	private array $middlewarePriority = [
 		\Up\Util\Middleware\PreMiddleware\IsLogin::class,
+		\Up\Util\Middleware\PreMiddleware\RequiredLogin::class,
 		\Up\Util\Middleware\PreMiddleware\IsAdmin::class,
 		\Up\Util\Middleware\PreMiddleware\IsNotLogIn::class,
 	];
@@ -52,7 +55,7 @@ class Application
 
 	public function run(): void
 	{
-		//Util\Database\Migration::migrate();
+		Util\Database\Migration::migrate();
 
 		$this->compressImages();
 
@@ -98,20 +101,10 @@ class Application
 	private function initSession(): void
 	{
 		Session::init();
-		$user = Session::get('user');
 		$shoppingSession = Session::get('shoppingSession');
-		if (!isset($shoppingSession) && is_null($user))
+		if (!isset($shoppingSession))
 		{
 			Session::set('shoppingSession', new ShoppingSession(null, null, []));
 		}
 	}
-
-	// private function setHeaders(): void
-	// {
-	// 	header("Access-Control-Allow-Origin: /");
-	// 	/*header("Content-Type: application/json; charset=UTF-8");*/
-	// 	header("Access-Control-Allow-Methods: POST");
-	// 	header("Access-Control-Max-Age: 3600");
-	// 	header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
-	// }
 }

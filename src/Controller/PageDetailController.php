@@ -27,6 +27,8 @@ class PageDetailController extends Controller
 	{
 		$id = $request->getVariable('id');
 
+		$isLogIn = $request->getDataByKey('email') !== null;
+
 		try
 		{
 			$product = ProductService::getProductById($id);
@@ -35,40 +37,35 @@ class PageDetailController extends Controller
 		{
 			return new Response(Status::NOT_FOUND, ['errors' => 'Product not found']);
 		}
-		$template = $this->engine->getPageTemplate(['productDto' => $product, 'isLogIn' => $this->isLogIn()]);
+		$template = $this->engine->getPageTemplate(['productDto' => $product, 'isLogIn' => $isLogIn]);
 		return new Response(Status::OK, ['template' => $template]);
 	}
 
-	public function buyProductAction(int $id)
+	public function buyProductAction(Request $request): Response
 	{
+		$id = $request->getVariable('id');
+		$data = $request->getDataByKey('jwt')['data'];
+		$userId = $data['id'];
+
 		$product = ProductRepositoryImpl::getById($id);
 		try
 		{
-			if ($this->isLogIn())
-			{
-				$userId = Session::get('user')->id;
-			}
-			else
-			{
-				$userId = null;
-			}
-
 			$orderDto = new OrderAddingDto(
 				new ShoppingSession(
 					null, $userId, [new ProductQuantity($product, 1)]
-				), $_POST['name'], $_POST['surname'], $_POST['address'],
+				), $request->getDataByKey('name'),  $request->getDataByKey('surname'), $request->getDataByKey('address'),
 			);
 			OrderService::createOrder($orderDto);
-			header('Location: /success/');
+			return new Response(Status::OK, ['redirect' => '/success/']);
 		}
 		catch (OrderNotCompleted)
 		{
-			echo "fail";
+			return new Response(Status::BAD_REQUEST);
 		}
 	}
 
-	public function showModalSuccess(): void
+	public function showModalSuccess(Request $request): Response
 	{
-		$this->engine->viewModalSuccess()->display();
+		return new Response(Status::OK, ['template' => $this->engine->viewModalSuccess()]);
 	}
 }

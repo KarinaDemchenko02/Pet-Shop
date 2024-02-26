@@ -19,7 +19,7 @@ export class BasketItem
 				<button id="item:${this.id}" class="basket__delete">
 					<i class="basket__delete-icon material-icons">close</i>
 				</button>
-				<img class="basket__images" src="<?=$this->getVariable('imagePath')?>" alt="product">
+				<img class="basket__images" src="${this.imagePath}" alt="product">
 				<h2 class="basket__heading-product">${this.title}</h2>
 				<div class="basket__quantity">
 					<button class="basket__btn-quantity basket__plus-btn">

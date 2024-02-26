@@ -11,6 +11,7 @@ enum Status: int
 	case FORBIDDEN = 403;
 	case NOT_FOUND = 404;
 	case NOT_ACCEPTABLE = 406;
+	case SEE_OTHER = 303;
 
 	public function responseCode(): void
 	{

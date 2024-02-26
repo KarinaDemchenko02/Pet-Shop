@@ -49,10 +49,8 @@ class AuthController extends Controller
 		}
 		if ($this->authService->verifyUser($user, $request->getDataByKey('password')))
 		{
-			$token = JwtService::generateToken(['email' => $user->email, 'role' => $user->roleTitle]);
+			$token = JwtService::generateToken(['email' => $user->email, 'role' => $user->roleTitle, 'userId' => $user->id]);
 			JwtService::saveTokenInCookie($token);
-			/*Session::set('logIn', true);
-			Session::set('user', $user);*/
 			Session::set('shoppingSession', ShoppingSessionRepositoryImpl::getByUser($user->id));
 		}
 		else
@@ -69,9 +67,7 @@ class AuthController extends Controller
 			$user = UserService::getUserByEmail($request->getDataByKey('email'));
 			if ($this->authService->verifyUser($user, $request->getDataByKey('password')))
 			{
-				/*Session::set('logIn', true);
-				Session::set('user', $user);*/
-				$token = JwtService::generateToken(['email' => $user->email, 'role' => $user->roleTitle]);
+				$token = JwtService::generateToken(['email' => $user->email, 'role' => $user->roleTitle, 'userId' => $user->id]);
 				JwtService::saveTokenInCookie($token);
 			}
 			return new Response(Status::OK, ['redirect' => '/admin/']);

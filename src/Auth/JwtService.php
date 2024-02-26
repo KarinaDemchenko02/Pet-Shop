@@ -53,7 +53,7 @@ class JwtService
 	{
 		$configuration = Configuration::getInstance();
 		$cookieOptions = [
-			'expires' => time() + $configuration->option('JWT_EXP_REFRESH'),
+			'expires' => time() + $configuration->option('JWT_EXP_ACCESS'),
 			'path' => '/',
 			'secure' => true,
 			'httponly' => true,

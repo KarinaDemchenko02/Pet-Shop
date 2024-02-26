@@ -90,7 +90,7 @@ class Router
 		else
 		{
 			$data = ['errors' => 'Page not found'];
-			$response = new Response(Status::NOT_FOUND, $data);
+			return new Response(Status::NOT_FOUND, $data);
 		}
 		$postMiddlewares = $this->getSortedMiddlewares($route->getPostMiddlewares(), 'post');
 		$response = (new Pipeline())
@@ -111,7 +111,7 @@ class Router
 
 	private function getSortedMiddlewares(array|string $toSortMiddlewares, string $prefix): array|string|null
 	{
-		if ($prefix !== 'pre' && $prefix !== 'post')
+		if ($prefix !== 'pre' && $prefix !== 'post' && $toSortMiddlewares === [])
 		{
 			return [];
 		}

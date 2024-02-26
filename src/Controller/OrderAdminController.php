@@ -8,20 +8,17 @@ use Up\Dto\Product\ProductAddingDto;
 use Up\Exceptions\Admin\Order\OrderNotChanged;
 use Up\Exceptions\Admin\Order\OrderNotDeleted;
 use Up\Exceptions\Order\OrderNotCompleted;
+use Up\Http\Request;
+use Up\Http\Response;
+use Up\Http\Status;
 use Up\Service\OrderService\OrderService;
 use Up\Util\Json;
 
 class OrderAdminController extends Controller
 {
-	public function addAction(): void
+	public function addAction(Request $request): Response
 	{
-		/*if (!$this->isLogInAdmin())
-		{
-			http_response_code(403);
-			return;
-		}*/
-
-		$data = Json::decode(file_get_contents("php://input"));
+		$data = $request->getData();
 
 		$productsDto = [];
 		foreach ($data['products'] as $product)
@@ -56,24 +53,18 @@ class OrderAdminController extends Controller
 		if ($result)
 		{
 			$response['errors'] = [];
-			http_response_code(200);
+			$status = Status::OK;
 		}
 		else
 		{
 			$response['errors'] = 'Order not added';
-			http_response_code(409);
+			$status = Status::BAD_REQUEST;
 		}
-		echo Json::encode($response);
+		return new Response($status, $response);
 	}
-	public function deleteAction(): void
+	public function deleteAction(Request $request): Response
 	{
-		/*if (!$this->isLogInAdmin())
-		{
-			http_response_code(403);
-			return;
-		}*/
-
-		$data = Json::decode(file_get_contents("php://input"));
+		$data = $request->getData();
 		$response = [];
 		try
 		{
@@ -90,25 +81,19 @@ class OrderAdminController extends Controller
 		if ($result)
 		{
 			$response['errors'] = [];
-			http_response_code(200);
+			$status = Status::OK;
 		}
 		else
 		{
 			$response['errors'] = 'Order not deleted';
-			http_response_code(409);
+			$status = Status::BAD_REQUEST;
 		}
-		echo Json::encode($response);
+		return new Response($status, $response);
 	}
 
-	public function changeAction(): void
+	public function changeAction(Request $request): Response
 	{
-		/*if (!$this->isLogInAdmin())
-		{
-			http_response_code(403);
-			return;
-		}*/
-
-		$data = Json::decode(file_get_contents("php://input"));
+		$data = $request->getData();
 		$response = [];
 		try
 		{
@@ -131,13 +116,13 @@ class OrderAdminController extends Controller
 		if ($result)
 		{
 			$response['errors'] = [];
-			http_response_code(200);
+			$status = Status::OK;
 		}
 		else
 		{
 			$response['errors'] = 'Order not changed';
-			http_response_code(409);
+			$status = Status::BAD_REQUEST;
 		}
-		echo Json::encode($response);
+		return new Response($status, $response);
 	}
 }

@@ -18,6 +18,7 @@ class IsAdmin implements PreMiddleware
 		{
 			return $next($request);
 		}
-		return new Response(Status::FORBIDDEN, ['redirect' => '/admin/logIn/']);
+
+		return new Response(Status::SEE_OTHER, ['redirect' => '/admin/logIn/']);
 	}
 }
