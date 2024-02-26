@@ -87,7 +87,7 @@ class AuthController extends Controller
 			$request->getDataByKey('email'),
 			$request->getDataByKey('password'),
 			$request->getDataByKey('phone'),
-			'Пользователь',
+			1,
 		);
 		if (!$this->authService->registerUser($user))
 		{

@@ -12,7 +12,6 @@ use Up\Exceptions\Admin\ProductNotDisabled;
 use Up\Exceptions\Admin\ProductNotRestored;
 use Up\Repository\Image\ImageRepositoryImpl;
 use Up\Repository\SpecialOffer\SpecialOfferRepositoryImpl;
-use Up\Exceptions\Images\ImageNotAdd;
 use Up\Repository\Tag\TagRepositoryImpl;
 use Up\Util\Database\Orm;
 use Up\Util\Database\Query;
@@ -68,7 +67,7 @@ class ProductRepositoryImpl implements ProductRepository
 
 		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
 		$offset = $limit * ($page - 1);
-
+		$title = urldecode($title);
 		$ids = self::getIds(
 			ProductTable::getList(['id'],
 				conditions:       ['AND', ['=is_active' => 1, '%=name' => $title]],
@@ -119,6 +118,7 @@ class ProductRepositoryImpl implements ProductRepository
 			$lastTag = $orm->last();
 			ProductTagTable::add(['id_item' => $lastItem, 'id_tag' => $lastTag]);
 			$orm->commit();
+
 			return $lastItem;
 		}
 		catch (\Throwable $e)
@@ -155,29 +155,6 @@ class ProductRepositoryImpl implements ProductRepository
 	}
 
 	/**
-	 * @throws ImageNotAdd
-	 */
-	public static function addImage(string $imagePath, int $id): void
-	{
-		$query = Query::getInstance();
-		try
-		{
-			$escapedImage = $query->escape($imagePath);
-
-			$addImageSQL = "UPDATE up_image SET path='{$escapedImage}' where item_id = {$id}";
-			$query->getQueryResult($addImageSQL);
-			if (Query::affectedRows() === 0)
-			{
-				throw new ImageNotAdd();
-			}
-		}
-		catch (\Throwable)
-		{
-			throw new ImageNotAdd();
-		}
-	}
-
-	/**
 	 * @throws ProductNotChanged
 	 */
 	public static function change(ProductChangeDto $productChangeDto): void
@@ -205,7 +182,7 @@ class ProductRepositoryImpl implements ProductRepository
 			);
 			if ($orm->affectedRows() === 0)
 			{
-				throw new ProductNotRestored();
+				throw new ProductNotChanged();
 			}
 			/*$deleteProductSQL = "DELETE FROM up_item_tag WHERE id_item={$productChangeDto->id} AND id_tag NOT IN ({$strTags})";
 			QueryResult::getQueryResult($deleteProductSQL);

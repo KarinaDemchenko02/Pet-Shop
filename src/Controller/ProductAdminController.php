@@ -161,7 +161,7 @@ class ProductAdminController extends Controller
 			if (($image = $request->getDataByKey('image')) !== null)
 			{
 				$imagePath = Upload::upload($image);
-				ProductService::addImage($imagePath, $request->getDataByKey('idProduct'));
+				ProductService::changeImage($imagePath, $request->getDataByKey('idProduct'));
 				$result = true;
 			}
 			else

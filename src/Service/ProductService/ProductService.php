@@ -12,6 +12,7 @@ use Up\Exceptions\Admin\ProductNotDisabled;
 use Up\Exceptions\Admin\ProductNotRestored;
 use Up\Exceptions\Images\ImageNotAdd;
 use Up\Exceptions\Product\ProductNotFound;
+use Up\Repository\Image\ImageRepositoryImpl;
 use Up\Repository\Product\ProductRepositoryImpl;
 
 
@@ -127,9 +128,9 @@ class ProductService
 	/**
 	 * @throws ImageNotAdd
 	 */
-	public static function addImage(string $pathImage, int $id): void
+	public static function changeImage(string $pathImage, int $id): void
 	{
-		ProductRepositoryImpl::addImage($pathImage, $id);
+		ImageRepositoryImpl::change($pathImage, $id);
 	}
 
 	public static function getColumn(): array

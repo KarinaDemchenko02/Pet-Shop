@@ -3,6 +3,8 @@
 namespace Up\Repository\Image;
 
 use Up\Entity\Image;
+use Up\Exceptions\Images\ImageNotAdd;
+use Up\Util\Database\Orm;
 use Up\Util\Database\Tables\ImageTable;
 
 class ImageRepositoryImpl implements ImageRepository
@@ -20,6 +22,19 @@ class ImageRepositoryImpl implements ImageRepository
 	public static function add($path, $productId): void
 	{
 		ImageTable::add(['path' => $path, 'item_id' => $productId]);
+	}
+
+	/**
+	 * @throws ImageNotAdd
+	 */
+	public static function change(string $imagePath, int $id): void
+	{
+		$orm = Orm::getInstance();
+		ImageTable::update(['path' => $imagePath], ['AND', ['=item_id' => $id]]);
+		if ($orm->affectedRows() === 0)
+		{
+			throw new ImageNotAdd();
+		}
 	}
 
 	public static function delete($id): void

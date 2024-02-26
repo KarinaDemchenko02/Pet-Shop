@@ -55,7 +55,7 @@ class Auth
 			$user->email,
 			$password,
 			$user->phoneNumber,
-			$user->roleId,
+			1,
 		);
 		try
 		{
