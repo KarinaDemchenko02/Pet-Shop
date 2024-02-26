@@ -10,6 +10,7 @@ use Up\Exceptions\Admin\ProductNotChanged;
 use Up\Exceptions\Admin\ProductNotDisabled;
 use Up\Exceptions\Admin\ProductNotRestored;
 use Up\Exceptions\Images\ImageNotAdd;
+use Up\Exceptions\Product\ProductNotFound;
 use Up\Repository\Tag\TagRepositoryImpl;
 use Up\Util\Database\Query;
 

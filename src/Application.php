@@ -11,6 +11,7 @@ use Up\Util\Session;
 
 class Application
 {
+
 	private Router $router;
 
 	/**
@@ -74,7 +75,7 @@ class Application
 	private function handleRequest(): Request
 	{
 		$method = $_SERVER['REQUEST_METHOD'];
-		$uri = $_SERVER['REQUEST_URI'];
+		$uri = urldecode($_SERVER['REQUEST_URI']);
 
 		return (new Request($method, $uri));
 	}
