@@ -7,20 +7,19 @@ Router::group(['preMiddleware' => 'isLogin'], [
 	Router::get('/product/:id/', new \Up\Controller\PageDetailController(), 'showProductAction'),
 	Router::post('/addToBasket/:id/', new \Up\Controller\BasketController(), 'addProductAction'),
 	Router::post('/deleteFromBasket/:id/', new \Up\Controller\BasketController(), 'deleteProductAction'),
+	Router::get('/products-json/', new \Up\Controller\PageMainController(), 'getProductsJsonAction'),
+	Router::get('/tags-json/', new \Up\Controller\PageMainController(), 'getTagsJsonAction'),
+	Router::get('/search-json/', new \Up\Controller\PageMainController(), 'getSearchJsonAction'),
 ]);
-
-Router::get('/products-json/', new \Up\Controller\PageMainController(), 'getProductsJsonAction');
-Router::get('/tags-json/', new \Up\Controller\PageMainController(), 'getTagsJsonAction');
-Router::get('/search-json/', new \Up\Controller\PageMainController(), 'getSearchJsonAction');
-Router::post('/logging/', new \Up\Controller\AuthController(), 'authAction');
 
 Router::group(['preMiddleware' => 'isNotLogIn'], [
 	Router::get('/admin/logIn/', new \Up\Controller\PageAdminController(), 'logInAction'),
+	Router::post('/logging/', new \Up\Controller\AuthController(), 'authAction'),
 	Router::post('/admin/logIn/', new \Up\Controller\AuthController(), 'logInAdminAction'),
 ]);
 
 
-Router::group(['preMiddleware' => ['isLogin', 'isAdmin'], 'postMiddleware' => 'test'], [
+Router::group(['preMiddleware' => ['isLogin', 'isAdmin']/*, 'postMiddleware' => 'test'*/], [
 	Router::get('/admin/', new \Up\Controller\PageAdminController(), 'showProductsAction'),
 
 	Router::patch('/admin/product/disable/', new \Up\Controller\ProductAdminController(), 'disableAction'),
@@ -45,7 +44,5 @@ Router::get('/success/', new \Up\Controller\PageDetailController(), 'showModalSu
 
 Router::get('/account/', new \Up\Controller\PageAccountController(), 'indexAction');
 Router::patch('/account/edit/', new \Up\Controller\ChangeAccountController(), 'changeAction');
-
-Router::post('/upload/', new \Up\Controller\PageAdminController(), 'uploadAction');
 
 Router::post('/createOrder/', new \Up\Controller\OrderController(), 'createOrder');

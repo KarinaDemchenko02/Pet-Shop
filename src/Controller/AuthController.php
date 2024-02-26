@@ -3,6 +3,7 @@
 namespace Up\Controller;
 
 use Up\Auth\Auth;
+use Up\Auth\JwtService;
 use Up\Dto\UserAddingDto;
 use Up\Exceptions\User\UserNotFound;
 use Up\Http\Request;
@@ -48,13 +49,15 @@ class AuthController extends Controller
 		}
 		if ($this->authService->verifyUser($user, $request->getDataByKey('password')))
 		{
-			Session::set('logIn', true);
-			Session::set('user', $user);
+			$token = JwtService::generateToken(['email' => $user->email, 'role' => $user->roleTitle]);
+			JwtService::saveTokenInCookie($token);
+			/*Session::set('logIn', true);
+			Session::set('user', $user);*/
 			Session::set('shoppingSession', ShoppingSessionRepositoryImpl::getByUser($user->id));
 		}
 		else
 		{
-			return new Response(Status::UNAUTHORIZED, ['result' => false,'errors' => $this->authService->getErrors()]); //,'redirect' => '/']);
+			return new Response(Status::UNAUTHORIZED, ['result' => false,'errors' => $this->authService->getErrors()]);
 		}
 		return new Response(Status::OK, ['result' => true]);
 	}
@@ -66,14 +69,16 @@ class AuthController extends Controller
 			$user = UserService::getUserByEmail($request->getDataByKey('email'));
 			if ($this->authService->verifyUser($user, $request->getDataByKey('password')))
 			{
-				Session::set('logIn', true);
-				Session::set('user', $user);
+				/*Session::set('logIn', true);
+				Session::set('user', $user);*/
+				$token = JwtService::generateToken(['email' => $user->email, 'role' => $user->roleTitle]);
+				JwtService::saveTokenInCookie($token);
 			}
 			return new Response(Status::OK, ['redirect' => '/admin/']);
 		}
 		catch (UserNotFound)
 		{
-			$this->errors[] = 'Неправильно введён Email';
+			$this->errors[] = 'Неправильно введён email или пароль';
 		}
 		return new Response(Status::UNAUTHORIZED, ['redirect' => '/admin/logIn']);
 	}
@@ -97,8 +102,8 @@ class AuthController extends Controller
 
 	private function logOutAction(Request $request): Response
 	{
-		Session::delete();
-		self::$user = null;
+		JwtService::deleteCookie('jwt');
 		return new Response(Status::OK, ['result' => true]);
 	}
+
 }

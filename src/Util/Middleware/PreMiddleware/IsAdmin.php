@@ -14,11 +14,7 @@ class IsAdmin implements PreMiddleware
 	 */
 	public function handle(Request $request, callable $next): Response
 	{
-		if (($user = $request->getDataByKey('user')) === null)
-		{
-			return new Response(Status::FORBIDDEN, ['redirect' => '/admin/logIn/']);
-		}
-		if ($user->roleTitle === 'Администратор')
+		if ($request->getDataByKey('role') === 'Администратор')
 		{
 			return $next($request);
 		}

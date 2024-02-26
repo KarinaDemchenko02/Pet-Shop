@@ -4,25 +4,27 @@ namespace Up\Controller;
 
 use Up\Dto\ProductAddingDto;
 use Up\Dto\ProductChangeDto;
+use Up\Exceptions\Admin\ProductNotAdd;
 use Up\Exceptions\Admin\ProductNotChanged;
 use Up\Exceptions\Admin\ProductNotDisabled;
 use Up\Exceptions\Admin\ProductNotRestored;
 use Up\Exceptions\Images\ImageNotAdd;
 use Up\Http\Request;
 use Up\Http\Response;
+use Up\Http\Status;
 use Up\Service\ProductService\ProductService;
-use Up\Util\Json;
 use Up\Util\Upload;
+
 
 class ProductAdminController extends Controller
 {
 	public function disableAction(Request $request): Response
 	{
-		$data = Json::decode(file_get_contents("php://input"));
+		$id = $request->getDataByKey('id');
 		$response = [];
 		try
 		{
-			ProductService::disableProduct((int)$data['id']);
+			ProductService::disableProduct((int)$id);
 			$result = true;
 		}
 		catch (ProductNotDisabled)
@@ -35,29 +37,24 @@ class ProductAdminController extends Controller
 		if ($result)
 		{
 			$response['errors'] = [];
-			http_response_code(200);
+			$status = Status::OK;
 		}
 		else
 		{
 			$response['errors'] = 'Product not disabled';
-			http_response_code(409);
+			$status = Status::NOT_ACCEPTABLE;
 		}
-		echo Json::encode($response);
+		return new Response($status, $response);
 	}
 
 	public function restoreAction(Request $request): Response
 	{
-		/*if (!$this->isLogInAdmin())
-		{
-			http_response_code(403);
-			return;
-		}*/
-		$data = Json::decode(file_get_contents("php://input"));
+		$id = $request->getDataByKey('id');
 
 		$response = [];
 		try
 		{
-			ProductService::restoreProduct((int)$data['id']);
+			ProductService::restoreProduct((int)$id);
 			$result = true;
 		}
 		catch (ProductNotRestored)
@@ -70,27 +67,24 @@ class ProductAdminController extends Controller
 		if ($result)
 		{
 			$response['errors'] = [];
-			http_response_code(200);
+			$status = Status::OK;
 		}
 		else
 		{
 			$response['errors'] = 'Product not restored';
-			http_response_code(409);
+			$status = Status::NOT_ACCEPTABLE;
 		}
-		echo Json::encode($response);
+		return new Response($status, $response);
 	}
 
 	public function changeAction(Request $request): Response
 	{
-		$data = Json::decode(file_get_contents("php://input"));
-
 		$productChangeDto = new ProductChangeDto(
-			$data['id'],
-			$data['title'],
-			$data['description'],
-			$data['price'],
-			$data['tags'],
-			'/images/imgNotFound.png',
+			$request->getDataByKey('id'),
+			$request->getDataByKey('title'),
+			$request->getDataByKey('description'),
+			$request->getDataByKey('price'),
+			$request->getDataByKey('tags'),
 		);
 
 		$response = [];
@@ -109,26 +103,24 @@ class ProductAdminController extends Controller
 		if ($result)
 		{
 			$response['errors'] = [];
-			http_response_code(200);
+			$status = Status::OK;
 		}
 		else
 		{
 			$response['errors'] = 'Product not changed';
-			http_response_code(409);
+			$status = Status::NOT_ACCEPTABLE;
 		}
-		echo Json::encode($response);
+		return new Response($status, $response);
 	}
 
 	public function addAction(Request $request): Response
 	{
-		$data = Json::decode(file_get_contents("php://input"));
-
 		$productAddDto = new ProductAddingDto(
-			$data['title'],
-			$data['description'],
-			$data['price'],
+			$request->getDataByKey('title'),
+			$request->getDataByKey('description'),
+			$request->getDataByKey('price'),
 			'/images/imgNotFound.png',
-			$data['tags'],
+			$request->getDataByKey('tags'),
 		);
 
 		$response = [];
@@ -137,7 +129,7 @@ class ProductAdminController extends Controller
 			$idProductAdd = ProductService::addProduct($productAddDto);
 			$result = true;
 		}
-		catch (ProductNotChanged)
+		catch (ProductNotAdd)
 		{
 			$result = false;
 		}
@@ -147,16 +139,18 @@ class ProductAdminController extends Controller
 		if ($result)
 		{
 			$response['errors'] = [];
-			http_response_code(200);
+			$status = Status::OK;
 		}
 		else
 		{
-			$response['errors'] = 'Product not changed';
-			http_response_code(409);
+			$response['errors'] = 'Product not added';
+			$status = Status::NOT_ACCEPTABLE;
 		}
-		echo Json::encode([
-			'id' => $idProductAdd ?? null
-		]);
+
+		$response['id'] = $idProductAdd ?? null;
+
+
+		return new Response($status, $response);
 	}
 
 	public function imageAction(Request $request): Response
@@ -164,12 +158,16 @@ class ProductAdminController extends Controller
 		$response = [];
 		try
 		{
-			if (isset($_FILES['imagePath']))
+			if (($image = $request->getDataByKey('image')) !== null)
 			{
-				Upload::upload();
+				$imagePath = Upload::upload($image);
+				ProductService::addImage($imagePath, $request->getDataByKey('idProduct'));
+				$result = true;
 			}
-			ProductService::addImage($_FILES['imagePath']['name'], $_POST['idProduct']);
-			$result = true;
+			else
+			{
+				$result = false;
+			}
 		}
 		catch (ImageNotAdd)
 		{
@@ -181,14 +179,13 @@ class ProductAdminController extends Controller
 		if ($result)
 		{
 			$response['errors'] = [];
-			http_response_code(200);
+			$status = Status::OK;
 		}
 		else
 		{
-			$response['errors'] = 'Product not changed';
-			http_response_code(409);
+			$response['errors'] = 'Image not changed';
+			$status = Status::NOT_ACCEPTABLE;
 		}
-
-		echo Json::encode($response);
+		return new Response($status, $response);
 	}
 }

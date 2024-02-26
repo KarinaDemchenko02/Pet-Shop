@@ -2,6 +2,7 @@
 
 namespace Up\Util\Middleware\PreMiddleware;
 
+use Up\Auth\JwtService;
 use Up\Http\Request;
 use Up\Http\Response;
 use Up\Util\Session;
@@ -14,15 +15,23 @@ class IsLogin implements PreMiddleware
 	 */
 	public function handle(Request $request, callable $next): Response
 	{
-		if (Session::get('logIn'))
+		$data = [];
+		if (($jwt = $request->getCookie('jwt')) !== '')
 		{
-			$user = Session::get('user');
-			$request->setData('user', $user);
+			$data = (JwtService::validateToken($jwt))['data'];
+		}
+
+		if (!empty($data))
+		{
+			$request->setData('email', $data['email']);
+			$request->setData('role', $data['role']);
 		}
 		else
 		{
-			$request->setData('user', null);
+			$request->setData('email', null);
+			$request->setData('role', null);
 		}
+
 		return $next($request);
 	}
 }

@@ -106,6 +106,19 @@ class Route
 		return $this;
 	}
 
+	public function postMiddleware(array|string $middleware): static
+	{
+		if (!is_array($middleware))
+		{
+			$this->postMiddlewares[] = $middleware;
+		}
+		else
+		{
+			$this->postMiddlewares = array_merge($this->postMiddlewares ?? [], $middleware);
+		}
+		return $this;
+	}
+
 	public function getPreMiddlewares(): array
 	{
 		return $this->preMiddlewares;
@@ -113,7 +126,7 @@ class Route
 
 	public function getPostMiddlewares(): array
 	{
-		return $this->preMiddlewares;
+		return $this->postMiddlewares;
 	}
 
 	/*public function where(): Route

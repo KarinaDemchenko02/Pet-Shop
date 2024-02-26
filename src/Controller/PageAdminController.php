@@ -24,11 +24,6 @@ class PageAdminController extends Controller
 			$this->logInAction();
 	}*/
 
-	public function uploadAction(): void
-	{
-		Upload::upload();
-		/*$this->indexAction();*/
-	}
 	public function logInAction(Request $request): Response
 	{
 		return new Response(Status::OK, ['template' => $this->engine->getAuthPageTemplate()]);
@@ -58,9 +53,9 @@ class PageAdminController extends Controller
 				];
 			}
 		}
-		elseif ($entity === 'tag')
+		elseif ($entity === 'tags')
 		{
-			$contentName = 'tag';
+			$contentName = 'tags';
 			$tags = TagService::getAllTags();
 			$columns = TagService::getColumn();
 			foreach ($tags as $tag)

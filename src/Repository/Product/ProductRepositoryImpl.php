@@ -5,6 +5,7 @@ namespace Up\Repository\Product;
 use Up\Dto\ProductAddingDto;
 use Up\Dto\ProductChangeDto;
 use Up\Entity\Product;
+use Up\Exceptions\Admin\ProductNotAdd;
 use Up\Exceptions\Admin\ProductNotChanged;
 use Up\Exceptions\Admin\ProductNotDisabled;
 use Up\Exceptions\Admin\ProductNotRestored;
@@ -137,6 +138,9 @@ class ProductRepositoryImpl implements ProductRepository
 		return self::createProductList($result);
 	}
 
+	/**
+	 * @throws ProductNotAdd
+	 */
 	public static function add(ProductAddingDto $productAddingDto): int
 	{
 		$query = Query::getInstance();
@@ -159,10 +163,10 @@ class ProductRepositoryImpl implements ProductRepository
 			$query->commit();
 			return $lastItem;
 		}
-		catch (\Throwable $e)
+		catch (\Throwable)
 		{
 			$query->rollback();
-			throw $e;
+			throw new ProductNotAdd();
 		}
 	}
 
@@ -218,7 +222,7 @@ class ProductRepositoryImpl implements ProductRepository
 		{
 			$escapedImage = $query->escape($imagePath);
 
-			$addImageSQL = "UPDATE up_image SET path='{$escapedImage}' where id = {$id}";
+			$addImageSQL = "UPDATE up_image SET path='{$escapedImage}' where item_id = {$id}";
 			$query->getQueryResult($addImageSQL);
 			if (Query::affectedRows() === 0)
 			{

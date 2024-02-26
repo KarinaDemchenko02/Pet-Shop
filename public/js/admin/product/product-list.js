@@ -446,7 +446,6 @@ export class ProductList
 			const formData = new FormData();
 			formData.append('idProduct', item.id);
 			formData.append('imagePath', inputFile);
-
 			fetch(
 				'/admin/product/image/',
 				{
@@ -458,6 +457,7 @@ export class ProductList
 					return response.json();
 				})
 				.then((response) => {
+					console.log(response);
 					if (response.result)
 					{
 						const nowPath = document.getElementById(item.id + 'path');

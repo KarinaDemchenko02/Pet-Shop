@@ -6,6 +6,7 @@ use Up\Dto\ProductAddingDto;
 use Up\Dto\ProductChangeDto;
 use Up\Dto\ProductDto;
 use Up\Dto\ProductDtoAdmin;
+use Up\Exceptions\Admin\ProductNotAdd;
 use Up\Exceptions\Admin\ProductNotChanged;
 use Up\Exceptions\Admin\ProductNotDisabled;
 use Up\Exceptions\Admin\ProductNotRestored;
@@ -94,6 +95,9 @@ class ProductService
 		ProductRepositoryImpl::disable($id);
 	}
 
+	/**
+	 * @throws ProductNotAdd
+	 */
 	public static function addProduct(ProductAddingDto $productAddingDto): int
 	{
 		return ProductRepositoryImpl::add($productAddingDto);

@@ -10,6 +10,7 @@ enum Status: int
 	case UNAUTHORIZED = 401;
 	case FORBIDDEN = 403;
 	case NOT_FOUND = 404;
+	case NOT_ACCEPTABLE = 406;
 
 	public function responseCode(): void
 	{
