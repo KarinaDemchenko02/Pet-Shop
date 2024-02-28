@@ -15,7 +15,6 @@ class JwtService
 		$secret = $configuration->option('JWT_SECRET');
 		$alg = $configuration->option('JWT_ALG');
 
-
 		$token = [
 			'exp' => $exp,
 			'data' => $data,
