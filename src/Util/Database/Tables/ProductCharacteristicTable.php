@@ -7,7 +7,7 @@ use Up\Util\Database\Fields\Reference;
 use Up\Util\Database\Fields\StringField;
 use Up\Util\Database\Tables\Table;
 
-class CharacteristicProductTable extends Table
+class ProductCharacteristicTable extends Table
 {
 
 	public static function getMap(): array

@@ -3,6 +3,8 @@
 namespace Up\Util\Database\Tables;
 
 use Up\Util\Database\Fields\Field;
+use Up\Util\Database\Fields\Reference;
+use Up\Util\Database\Fields\Relation;
 use Up\Util\Database\Orm;
 
 abstract class Table implements TableInterface
@@ -70,7 +72,6 @@ abstract class Table implements TableInterface
 
 	public static function getList(
 		array $selectedColumns = ['*'],
-		array $selectedRelatedColumns = [],
 		array $conditions = [],
 			  $orderBy = [],
 			  $limit = null,
@@ -78,7 +79,7 @@ abstract class Table implements TableInterface
 	)
 	{
 		$orm = orm::getInstance();
-		$columnJoin = self::getColumnJoin($selectedColumns, $selectedRelatedColumns);
+		$columnJoin = self::getColumnJoin($selectedColumns);
 		$where = '';
 		if (!empty($conditions))
 		{
@@ -98,81 +99,71 @@ abstract class Table implements TableInterface
 
 	private static function getColumnJoin(
 		array $selectedColumns = ['*'],
-		array $selectedRelatedColumns = [],
-		array $joins = [],
-		array $tableAlias = []
+			  $joins = []
 	)
 	{
-		$map = static::getMap();
+		$tableAlias = [];
 		$tableName = static::getTableName();
 		$columns = [];
 
-		foreach ($map as $field)
+		foreach ($selectedColumns as $aliasOrTableName => $column)
 		{
-			$fieldName = $field->getName();
-			$fieldType = $field->getType();
-
-			if (
-				in_array($fieldName, $selectedColumns, true)
-				|| (in_array('*', $selectedColumns, true) && $fieldType !== 'reference' && $fieldType !== 'reflection')
-			)
+			$fieldName = is_array($column) ? $aliasOrTableName : $column;
+			$field = self::getFieldByName($fieldName);
+			if (is_null($field))
 			{
-				$alias = array_search($fieldName, $selectedColumns, true);
-				$columnName = "$tableName.$fieldName";
-
-				if (is_int($alias))
+				throw new \RuntimeException(
+					"Error: A field with this name in the table '$tableName' was not found: '$fieldName'"
+				);
+			}
+			$fieldType = $field->getType();
+			if ($fieldType !== 'reference' && $fieldType !== 'reflection')
+			{
+				$fieldFullName = "$tableName.$fieldName";
+				if (is_int($aliasOrTableName))
 				{
-					$tableAlias[$fieldName] = $columnName;
+					$tableAlias[$fieldName] = $fieldFullName;
 				}
 				else
 				{
-					$tableAlias[$alias] = $columnName;
-					$columnName .= " AS $alias";
+					$tableAlias[$aliasOrTableName] = $fieldFullName;
+					$fieldFullName .= " AS $aliasOrTableName";
 				}
-
-				$columns[] = $columnName;
+				$columns[] = $fieldFullName;
 			}
-
-			if (
-				($fieldType === 'reference' || $fieldType === 'reflection')
-				&& (isset($selectedRelatedColumns[$fieldName])
-					|| in_array(
-						$fieldName,
-						array_values($selectedRelatedColumns),
-						true
-					))
-			)
+			else
 			{
-				$selectedColumnsForJoin = $selectedRelatedColumns[$fieldName] ?? ['*'];
-				$referenceTable = $field->referenceTable;
-				$referenceTableName = $referenceTable->getTableName();
-
-				if (!isset($joins[$referenceTableName]))
+				/* @var $field Relation */
+				$selectedRelatedColumns = is_array($column) ? $column : ['*'];
+				$relatedTable = $field->referenceTable;
+				$relatedTableName = $relatedTable::getTableName();
+				if (!isset($joins[$relatedTableName]))
 				{
 					if ($fieldType === 'reflection')
 					{
-						$referenceField = $field->referenceTable->getFieldByName($field->condition);
-						$joinCondition = $field->referenceTable::formatCondition(
-							$referenceField->condition,
-							$referenceField->referenceTable
+						/* @var $relatedField Reference */
+						$relatedField = $relatedTable::getFieldByName($field->condition);
+						if (is_null($relatedField))
+						{
+							throw new \RuntimeException(
+								"The name of the related field of the related table '$relatedTableName' is incorrect: {$field->condition}"
+							);
+						}
+						$joinCondition = $relatedTable::formatCondition(
+							$relatedField->condition,
+							$relatedField->referenceTable
 						);
 					}
 					else
 					{
 						$joinCondition = self::formatCondition($field->condition, $field->referenceTable);
 					}
-
-					$joins[$referenceTableName] = [
+					$joins[$relatedTableName] = [
 						'type' => $field->joinType,
 						'condition' => $joinCondition,
 					];
-
-					$columnJoin = $referenceTable->getColumnJoin(
-						$selectedColumnsForJoin,
-						$selectedRelatedColumns,
-						$joins
-					);
-					$tableAlias = array_merge($tableAlias, $columnJoin['alias']);
+					$columnJoin = $relatedTable::getColumnJoin($selectedRelatedColumns, $joins);
+					$tableAlias = array_unique(array_merge($tableAlias, $columnJoin['alias']));
 					$joins = array_merge($joins, $columnJoin['joins']);
 					$columns = array_unique(array_merge($columns, $columnJoin['columns']));
 				}

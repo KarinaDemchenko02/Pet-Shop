@@ -15,7 +15,7 @@ class CharacteristicTable extends Table
 		return [
 			new IntegerField('id', true, false, true),
 			new StringField('title', false, false),
-			new Reflection('product', new CharacteristicProductTable, 'characteristic')
+			new Reflection('product_characteristic', new ProductCharacteristicTable, 'characteristic')
 		];
 	}
 

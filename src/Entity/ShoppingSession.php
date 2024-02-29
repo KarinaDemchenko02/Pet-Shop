@@ -2,6 +2,8 @@
 
 namespace Up\Entity;
 
+/* @property ProductQuantity[] $products*/
+
 class ShoppingSession implements Entity
 {
 	readonly ?int $id;

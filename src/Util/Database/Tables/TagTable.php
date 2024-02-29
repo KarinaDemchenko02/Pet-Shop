@@ -15,7 +15,7 @@ class TagTable extends Table
 		return [
 			new IntegerField('id', true, false, true),
 			new StringField('title', false, false),
-			new Reflection('product', new ProductTagTable(), 'tag'),
+			new Reflection('product_tag', new ProductTagTable(), 'tag'),
 		];
 	}
 

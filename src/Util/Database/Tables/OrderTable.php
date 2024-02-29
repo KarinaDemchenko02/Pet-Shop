@@ -24,7 +24,7 @@ class OrderTable extends Table
 			new StringField('edited_at', isDefaultExists: true),
 			new StringField('name', isNullable: true),
 			new StringField('surname', isNullable: true),
-			new Reflection('product', new OrderProductTable(), 'order')
+			new Reflection('order_product', new OrderProductTable(), 'order')
 		];
 	}
 

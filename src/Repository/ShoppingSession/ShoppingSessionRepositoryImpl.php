@@ -6,7 +6,6 @@ use Up\Entity\ProductQuantity;
 use Up\Entity\ShoppingSession;
 use Up\Repository\Product\ProductRepositoryImpl;
 use Up\Util\Database\Orm;
-use Up\Util\Database\Query;
 use Up\Util\Database\Tables\ShoppingSessionProductTable;
 use Up\Util\Database\Tables\ShoppingSessionTable;
 
@@ -60,7 +59,7 @@ class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
 		return $shoppingSessions;
 	}
 
-	public static function add($userId, array $productsQuantities): void
+	public static function add($userId, array $productsQuantities): string|int
 	{
 		$orm = Orm::getInstance();
 		try
@@ -80,6 +79,7 @@ class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
 				);
 			}
 			$orm->commit();
+			return $orm->affectedRows();
 		}
 		catch (\Throwable $e)
 		{
@@ -88,7 +88,7 @@ class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
 		}
 	}
 
-	public static function change(ShoppingSession $shoppingSession): void
+	public static function change(ShoppingSession $shoppingSession): string|int
 	{
 		$orm = Orm::getInstance();
 		$time = new \DateTime();
@@ -101,7 +101,7 @@ class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
 				[
 					'AND',
 					[
-						'shopping_session_id' => $shoppingSession->id,
+						'=shopping_session_id' => $shoppingSession->id,
 						'!in=product_id' => self::getProductIds($shoppingSession->getProducts()),
 					],
 				]
@@ -117,7 +117,9 @@ class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
 					true
 				);
 			}
+			$count = $orm->affectedRows();
 			$orm->commit();
+			return $count;
 		}
 		catch (\Throwable $e)
 		{
@@ -134,7 +136,9 @@ class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
 			$orm->begin();
 			ShoppingSessionProductTable::delete(['AND', ['=shopping_session_id' => $id]]);
 			ShoppingSessionTable::delete(['AND', ['=id' => $id]]);
+			$count = $orm->affectedRows();
 			$orm->commit();
+			return $count;
 		}
 		catch (\Throwable $e)
 		{
@@ -165,17 +169,18 @@ class ShoppingSessionRepositoryImpl implements ShoppingSessionRepository
 	{
 		return ShoppingSessionTable::getList([
 												 'shopping_session_id' => 'id',
-											 ], [
-												 'product' => [
+												 'shopping_session_product' => [
 													 'quantities',
-													 'id',
-													 'name',
-													 'price',
-													 'is_active',
-												 ],
-												 'image' => [
-													 'image_id' => 'id',
-													 'path',
+													 'product' => [
+														 'id',
+														 'name',
+														 'price',
+														 'is_active',
+														 'image' => [
+															 'image_id' => 'id',
+															 'path',
+														 ]
+													 ],
 												 ],
 												 'user' => ['user_id' => 'id'],
 											 ], conditions: $where);

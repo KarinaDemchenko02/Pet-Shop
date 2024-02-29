@@ -149,11 +149,16 @@ class OrderRepositoryImpl implements OrderRepository
 	private static function getOrderList($where = []): \mysqli_result|bool
 	{
 		return OrderTable::getList(
-						['order_id' => 'id', 'delivery_address', 'created_at', 'edited_at', 'name', 'surname'],
 						[
+							'order_id' => 'id',
+							'delivery_address',
+							'created_at',
+							'edited_at',
+							'name',
+							'surname',
 							'user' => ['user_id' => 'id'],
 							'status' => ['status_title' => 'title'],
-							'product' => ['id', 'quantities', 'price'],
+							'order_product' => ['product' => ['id'], 'quantities', 'price'],
 						],
 			conditions: $where
 		);

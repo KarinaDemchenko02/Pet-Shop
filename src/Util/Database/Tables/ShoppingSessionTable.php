@@ -19,7 +19,7 @@ class ShoppingSessionTable extends Table
 			new IntegerField('user_id', false, false),
 			new StringField('created_at', isDefaultExists: true),
 			new StringField('updated_at', isDefaultExists: true),
-			new Reflection('product', new ShoppingSessionProductTable(), 'shoppingSession')
+			new Reflection('shopping_session_product', new ShoppingSessionProductTable(), 'shopping_session')
 		];
 	}
 

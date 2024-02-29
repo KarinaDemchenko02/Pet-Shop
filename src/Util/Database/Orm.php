@@ -144,10 +144,18 @@ class Orm
 
 	public function execute($sql): \mysqli_result|bool
 	{
-		$result = $this->db->query($sql);
-		if ($error = $this->db->error)
+		try
 		{
-			throw new \RuntimeException($error);
+			$result = $this->db->query($sql);
+			if ($error = $this->db->error)
+			{
+				throw new \RuntimeException($error . "\n$sql");
+			}
+		}
+		catch (\Throwable $e)
+		{
+			var_dump($sql);
+			throw $e;
 		}
 
 		return $result;

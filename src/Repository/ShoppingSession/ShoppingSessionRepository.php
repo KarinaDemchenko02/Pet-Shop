@@ -11,7 +11,7 @@ interface ShoppingSessionRepository extends Repository
 
 	public static function getByUser(int $id): ShoppingSession;
 
-	public static function add($userId, array $productsQuantities): void;
+	public static function add($userId, array $productsQuantities);
 
-	public static function change(ShoppingSession $shoppingSession): void;
+	public static function change(ShoppingSession $shoppingSession);
 }

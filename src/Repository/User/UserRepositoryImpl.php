@@ -117,8 +117,7 @@ class UserRepositoryImpl implements UserRepository
 							'email',
 							'password',
 							'user_is_active' => 'is_active',
-						],
-						['role' => ['user_role' => 'title']],
+							'role' => ['user_role' => 'title']],
 			conditions: $where
 		);
 	}

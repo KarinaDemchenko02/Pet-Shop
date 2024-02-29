@@ -89,7 +89,7 @@ class ProductRepositoryImpl implements ProductRepository
 		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
 		$offset = $limit * ($page - 1);
 
-		$ids = ProductTable::getList(['id'],
+		$ids = ProductTable::getList(['id', 'product_special_offer' => ['special_offer_id']],
 			conditions:              ['AND', ['=is_active' => 1, 'special_offer_id' => $specialOfferId]],
 			orderBy:                 ['priority' => 'ASC'],
 			limit:                   $limit,
@@ -229,8 +229,7 @@ class ProductRepositoryImpl implements ProductRepository
 		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
 		$offset = $limit * ($page - 1);
 
-		$result = ProductTable::getList(['id'],
-			selectedRelatedColumns:     ['tag' => ['tag_id' => 'id']],
+		$result = ProductTable::getList(['id', 'product_tag' => ['tag_id']],
 			conditions:                 ['AND', ['=is_active' => 1, 'in=tag_id' => $tags]],
 			orderBy:                    ['priority' => 'ASC'],
 			limit:                      $limit,
@@ -331,8 +330,7 @@ class ProductRepositoryImpl implements ProductRepository
 	{
 		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PREVIEW');
 
-		$result = ProductTable::getList(['id'],
-			selectedRelatedColumns:     ['specialOffer' => ['special_offer_id' => 'id']],
+		$result = ProductTable::getList(['id', 'special_offer' => ['special_offer_id' => 'id']],
 			conditions:                 ['AND', ['=is_active' => 1, '=special_offer_id' => $specialOfferId]],
 			orderBy:                    ['priority' => 'ASC'],
 			limit:                      $limit);
@@ -368,18 +366,20 @@ class ProductRepositoryImpl implements ProductRepository
 										 'added_at',
 										 'edited_at',
 										 'priority',
-									 ],
-									 [
 										 'image' => ['image_id' => 'id', 'path'],
-										 'tag' => ['tag_id' => 'id', 'tag_title' => 'title'],
-										 'specialOffer' => [
-											 'special_offer_id' => 'id',
-											 'special_offer_title' => 'title',
-											 'special_offer_description' => 'description',
+										 'product_tag' => ['tag' => ['tag_id' => 'id', 'tag_title' => 'title']],
+										 'product_special_offer' => [
+											 'special_offer' => [
+												 'special_offer_id' => 'id',
+												 'special_offer_title' => 'title',
+												 'special_offer_description' => 'description',
+											 ],
 										 ],
-										 'characteristic' => [
-											 'characteristic_id' => 'id',
-											 'characteristic_title' => 'title',
+										 'product_characteristic' => [
+											 'characteristic' => [
+												 'characteristic_id' => 'id',
+												 'characteristic_title' => 'title',
+											 ],
 											 'value',
 										 ],
 									 ],
@@ -396,8 +396,6 @@ class ProductRepositoryImpl implements ProductRepository
 										 'price',
 										 'is_active',
 										 'priority',
-									 ],
-									 [
 										 'image' => ['image_id' => 'id', 'path'],
 									 ],
 									 $where,

@@ -23,11 +23,11 @@ class ProductTable extends Table
 			new BooleanField('is_active', isNullable: false, isDefaultExists: true),
 			new IntegerField('priority', isDefaultExists: true),
 			new Reflection('image', new ImageTable(), 'product'),
-			new Reflection('tag', new ProductTagTable(), 'product'),
-			new Reflection('shoppingSession', new ShoppingSessionTable(), 'product'),
-			new Reflection('order', new OrderProductTable(), 'product'),
-			new Reflection('specialOffer', new ProductSpecialOfferTable(), 'product'),
-			new Reflection('characteristic', new CharacteristicProductTable(), 'product')
+			new Reflection('product_tag', new ProductTagTable(), 'product'),
+			new Reflection('shopping_session_product', new ShoppingSessionTable(), 'product'),
+			new Reflection('order_product', new OrderProductTable(), 'product'),
+			new Reflection('product_special_offer', new ProductSpecialOfferTable(), 'product'),
+			new Reflection('product_characteristic', new ProductCharacteristicTable(), 'product')
 		];
 	}
 

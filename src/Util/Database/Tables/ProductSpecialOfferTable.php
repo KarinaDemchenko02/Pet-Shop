@@ -15,7 +15,7 @@ class ProductSpecialOfferTable extends Table
 			new IntegerField('product_id', true, false, false),
 			new Reference('product', new ProductTable(), "this.product_id=ref.id"),
 			new IntegerField('special_offer_id', true, false, false),
-			new Reference('specialOffer', new SpecialOfferTable(), "this.special_offer_id=ref.id"),
+			new Reference('special_offer', new SpecialOfferTable(), "this.special_offer_id=ref.id"),
 		];
 	}
 
