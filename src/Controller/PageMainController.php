@@ -115,7 +115,7 @@ class PageMainController extends Controller
 			];
 		}
 
-		return new Response(Status::OK, ['products' => $content]);
+		return new Response(Status::OK, ['title' => $titleParam, 'products' => $content]);
 	}
 
 	public function getProductsJsonAction(Request $request): Response

@@ -5,6 +5,7 @@
 	<h2 class="basket__heading">Корзина</h2>
 	<ul class="basket__list" id="basket-list"></ul>
 	<button class="basket__buy">Купить</button>
+	<div id="basket__buyProduct"></div>
 </div>
 
 <script type="module">

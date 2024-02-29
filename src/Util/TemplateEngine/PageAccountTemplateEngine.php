@@ -24,11 +24,10 @@ class PageAccountTemplateEngine implements TemplateEngine
 
 	public function getAuthPageTemplate($variables): Template
 	{
-
 		$isLogIn = $variables['isLogIn'];
 		$header = $this->getHeaderTemplate($isLogIn);
 		$footer = new Template('components/main/footer');
-		$content = new Template('components/main/formAuthorization');
+		$content = new Template('components/main/formAuthorization', ['destination' => $variables['destination']]);
 		return (new Template('page/account/account', [
 			'header' => $header,
 			'content' => $content,

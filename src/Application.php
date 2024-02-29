@@ -6,11 +6,11 @@ use Up\Entity\ShoppingSession;
 use Up\Http\Request;
 use Up\Http\Response;
 use Up\Routing\Router;
-use Up\Util\Middleware\PreMiddleware\RequiredLogin;
 use Up\Util\Session;
 
 class Application
 {
+
 	private Router $router;
 
 	/**
@@ -22,14 +22,14 @@ class Application
 		'isNotLogIn' => \Up\Util\Middleware\PreMiddleware\IsNotLogIn::class,
 		'requiredLogin' => \Up\Util\Middleware\PreMiddleware\RequiredLogin::class,
 	];
+	private array $postMiddleware = [
+		'test' => \Up\Util\Middleware\PostMiddleware\Test::class
+	];
 	private array $middlewarePriority = [
 		\Up\Util\Middleware\PreMiddleware\IsLogin::class,
 		\Up\Util\Middleware\PreMiddleware\RequiredLogin::class,
 		\Up\Util\Middleware\PreMiddleware\IsAdmin::class,
 		\Up\Util\Middleware\PreMiddleware\IsNotLogIn::class,
-	];
-	private array $postMiddleware = [
-		'test' => \Up\Util\Middleware\PostMiddleware\Test::class
 	];
 	private array $postMiddlewarePriority = [
 		'test' => \Up\Util\Middleware\PostMiddleware\Test::class
@@ -74,7 +74,7 @@ class Application
 	private function handleRequest(): Request
 	{
 		$method = $_SERVER['REQUEST_METHOD'];
-		$uri = $_SERVER['REQUEST_URI'];
+		$uri = urldecode($_SERVER['REQUEST_URI']);
 
 		return (new Request($method, $uri));
 	}

@@ -64,7 +64,7 @@ final class Pipeline
 		$middleware = array_shift($this->middlewares);
 		if (!is_null($middleware))
 		{
-			return $middleware->handle($this->passable, [$this, $this->method]); // Рекурсия
+			return $middleware->handle($this->passable, [$this, $this->method]);
 		}
 		return ($this->destination)($this->passable);
 	}

@@ -10,6 +10,8 @@ use Up\Exceptions\Admin\ProductNotAdd;
 use Up\Exceptions\Admin\ProductNotChanged;
 use Up\Exceptions\Admin\ProductNotDisabled;
 use Up\Exceptions\Admin\ProductNotRestored;
+use Up\Exceptions\Images\ImageNotAdd;
+use Up\Exceptions\Product\ProductNotFound;
 use Up\Repository\Image\ImageRepositoryImpl;
 use Up\Repository\SpecialOffer\SpecialOfferRepositoryImpl;
 use Up\Repository\Tag\TagRepositoryImpl;
