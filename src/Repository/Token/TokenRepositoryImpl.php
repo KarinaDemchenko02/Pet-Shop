@@ -3,6 +3,7 @@
 namespace Up\Repository\Token;
 
 use Up\Dto\TokenDto;
+use Up\Exceptions\Auth\TokenNotDeleted;
 use Up\Exceptions\Auth\TokenNotUpdated;
 
 class TokenRepositoryImpl implements TokenRepository
@@ -36,7 +37,10 @@ class TokenRepositoryImpl implements TokenRepository
 		// TODO: Implement getAllByUserId() method.
 	}
 
-	public static function deleteAllByUserId(int $uid): TokenDto
+	/**
+	 * @throws TokenNotDeleted
+	 */
+	public static function deleteAllByUserId(int $uid): void
 	{
 		// TODO: Implement getAllByUserId() method.
 	}
