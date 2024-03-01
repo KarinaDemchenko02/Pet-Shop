@@ -23,7 +23,7 @@ class Application
 		'requiredLogin' => \Up\Util\Middleware\PreMiddleware\RequiredLogin::class,
 	];
 	private array $postMiddleware = [
-		'test' => \Up\Util\Middleware\PostMiddleware\Test::class
+		'isAdminUnauthorized' => \Up\Util\Middleware\PostMiddleware\isAdminUnauthorized::class
 	];
 	private array $middlewarePriority = [
 		\Up\Util\Middleware\PreMiddleware\IsLogin::class,
@@ -32,7 +32,7 @@ class Application
 		\Up\Util\Middleware\PreMiddleware\IsNotLogIn::class,
 	];
 	private array $postMiddlewarePriority = [
-		'test' => \Up\Util\Middleware\PostMiddleware\Test::class
+		'isAdminUnauthorized' => \Up\Util\Middleware\PostMiddleware\isAdminUnauthorized::class
 	];
 
 	public function __construct()
@@ -82,7 +82,7 @@ class Application
 	private function sendResponse(Response $response): void
 	{
 		echo $response;
-		if ($destination = $response->getDataByKey('redirect'))
+		if (($destination = $response->getRedirect()) !== '')
 		{
 			Router::redirect($destination);
 		}
