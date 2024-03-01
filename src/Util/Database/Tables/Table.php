@@ -259,13 +259,15 @@ abstract class Table implements TableInterface
 
 	public static function delete(array $condition): int
 	{
+		$orm = Orm::getInstance();
 		if (empty($condition))
 		{
 			throw new \RuntimeException("Error! Condition is cannot be empty");
 		}
 		$where = self::makeWhere($condition[0], $condition[1]);
 
-		return Orm::getInstance()->delete(static::getTableName(), $where);
+		$orm->delete(static::getTableName(), $where);
+		return $orm->affectedRows();
 	}
 
 	private static function prepareString($string): string
