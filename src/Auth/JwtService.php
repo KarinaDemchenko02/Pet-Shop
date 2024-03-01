@@ -1,67 +1,175 @@
 <?php
 
 namespace Up\Auth;
+use Firebase\JWT\ExpiredException;
 use \Firebase\JWT\JWT;
 
 use Firebase\JWT\Key;
+use Up\Dto\TokenDto;
+use Up\Exceptions\Auth\EmptyToken;
+use Up\Exceptions\Auth\InvalidToken;
+use Up\Exceptions\Auth\TokenNotUpdated;
+use Up\Repository\Token\TokenRepository;
+use Up\Repository\Token\TokenRepositoryImpl;
+use Up\Repository\User\UserRepositoryImpl;
 use Up\Util\Configuration;
 
 class JwtService
 {
-	public static function generateToken(array $data): string
+	public static function generateToken(TokenType $tokenType, string $email, int $userId, string $role): string
 	{
-		$configuration = Configuration::getInstance();
-		$exp = time() + $configuration->option('JWT_EXP_ACCESS');
-		$secret = $configuration->option('JWT_SECRET');
-		$alg = $configuration->option('JWT_ALG');
+		if ($tokenType === TokenType::ACCESS)
+		{
+			$exp = time() + self::getConfig('expAccess');
+			$token = [
+				'exp' => $exp,
+				'iat' => time(),
+				'sub' => $email,
+				'role' => $role,
+				'uid' => $userId,
+				];
+		}
+		else
+		{
+			$exp = time() + self::getConfig('expRefresh');
+			$token = [
+				'exp' => $exp,
+				'iat' => time(),
+				'sub' => $email,
+				'uid' => $userId,
+				'role' => $role,
+				'jti' => uniqid('', true),
+			];
+		}
 
-		$token = [
-			'exp' => $exp,
-			'data' => $data,
-		];
-
-		return JWT::encode($token, $secret, $alg);
+		/*$token = array_merge($token, $data);*/
+		return JWT::encode($token, self::getConfig('secret'), self::getConfig('alg'));
 	}
 
-	public static function validateToken(string $jwt): array
+	/**
+	 * @throws EmptyToken
+	 * @throws ExpiredException
+	 * @throws InvalidToken
+	 */
+	public static function validateToken(string $jwt): bool
 	{
 		if ($jwt === '')
 		{
-			return [];
+			throw new EmptyToken();
 		}
-		$configuration = Configuration::getInstance();
-		$secret = $configuration->option('JWT_SECRET');
-		$alg = $configuration->option('JWT_ALG');
+
 		try
 		{
-			$decoded = JWT::decode($jwt, new Key($secret, $alg));
-			return self::getPayload($decoded);
+			JWT::decode($jwt, new Key(self::getConfig('secret'), self::getConfig('alg')));
+			return true;
+		}
+		catch (ExpiredException)
+		{
+			throw new ExpiredException();
 		}
 		catch (\Exception)
 		{
-			return [];
+			throw new InvalidToken();
 		}
 	}
 
-	private static function getPayload(\stdClass $decoded): array
+	private static function getConfig(string $name): mixed
 	{
+		static $config = null;
+		if ($config !== null)
+		{
+			return $config[$name] ?? null;
+		}
+		$configuration = Configuration::getInstance();
+		$config['secret'] = $configuration->option('JWT_SECRET');
+		$config['alg'] = $configuration->option('JWT_ALG');
+		$config['expAccess'] = $configuration->option('JWT_EXP_ACCESS');
+		$config['expRefresh'] = $configuration->option('JWT_EXP_REFRESH');
+
+		return $config[$name] ?? null;
+	}
+
+	public static function getPayload(string $jwt): array
+	{
+		$decoded = JWT::decode($jwt, new Key(self::getConfig('secret'), self::getConfig('alg')));
 		return json_decode(json_encode($decoded, JSON_THROW_ON_ERROR), true, 512, JSON_THROW_ON_ERROR);
 	}
 
-	public static function saveTokenInCookie(string $jwt/*, TokenType $tokenType*/): bool
+	public static function saveTokenInCookie(string $jwt, TokenType $tokenType): bool
 	{
-		$configuration = Configuration::getInstance();
+
+		if ($tokenType === TokenType::ACCESS)
+		{
+			$exp = self::getConfig('expAccess');
+		}
+		else
+		{
+			$exp = self::getConfig('expRefresh');
+		}
+
+
 		$cookieOptions = [
-			'expires' => time() + $configuration->option('JWT_EXP_ACCESS'),
+			'expires' => time() + $exp,
 			'path' => '/',
 			'secure' => true,
 			'httponly' => true,
 			'samesite' => 'Strict'
 		];
-		return setcookie('jwt', $jwt, $cookieOptions);
+		$cookieName = 'JWT-' . $tokenType->name;
+		return setcookie($cookieName, $jwt, $cookieOptions);
 	}
-	public static function deleteCookie(string $name/*, TokenType $tokenType*/): bool
+	public static function deleteCookie(TokenType $tokenType): bool
 	{
-		return setcookie($name, '', time() - 1, '/');
+		$cookieName = 'JWT-' . $tokenType->name;
+		return setcookie($cookieName, '', time() - 1, '/');
+	}
+
+	/**
+	 * @throws InvalidToken|\JsonException
+	 */
+	public static function refreshTokens(string $refreshToken): array
+	{
+		try
+		{
+			$isValid = self::validateToken($refreshToken);
+		}
+		catch (EmptyToken)
+		{
+		}
+		if (!self::validateToken($refreshToken))
+		{
+			throw new InvalidToken();
+		}
+		try
+		{
+			$payload = self::getPayload($refreshToken);
+			$newRefreshToken = self::generateToken(TokenType::REFRESH, $payload['sub'], $payload['uid'], $payload['role']);
+
+			$newTokenPayload = self::getPayload($newRefreshToken);
+
+			$dto = new TokenDto(
+				$newTokenPayload['uid'],
+				$newTokenPayload['jti'],
+				$newTokenPayload['exp'],
+			);
+
+			TokenRepositoryImpl::updateByJti($payload['jti'], $dto);
+
+			$newAccessToken = self::generateToken(
+				TokenType::ACCESS,
+				$payload['sub'],
+				$payload['uid'],
+				$payload['role'],
+			);
+
+			return [
+				'access' => $newAccessToken,
+				'refresh' => $newRefreshToken,
+			];
+		}
+		catch (TokenNotUpdated)
+		{
+			throw new InvalidToken();
+		}
 	}
 }
