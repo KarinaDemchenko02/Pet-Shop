@@ -35,4 +35,9 @@ class TokenRepositoryImpl implements TokenRepository
 	{
 		// TODO: Implement getAllByUserId() method.
 	}
+
+	public static function deleteAllByUserId(int $uid): TokenDto
+	{
+		// TODO: Implement getAllByUserId() method.
+	}
 }
