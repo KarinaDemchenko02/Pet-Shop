@@ -4,7 +4,7 @@ namespace Up\Util\Middleware\PostMiddleware;
 
 use Up\Http\Response;
 
-class Test implements PostMiddleware
+class isAdminUnauthorized implements PostMiddleware
 {
 
 	/**

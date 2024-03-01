@@ -13,14 +13,20 @@ Router::get('/products-json/', new \Up\Controller\PageMainController(), 'getProd
 Router::get('/tags-json/', new \Up\Controller\PageMainController(), 'getTagsJsonAction');
 Router::get('/search-json/', new \Up\Controller\PageMainController(), 'getSearchJsonAction');
 
+/*Router::group([], [
+	Router::post('/api/auth/login/', new \Up\Controller\AuthController(), 'loginAction'),
+	Router::post('/api/auth/refresh-tokens/', new \Up\Controller\AuthController(), 'refreshTokensAction'),
+	Router::post('/api/auth/logout/', new \Up\Controller\AuthController(), 'logoutAction')
+	]);*/
+
 Router::group(['preMiddleware' => 'isNotLogIn'], [
 	Router::get('/admin/logIn/', new \Up\Controller\PageAdminController(), 'logInAction'),
 	Router::post('/logging/', new \Up\Controller\AuthController(), 'authAction'),
-	Router::post('/admin/signUp/', new \Up\Controller\AuthController(), 'logInAdminAction'),
+	Router::post('/admin/signUp/', new \Up\Controller\AuthController(), 'logInAction')->redirect('/admin/'),
 	]);
 
 
-Router::group(['preMiddleware' => ['isLogin', 'isAdmin']/*, 'postMiddleware' => 'test'*/], [
+Router::group(['preMiddleware' => ['isLogin', 'isAdmin'], 'postMiddleware' => 'isAdminUnauthorized'], [
 	Router::get('/admin/', new \Up\Controller\PageAdminController(), 'showProductsAction'),
 
 	Router::patch('/admin/product/disable/', new \Up\Controller\ProductAdminController(), 'disableAction'),
@@ -43,6 +49,8 @@ Router::post('/product/:id/', new \Up\Controller\PageDetailController(), 'buyPro
 
 Router::get('/success/', new \Up\Controller\PageDetailController(), 'showModalSuccess');
 
+
+Router::post('/account/logging/', new \Up\Controller\PageAccountController(), 'signUpAction');
 Router::group(['preMiddleware' => ['isLogin']], [
 	Router::get('/account/', new \Up\Controller\PageAccountController(), 'indexAction'),
 	Router::patch('/account/edit/', new \Up\Controller\ChangeAccountController(), 'changeAction'),

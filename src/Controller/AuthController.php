@@ -4,6 +4,7 @@ namespace Up\Controller;
 
 use Up\Auth\Auth;
 use Up\Auth\JwtService;
+use Up\Auth\TokenType;
 use Up\Dto\UserAddingDto;
 use Up\Exceptions\User\UserNotFound;
 use Up\Http\Request;
@@ -36,7 +37,7 @@ class AuthController extends Controller
 		}
 	}
 
-	private function logInAction(Request $request): Response
+	public function logInAction(Request $request): Response
 	{
 		try
 		{
@@ -45,12 +46,28 @@ class AuthController extends Controller
 		catch (UserNotFound)
 		{
 			$this->errors[] = 'Неправильно введён Email';
-			return new Response(Status::UNAUTHORIZED, ['result' => false, 'errors' => $this->authService->getErrors()]); //,'redirect' => '/']);
+			return new Response(Status::UNAUTHORIZED, ['result' => false, 'errors' => $this->authService->getErrors()]);
 		}
+
 		if ($this->authService->verifyUser($user, $request->getDataByKey('password')))
 		{
-			$token = JwtService::generateToken(['email' => $user->email, 'role' => $user->roleTitle, 'userId' => $user->id]);
-			JwtService::saveTokenInCookie($token);
+			$accessToken = JwtService::generateToken(
+				TokenType::ACCESS,
+				$user->email,
+				$user->id,
+				$user->roleTitle,
+			);
+
+			$refreshToken = JwtService::generateToken(
+				TokenType::REFRESH,
+				$user->email,
+				$user->id,
+				$user->roleTitle,
+			);
+
+			JwtService::saveTokenInCookie($accessToken, TokenType::ACCESS);
+			JwtService::saveTokenInCookie($refreshToken, TokenType::REFRESH);
+
 			Session::set('shoppingSession', ShoppingSessionRepositoryImpl::getByUser($user->id));
 		}
 		else
@@ -60,7 +77,7 @@ class AuthController extends Controller
 		return new Response(Status::OK, ['result' => true]);
 	}
 
-	public function logInAdminAction(Request $request): Response
+	/*public function logInAdminAction(Request $request): Response
 	{
 		try
 		{
@@ -76,8 +93,8 @@ class AuthController extends Controller
 		{
 			$this->errors[] = 'Неправильно введён email или пароль';
 		}
-		return new Response(Status::UNAUTHORIZED, ['redirect' => '/admin/logIn']);
-	}
+		return new Response(Status::UNAUTHORIZED);
+	}*/
 
 	private function registerAction(Request $request): Response
 	{
@@ -98,7 +115,8 @@ class AuthController extends Controller
 
 	private function logOutAction(Request $request): Response
 	{
-		JwtService::deleteCookie('jwt');
+		JwtService::deleteCookie(TokenType::ACCESS);
+		JwtService::deleteCookie(TokenType::REFRESH);
 		return new Response(Status::OK, ['result' => true]);
 	}
 

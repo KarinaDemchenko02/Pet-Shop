@@ -2,10 +2,13 @@
 
 namespace Up\Controller;
 
+use Up\Auth\JwtService;
 use Up\Dto\UserDto;
+use Up\Exceptions\User\UserNotFound;
 use Up\Http\Request;
 use Up\Http\Response;
 use Up\Http\Status;
+use Up\Repository\ShoppingSession\ShoppingSessionRepositoryImpl;
 use Up\Repository\User\UserRepositoryImpl;
 use Up\Service\ProductService\ProductService;
 use Up\Service\UserService\UserService;
@@ -34,6 +37,7 @@ class PageAccountController extends Controller
 	{
 		return new Response(Status::UNAUTHORIZED, ['template' => $this->engine->getAuthPageTemplate([
 			'isLogIn' => false,
+			'destination' => '/account/logging/'
 		])]);
 	}
 
@@ -56,5 +60,11 @@ class PageAccountController extends Controller
 		]);
 
 		return new Response(Status::OK, ['template' => $template]);
+	}
+	public function signUpAction(Request $request): Response
+	{
+		$response = (new AuthController())->authAction($request);
+		$response->setRedirect('/account/');
+		return $response;
 	}
 }

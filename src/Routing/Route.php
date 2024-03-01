@@ -25,6 +25,7 @@ class Route
 	public \Closure $action;
 	public array $preMiddlewares = [];
 	public array $postMiddlewares = [];
+	public string $redirectDestination = '';
 
 	/**
 	 * @param array|string $methods
@@ -116,6 +117,16 @@ class Route
 		{
 			$this->postMiddlewares = array_merge($this->postMiddlewares ?? [], $middleware);
 		}
+		return $this;
+	}
+
+	public function redirect(string $destination): static
+	{
+		/*if (!filter_var($destination, FILTER_VALIDATE_URL))*/
+		{
+			$this->redirectDestination = $destination;
+		}
+
 		return $this;
 	}
 

@@ -2,6 +2,8 @@
 
 namespace Up\Util\Middleware\PreMiddleware;
 
+use Up\Auth\JwtService;
+use Up\Auth\TokenType;
 use Up\Http\Request;
 use Up\Http\Response;
 use Up\Http\Status;
@@ -18,7 +20,10 @@ class IsAdmin implements PreMiddleware
 		{
 			return $next($request);
 		}
-
-		return new Response(Status::SEE_OTHER, ['redirect' => '/admin/logIn/']);
+		JwtService::deleteCookie(TokenType::ACCESS);
+		JwtService::deleteCookie(TokenType::REFRESH);
+		$response = new Response(Status::SEE_OTHER);
+		$response->setRedirect('/admin/logIn/');
+		return $response;
 	}
 }

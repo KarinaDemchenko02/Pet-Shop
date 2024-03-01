@@ -2,7 +2,7 @@
 
 namespace Up\Routing;
 
-use Up\Controller\RedirectController;
+use JetBrains\PhpStorm\NoReturn;
 use Up\Http\Request;
 use Up\Http\Response;
 use Up\Http\Status;
@@ -21,6 +21,11 @@ class Router
 	private array $postMiddlewarePriority = [];
 	private Request $currentRequest;
 
+	public static function get(string $uri, object $controller, string $action): Route
+	{
+		return self::add('GET', $uri, $controller, $action);
+	}
+
 	/**
 	 * @param string|array $method
 	 * @param string $uri
@@ -36,8 +41,7 @@ class Router
 			$route = new Route(
 				$method,
 				$uri,
-				function(Request $request) use ($controller, $action)
-				{
+				function (Request $request) use ($controller, $action) {
 					return $controller->$action($request);
 				}
 			);
@@ -46,22 +50,21 @@ class Router
 		return @$route;
 	}
 
-	public static function get(string $uri, object $controller, string $action): Route
-	{
-		return self::add('GET', $uri, $controller, $action);
-	}
 	public static function post(string $uri, object $controller, string $action): Route
 	{
 		return self::add('POST', $uri, $controller, $action);
 	}
+
 	public static function put(string $uri, object $controller, string $action): Route
 	{
 		return self::add('PUT', $uri, $controller, $action);
 	}
+
 	public static function patch(string $uri, object $controller, string $action): Route
 	{
 		return self::add('PATCH', $uri, $controller, $action);
 	}
+
 	public static function delete(string $uri, object $controller, string $action): Route
 	{
 		return self::add('DELETE', $uri, $controller, $action);
@@ -71,85 +74,6 @@ class Router
 	{
 		$verbs = ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'];
 		return self::add($verbs, $uri, $controller, $action);
-	}
-
-	public function run(Request $request): Response
-	{
-		if ($route = self::find($request))
-		{
-			$action = $route->action;
-			$variables = array_merge($route->getVariables(), $route->getParams());
-			$request->setVariables($variables);
-			$middlewares = $this->getSortedMiddlewares($route->getPreMiddlewares(), 'pre');
-
-			$response = (new Pipeline())
-				->send($request)
-				->through($middlewares)
-				->then($action);
-		}
-		else
-		{
-			$data = ['errors' => 'Page not found'];
-			return new Response(Status::NOT_FOUND, $data);
-		}
-		$postMiddlewares = $this->getSortedMiddlewares($route->getPostMiddlewares(), 'post');
-		$response = (new Pipeline())
-			->send($response)
-			->through($postMiddlewares)
-			->thenReturn();
-		return $response;
-	}
-
-	public function aliasPreMiddleware(string $name, string $class): void
-	{
-		$this->preMiddleware[$name] = $class;
-	}
-	public function aliasPostMiddleware(string $name, string $class): void
-	{
-		$this->postMiddleware[$name] = $class;
-	}
-
-	private function getSortedMiddlewares(array|string $toSortMiddlewares, string $prefix): array|string|null
-	{
-		if ($prefix !== 'pre' && $prefix !== 'post' && $toSortMiddlewares === [])
-		{
-			return [];
-		}
-		$middlewaresName = $prefix . 'Middleware';
-		$middlewaresPriority = $prefix . 'MiddlewarePriority';
-		return $this->sortMiddleware($this->$middlewaresName, $toSortMiddlewares, $this->$middlewaresPriority);
-	}
-
-	public function sortMiddleware(array|string $middlewaresName, array|string $middlewares, array|string $middlewaresPriority): array|string|null
-	{
-		if (is_string($middlewaresName))
-		{
-			return $middlewares[$middlewaresName];
-		}
-		$result = [];
-		foreach ($middlewares as $middleware)
-		{
-			if (isset($middlewaresName[$middleware]))
-			{
-				$result[] = $middlewaresName[$middleware];
-			}
-		}
-
-		if (empty($result))
-		{
-			return null;
-		}
-
-		uasort($result, function ($a, $b) use ($middlewaresPriority) {
-			if (array_search($a, $middlewaresPriority, true) >
-				array_search($b, $middlewaresPriority, true))
-			{
-				return 1;
-			}
-			return -1;
-		});
-
-		return $result;
 	}
 
 	/**
@@ -180,13 +104,45 @@ class Router
 		}
 	}
 
-	public static function redirect(string $destination): void
+	#[NoReturn] public static function redirect(string $destination): void
 	{
-
-		header('Location: ' . $destination);
+		header('Location: ' . $destination); exit;
 		/*return self::any($uri, new RedirectController(), 'redirect')
 			->setDefault('destination', $destination)
 			->setDefault('status', $status);*/
+	}
+
+	public function run(Request $request): Response
+	{
+		if ($route = self::find($request))
+		{
+			$action = $route->action;
+			$variables = array_merge($route->getVariables(), $route->getParams());
+			$request->setVariables($variables);
+			$middlewares = $this->getSortedMiddlewares($route->getPreMiddlewares(), 'pre');
+
+			$response = (new Pipeline())
+				->send($request)
+				->through($middlewares)
+				->then($action);
+		}
+		else
+		{
+			$data = ['errors' => 'Page not found'];
+			return new Response(Status::NOT_FOUND, $data);
+		}
+		$postMiddlewares = $this->getSortedMiddlewares($route->getPostMiddlewares(), 'post');
+		$response = (new Pipeline())
+			->send($response)
+			->through($postMiddlewares)
+			->thenReturn();
+
+		if (($destination = $route->redirectDestination) !== '')
+		{
+			$response->setRedirect($destination);
+		}
+
+		return $response;
 	}
 
 	public static function find(Request $request): Route|false
@@ -202,6 +158,62 @@ class Router
 		return false;
 	}
 
+	private function getSortedMiddlewares(array|string $toSortMiddlewares, string $prefix): array|string|null
+	{
+		if ($prefix !== 'pre' && $prefix !== 'post' && $toSortMiddlewares === [])
+		{
+			return [];
+		}
+		$middlewaresName = $prefix . 'Middleware';
+		$middlewaresPriority = $prefix . 'MiddlewarePriority';
+		return $this->sortMiddleware($this->$middlewaresName, $toSortMiddlewares, $this->$middlewaresPriority);
+	}
+
+	public function sortMiddleware(array|string $middlewaresName, array|string $middlewares,
+		array|string $middlewaresPriority): array|string|null
+	{
+		if (is_string($middlewaresName))
+		{
+			return $middlewares[$middlewaresName];
+		}
+		$result = [];
+		foreach ($middlewares as $middleware)
+		{
+			if (isset($middlewaresName[$middleware]))
+			{
+				$result[] = $middlewaresName[$middleware];
+			}
+		}
+
+		if (empty($result))
+		{
+			return null;
+		}
+
+		uasort($result, function ($a, $b) use ($middlewaresPriority) {
+			if (
+				array_search($a, $middlewaresPriority, true) >
+				array_search($b, $middlewaresPriority, true)
+			)
+			{
+				return 1;
+			}
+			return -1;
+		});
+
+		return $result;
+	}
+
+	public function aliasPreMiddleware(string $name, string $class): void
+	{
+		$this->preMiddleware[$name] = $class;
+	}
+
+	public function aliasPostMiddleware(string $name, string $class): void
+	{
+		$this->postMiddleware[$name] = $class;
+	}
+
 	/**
 	 * @param array $preMiddlewarePriority
 	 */
@@ -209,6 +221,7 @@ class Router
 	{
 		$this->preMiddlewarePriority = $preMiddlewarePriority;
 	}
+
 	/**
 	 * @param array $postMiddlewarePriority
 	 */

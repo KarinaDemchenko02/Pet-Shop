@@ -250,15 +250,9 @@ export class ProductList
 				return response.json();
 			})
 			.then((response) => {
-				/*if (response.status === 204) {
-					this.items = [];
-				}
-				if (response.status === 200) {*/
-					this.items = response.products.map((itemData) => {
-						return this.createItem(itemData)
-					})
-				/*}
-*/
+				this.items = response.products.map((itemData) => {
+					return this.createItem(itemData)
+				})
 				this.render();
 
 				spinner.classList.remove('disabled');

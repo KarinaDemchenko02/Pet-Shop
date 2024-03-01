@@ -6,6 +6,7 @@ final class Response implements Passable
 {
 	private readonly Status $status;
 	private mixed $data;
+	private string $redirect = '';
 	public function __construct(Status $status, mixed $data = [])
 	{
 		$this->data = $data;
@@ -32,12 +33,23 @@ final class Response implements Passable
 		{
 			return self::toJson($this->data);
 		}
+
 		return '';
 	}
 
 	public function getDataByKey(string $key): mixed
 	{
 		return $this->data[$key] ?? null;
+	}
+
+	public function getRedirect(): string
+	{
+		return $this->redirect;
+	}
+
+	public function setRedirect(string $destination): void
+	{
+		$this->redirect = $destination;
 	}
 
 	/**

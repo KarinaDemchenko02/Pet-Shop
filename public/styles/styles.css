@@ -817,6 +817,11 @@ button {
 	display: none;
 }
 
+.spinner-add-products {
+	right: 9%;
+	top: 31%;
+}
+
 .spinner-order {
 	right: 8%;
 	top: 29%;
@@ -827,12 +832,14 @@ button {
 	top: 26%;
 }
 
-.form__button:disabled, .form-product__submit:disabled {
+.form__button:disabled, .form-product__submit:disabled, .form-product__submit:disabled {
 	opacity: 0.5;
 	pointer-events: none;
 }
 
-.form__button:disabled .spinner-action, .form-product__submit:disabled .spinner-action {
+.form__button:disabled .spinner-action,
+.form-product__submit:disabled .spinner-action,
+.form-product__submit:disabled .spinner-action {
 	display: inline-block;
 }
 
@@ -1135,6 +1142,9 @@ button {
 	padding: 20px;
 	width: 96%;
 	max-width: 1000px;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
 	height: 550px;
 	position: absolute;
 	top: 50%;
@@ -1184,6 +1194,7 @@ button {
 }
 
 .basket__heading-product {
+	width: 19%;
 	font-size: 15px;
 	line-height: 15px;
 	font-weight: 600;
@@ -1221,6 +1232,9 @@ button {
 .basket__buy {
 	padding: 15px 35px;
 	color: white;
+	margin-top: auto;
+	margin-left: auto;
+	margin-right: auto;
 	font-size: 15px;
 	border: none;
 	border-radius: 3px;
@@ -1240,6 +1254,10 @@ button {
 	padding: 0;
 	border: none;
 	background-color: transparent;
+}
+
+.basket__list {
+	width: 100%;
 }
 
 .basket__icon-close {
@@ -1469,13 +1487,17 @@ button {
 }
 
 .form__basket-add-container {
+	padding: 25px;
 	position: static;
 	background-color: #2ca02c;
+	overflow-y: auto;
 }
 
 .form__basket-add {
+	padding: 10px;
 	position: inherit;
 	transform: inherit;
+	border-bottom: 1px solid #000000;
 }
 
 .is-active {
