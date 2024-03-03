@@ -2,20 +2,26 @@
 
 namespace Up\Controller;
 
+use Up\Http\Request;
+use Up\Http\Response;
+use Up\Http\Status;
 use Up\Repository\SpecialOffer\SpecialOfferRepositoryImpl;
 use Up\Service\ProductService\ProductService;
 use Up\Util\TemplateEngine\PageSpecialOfferIdTemplateEngine;
 
-class PageProductBySpecialOfferController extends BaseController
+class PageProductBySpecialOfferController extends Controller
 {
 	public function __construct()
 	{
 		$this->engine = new PageSpecialOfferIdTemplateEngine();
 	}
 
-	public function showProductBySpecialOfferAction(int $id): void
+	public function showProductBySpecialOfferAction(Request $request): Response
 	{
+		$id = $request->getVariable('id');
+
 		$specialOfferTitle = SpecialOfferRepositoryImpl::getById($id)->title;
+
 		if (isset($_GET['page']) && is_numeric($_GET['page']) && $_GET['page'] > 0)
 		{
 			$page = $_GET['page'];
@@ -37,6 +43,7 @@ class PageProductBySpecialOfferController extends BaseController
 														'isLogIn' => $this->isLogIn(),
 													]);
 
-		$template->display();
+		// $template->display();
+		return new Response(Status::OK, ['template' => $template]);
 	}
 }

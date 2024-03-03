@@ -5,6 +5,8 @@ use Up\Routing\Router;
 Router::group(['preMiddleware' => 'isLogin'], [
 	Router::get('/', new \Up\Controller\PageMainController(), 'showProductsAction'),
 	Router::get('/product/:id/', new \Up\Controller\PageDetailController(), 'showProductAction'),
+	Router::get('/special-offer/', new \Up\Controller\PageSpecialOfferController(), 'showSpecialOfferAction'),
+	Router::get('/special-offer/:id/', new \Up\Controller\PageProductBySpecialOfferController(), 'showProductBySpecialOfferAction'),
 	]);
 
 Router::post('/addToBasket/:id/', new \Up\Controller\BasketController(), 'addProductAction');
