@@ -121,7 +121,7 @@ class ProductRepositoryImpl implements ProductRepository
 				TagRepositoryImpl::add($tag);
 			}
 			$lastTag = $orm->last();
-			ProductTagTable::add(['id_item' => $lastItem, 'tag_id' => $lastTag]);
+			ProductTagTable::add(['product_id' => $lastItem, 'tag_id' => $lastTag]);
 			$orm->commit();
 
 			return $lastItem;
@@ -308,24 +308,6 @@ class ProductRepositoryImpl implements ProductRepository
 			$row['priority'] ?? null,
 			[],
 		);
-	}
-
-	public static function getColumn(): array
-	{
-		$query = Query::getInstance();
-		$sql = "SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
-                WHERE TABLE_NAME = 'up_item';";
-
-		$result = $query->getQueryResult($sql);
-
-		$columns = [];
-
-		while ($column = mysqli_fetch_column($result))
-		{
-			$columns[] = $column;
-		}
-
-		return $columns;
 	}
 
 	public static function getLimitedProductsBySpecialOffer(int $specialOfferId): array

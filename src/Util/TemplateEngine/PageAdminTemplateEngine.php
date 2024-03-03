@@ -45,6 +45,7 @@ class PageAdminTemplateEngine implements TemplateEngine
 					'price' => $product->price,
 					'id' => $product->id,
 					'isActive' => (int) $product->isActive,
+					'priority' => $product->priority,
 					'addedAt' => $product->addedAt,
 					'editedAt' => $product->editedAt
 				]

@@ -111,26 +111,6 @@ class OrderRepositoryImpl implements OrderRepository
 		}
 	}
 
-	public static function getColumn(): array
-	{
-		$query = Query::getInstance();
-		$sql = "SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
-                WHERE TABLE_NAME = 'up_order';";
-
-		$result = $query->getQueryResult($sql);
-		$columns = [];
-		while ($column = mysqli_fetch_column($result))
-		{
-			if ($column === 'status_id')
-			{
-				$column = 'status';
-			}
-			$columns[] = $column;
-		}
-
-		return $columns;
-	}
-
 	public static function createOrderEntity(array $row): Order
 	{
 		return new Order(
@@ -138,9 +118,9 @@ class OrderRepositoryImpl implements OrderRepository
 			[],
 			UserRepositoryImpl::createUserEntity($row),
 			$row['delivery_address'],
-			$row['status_title'],
 			$row['created_at'],
 			$row['edited_at'],
+			$row['status_title'],
 			$row['name'],
 			$row['surname']
 		);

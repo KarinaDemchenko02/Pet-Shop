@@ -37,4 +37,9 @@ class OrderTable extends Table
 	{
 		throw new \RuntimeException("The order cannot be deleted, only the status changed to cancelled");
 	}
+
+	public static function getColumnsName(): array
+	{
+		return ['ID', 'ID Пользователя', 'Адресс доставки', 'Статус заказа', 'Дата создания', 'Дата изменения', 'Имя', 'Фамилия'];
+	}
 }

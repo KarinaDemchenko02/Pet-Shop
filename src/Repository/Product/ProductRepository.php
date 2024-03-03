@@ -22,6 +22,4 @@ interface ProductRepository extends Repository
 	public static function disable($id): void;
 
 	public static function change(ProductChangeDto $productChangeDto): void;
-
-	public static function getColumn(): array;
 }

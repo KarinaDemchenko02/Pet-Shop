@@ -7,7 +7,6 @@ use Up\Entity\User;
 use Up\Exceptions\User\UserAdding;
 use Up\Exceptions\User\UserNotFound;
 use Up\Util\Database\Orm;
-use Up\Util\Database\Query;
 use Up\Util\Database\Tables\UserTable;
 
 class UserRepositoryImpl implements UserRepository
@@ -68,21 +67,6 @@ class UserRepositoryImpl implements UserRepository
 		}
 	}
 
-	public static function getColumn(): array
-	{
-		$query = Query::getInstance();
-		$sql = "SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
-				WHERE TABLE_NAME = 'up_users'";
-		$result = $query->getQueryResult($sql);
-		$columns = [];
-		while ($column = mysqli_fetch_assoc($result))
-		{
-			$columns[] = $column;
-		}
-
-		return $columns;
-	}
-
 	public static function createUserEntity(array $row): User
 	{
 		return new User(
@@ -117,7 +101,8 @@ class UserRepositoryImpl implements UserRepository
 							'email',
 							'password',
 							'user_is_active' => 'is_active',
-							'role' => ['user_role' => 'title']],
+							'role' => ['user_role' => 'title'],
+						],
 			conditions: $where
 		);
 	}

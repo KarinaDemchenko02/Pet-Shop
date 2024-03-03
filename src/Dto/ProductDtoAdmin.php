@@ -17,6 +17,7 @@ class ProductDtoAdmin implements Dto
 	public readonly int $addedAt;
 	public readonly int $editedAt;
 	public readonly array $tags;
+	public readonly int $priority;
 
 	public function __construct(Product $product)
 	{
@@ -28,6 +29,7 @@ class ProductDtoAdmin implements Dto
 		$this->isActive = $product->isActive;
 		$this->addedAt = $product->addedAt;
 		$this->editedAt = $product->editedAt;
+		$this->priority = $product->priority;
 		$this->tags = $product->getTags();
 	}
 

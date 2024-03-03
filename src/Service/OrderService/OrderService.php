@@ -10,6 +10,7 @@ use Up\Exceptions\Admin\Order\OrderNotChanged;
 use Up\Exceptions\Admin\Order\OrderNotDeleted;
 use Up\Exceptions\Order\OrderNotCompleted;
 use Up\Repository\Order\OrderRepositoryImpl;
+use Up\Util\Database\Tables\OrderTable;
 
 class OrderService
 {
@@ -46,7 +47,7 @@ class OrderService
 
 	public static function gelColumn(): array
 	{
-		return OrderRepositoryImpl::getColumn();
+		return OrderTable::getColumnsName();
 	}
 
 	/**

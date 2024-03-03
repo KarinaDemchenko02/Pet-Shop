@@ -23,4 +23,9 @@ class TagTable extends Table
 	{
 		return 'up_tags';
 	}
+
+	public static function getColumnsName(): array
+	{
+		return ['ID', 'Название',];
+	}
 }

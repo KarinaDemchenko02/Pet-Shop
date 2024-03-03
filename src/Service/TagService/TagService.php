@@ -7,6 +7,7 @@ use Up\Dto\Tag\TagChangingDto;
 use Up\Dto\TagDto;
 use Up\Exceptions\Admin\Tag\TagNotChanged;
 use Up\Repository\Tag\TagRepositoryImpl;
+use Up\Util\Database\Tables\TagTable;
 
 class TagService
 {
@@ -43,6 +44,6 @@ class TagService
 
 	public static function getColumn(): array
 	{
-		return TagRepositoryImpl::getColumn();
+		return TagTable::getColumnsName();
 	}
 }

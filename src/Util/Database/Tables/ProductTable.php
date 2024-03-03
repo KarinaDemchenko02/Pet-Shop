@@ -40,4 +40,9 @@ class ProductTable extends Table
 	{
 		throw new \RuntimeException("Product cannot be deleted, only disabled");
 	}
+
+	public static function getColumnsName(): array
+	{
+		return ['ID', 'Название', 'Описание', 'Цена', 'Дата создания', 'Дата изменения', 'Активен', 'Приоритет'];
+	}
 }

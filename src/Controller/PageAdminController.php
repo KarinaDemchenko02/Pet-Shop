@@ -10,6 +10,9 @@ use Up\Service\OrderService\OrderService;
 use Up\Service\ProductService\ProductService;
 use Up\Service\TagService\TagService;
 use Up\Service\UserService\UserService;
+use Up\Util\Database\Tables\ProductTable;
+use Up\Util\Database\Tables\TagTable;
+use Up\Util\Database\Tables\UserTable;
 use Up\Util\TemplateEngine\PageAdminTemplateEngine;
 
 class PageAdminController extends Controller
@@ -95,6 +98,7 @@ class PageAdminController extends Controller
 		{
 			$products = ProductService::getAllProductsForAdmin($page);
 			$columns = ProductService::getColumn();
+
 			$allTags = TagService::getAllTags();
 
 			$tagsArray = [];
@@ -124,7 +128,8 @@ class PageAdminController extends Controller
 						'price' => $product->price,
 						'id' => $product->id,
 						'imagePath' => $product->imagePath,
-						'isActive' => (int) $product->isActive,
+						'isActive' => $product->isActive ? 'Да' : 'Нет',
+						'priority' => $product->priority,
 						'addedAt' => $product->addedAt,
 						'editedAt' => $product->editedAt,
 						'tags' => $tags,

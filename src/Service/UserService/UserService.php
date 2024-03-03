@@ -9,6 +9,7 @@ use Up\Exceptions\Auth\InvalidPassword;
 use Up\Exceptions\User\UserAdding;
 use Up\Exceptions\User\UserNotFound;
 use Up\Repository\User\UserRepositoryImpl;
+use Up\Util\Database\Tables\UserTable;
 
 class UserService
 {
@@ -29,7 +30,7 @@ class UserService
 
 	public static function getColumn(): array
 	{
-		return UserRepositoryImpl::getColumn();
+		return UserTable::getColumnsName();
 	}
 	public static function getUserByEmail(string $email): UserDto
 	{

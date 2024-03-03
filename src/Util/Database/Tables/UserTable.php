@@ -36,4 +36,9 @@ class UserTable extends Table
 	{
 		throw new \RuntimeException("User cannot be deleted, only disabled");
 	}
+
+	public static function getColumnsName(): array
+	{
+		return ['ID', 'Email', 'Hash_password', 'Роль', 'Телефон', 'Имя', 'Фамилия', 'Активен',];
+	}
 }

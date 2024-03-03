@@ -14,7 +14,7 @@ use Up\Exceptions\Images\ImageNotAdd;
 use Up\Exceptions\Product\ProductNotFound;
 use Up\Repository\Image\ImageRepositoryImpl;
 use Up\Repository\Product\ProductRepositoryImpl;
-
+use Up\Util\Database\Tables\ProductTable;
 
 class ProductService
 {
@@ -135,8 +135,8 @@ class ProductService
 
 	public static function getColumn(): array
 	{
-		$columns = ProductRepositoryImpl::getColumn();
-		$columns[] = 'tag';
+		$columns = ProductTable::getColumnsName();
+		$columns[] = 'Теги';
 		return $columns;
 	}
 }

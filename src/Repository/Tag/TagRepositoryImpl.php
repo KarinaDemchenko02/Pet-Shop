@@ -27,21 +27,6 @@ class TagRepositoryImpl implements TagRepository
 		TagTable::add(['title' => $title]);
 	}
 
-	public static function getColumn(): array
-	{
-		$query = Query::getInstance();
-		$sql = "SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
-				WHERE TABLE_NAME = 'up_tags'";
-		$result = $query->getQueryResult($sql);
-		$columns = [];
-		while ($column = mysqli_fetch_column($result))
-		{
-			$columns[] = $column;
-		}
-
-		return $columns;
-	}
-
 	public static function delete(int $id): void
 	{
 		TagTable::delete(['AND', ['id' => $id]]);
