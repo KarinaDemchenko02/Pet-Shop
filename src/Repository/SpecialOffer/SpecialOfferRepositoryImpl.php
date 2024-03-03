@@ -43,20 +43,17 @@ class SpecialOfferRepositoryImpl implements SpecialOfferRepository
 				'special_offer_id' => 'id',
 				'special_offer_title' => 'title',
 				'special_offer_description' => 'description',
-			],
-			[
-				'product' => [
-					'id',
-					'name',
-					'description',
-					'price',
-					'added_at',
-					'edited_at',
-					'is_active',
-					'priority',
+				'product_special_offer' => [
+					'product' => [
+						'id',
+						'name',
+						'description',
+						'price',
+						'is_active',
+						'priority',
+						'image' => ['image_id' => 'id', 'path'],
+					],
 				],
-				'image' => ['image_id' => 'id', 'path'],
-				'tag' => ['id_tag' => 'id', 'name_tag' => 'name'],
 			],
 			['AND', ['=is_active' => 1, 'in=special_offer_id' => $ids]],
 			['priority' => 'ASC'],
@@ -82,12 +79,6 @@ class SpecialOfferRepositoryImpl implements SpecialOfferRepository
 					);
 				}
 				$product = $specialOfferPreviewProduct->getProducts()[$row['id']];
-			}
-			if (!is_null($row['id_tag']) && !is_null($product) && !isset($product->getTags()[$row['id_tag']]))
-			{
-				$product->addTag(
-					TagRepositoryImpl::createTagEntity($row)
-				);
 			}
 			if (
 				!is_null($row['special_offer_id']) && !is_null($product)

@@ -90,12 +90,14 @@ class ProductRepositoryImpl implements ProductRepository
 	{
 		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
 		$offset = $limit * ($page - 1);
+		$ids = self::getIds(
+			ProductTable::getList(['id', 'product_special_offer' => ['special_offer_id']],
+				conditions:              ['AND', ['=is_active' => 1, '=special_offer_id' => $specialOfferId]],
+				orderBy:                 ['priority' => 'ASC'],
+				limit:                   $limit,
+				offset:                  $offset)
+		);
 
-		$ids = ProductTable::getList(['id', 'product_special_offer' => ['special_offer_id']],
-			conditions:              ['AND', ['=is_active' => 1, 'special_offer_id' => $specialOfferId]],
-			orderBy:                 ['priority' => 'ASC'],
-			limit:                   $limit,
-			offset:                  $offset);
 		$result = self::getAllProductList(['AND', ['in=id' => $ids]]);
 
 		return self::createProductList($result);

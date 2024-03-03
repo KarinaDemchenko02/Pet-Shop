@@ -19,7 +19,6 @@ class PageSpecialOfferController extends Controller
 	public function showSpecialOfferAction(Request $request): Response
 	{
 		$specialOffersPreviewProducts = SpecialOfferRepositoryImpl::getPreviewProducts();
-		var_dump($specialOffersPreviewProducts);
 
 		$template = $this->engine->getPageTemplate([
 													   'specialOffersPreviewProducts' => $specialOffersPreviewProducts,
