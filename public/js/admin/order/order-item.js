@@ -12,11 +12,11 @@ export class OrderItem
 	editButtonHandler;
 	removeButtonHandler;
 
-	constructor({ id, products, user_id, deliveryAddress, createdAt, editedAt, name, surname, status, editButtonHandler, removeButtonHandler })
+	constructor({ id, products, userId, deliveryAddress, createdAt, editedAt, name, surname, status, editButtonHandler, removeButtonHandler })
 	{
 		this.id = Number(id);
 		this.products = products;
-		this.user_id = Number(user_id);
+		this.user_id = Number(userId);
 		this.deliveryAddress = String(deliveryAddress);
 		this.createdAt = new Date(Number(createdAt)*1000).toDateString();
 		this.editedAt = new Date(Number(editedAt)*1000).toDateString();
@@ -49,9 +49,9 @@ export class OrderItem
 		const productsColumn = this.createProductsColumn();
 		productsColumn.classList.add('table__th', 'table__th_products')
 
-		/*const userIdColumn = document.createElement('td');
+		const userIdColumn = document.createElement('td');
 		userIdColumn.classList.add('table__th', 'table__th_userId');
-		userIdColumn.innerText = this.user_id;*/
+		userIdColumn.innerText = this.user_id;
 
 		const deliveryAddressColumn = document.createElement('td');
 		deliveryAddressColumn.classList.add('table__th', 'table__th_deliveryAddress');
@@ -84,13 +84,6 @@ export class OrderItem
 		spinnerLoadingRemove.classList.add('visually-hidden');
 		spinnerRemove.append(spinnerLoadingRemove);
 
-		/*const spinnerRestore = document.createElement('div');
-		spinnerRestore.classList.add('spinner-border', 'text-light', 'spinner-action');
-		const spinnerLoadingRestore = document.createElement('span');
-		spinnerLoadingRestore.innerText = 'Loading...';
-		spinnerLoadingRestore.classList.add('visually-hidden');
-		spinnerRestore.append(spinnerLoadingRestore);*/
-
 		const spinnerEdit = document.createElement('div');
 		spinnerEdit.classList.add('spinner-border', 'text-light', 'spinner-action');
 		const spinnerLoadingEdit = document.createElement('span');
@@ -119,7 +112,7 @@ export class OrderItem
 
 		trProduct.append(
 			idColumn,
-			/*userIdColumn,*/
+			userIdColumn,
 			deliveryAddressColumn,
 			statusIdColumn,
 			createdAtColumn,
