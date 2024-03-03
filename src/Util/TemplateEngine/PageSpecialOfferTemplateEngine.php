@@ -20,6 +20,7 @@ class PageSpecialOfferTemplateEngine implements TemplateEngine
 		$specialOfferPageTemplate = new Template('page/specialOffers/specialOffers', [
 			'specialOffersPreviewProducts' => $this->getSpecialOffersSectionTemplate($specialOffersPreviewProducts),
 			'form' => $form,
+			'isLogIn' => $isLogIn,
 			'basket' => $basket,
 		],);
 

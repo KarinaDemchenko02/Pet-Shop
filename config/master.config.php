@@ -12,4 +12,5 @@ return [
 	'JWT_EXP_ACCESS' => 60 * 5,
 	'JWT_EXP_REFRESH' => 60 * 60 * 24,
 	'TIMEZONE' => "Europe/Kaliningrad",
+	"NUMBER_OF_PRODUCTS_PER_PREVIEW" => 3,
 ];
