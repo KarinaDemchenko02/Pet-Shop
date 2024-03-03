@@ -9,9 +9,7 @@ use Up\Dto\TokenDto;
 use Up\Exceptions\Auth\EmptyToken;
 use Up\Exceptions\Auth\InvalidToken;
 use Up\Exceptions\Auth\TokenNotUpdated;
-use Up\Repository\Token\TokenRepository;
 use Up\Repository\Token\TokenRepositoryImpl;
-use Up\Repository\User\UserRepositoryImpl;
 use Up\Util\Configuration;
 
 class JwtService
@@ -125,17 +123,11 @@ class JwtService
 	}
 
 	/**
-	 * @throws InvalidToken|\JsonException
+	 * @throws InvalidToken|\JsonException|EmptyToken
 	 */
 	public static function refreshTokens(string $refreshToken): array
 	{
-		try
-		{
-			$isValid = self::validateToken($refreshToken);
-		}
-		catch (EmptyToken)
-		{
-		}
+
 		if (!self::validateToken($refreshToken))
 		{
 			throw new InvalidToken();
