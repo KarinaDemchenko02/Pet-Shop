@@ -6,7 +6,7 @@ use Up\Repository\SpecialOffer\SpecialOfferRepositoryImpl;
 use Up\Service\ProductService\ProductService;
 use Up\Util\TemplateEngine\PageSpecialOfferTemplateEngine;
 
-class PageSpecialOfferController extends BaseController
+class PageSpecialOfferController extends Controller
 {
 	public function __construct()
 	{

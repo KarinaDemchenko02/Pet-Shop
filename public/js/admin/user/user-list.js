@@ -51,18 +51,17 @@ export class UserList
 	{
 		const formEdit = document.querySelector('.form__box');
 		const id = document.getElementById('productId');
-		const status = document.getElementById('title');
-		const desc = document.getElementById('desc');
-		const price = document.getElementById('price');
+		const role = document.getElementById('price');
 
 		const buttonAdd = document.getElementById('add');
 		const buttonEdit = document.getElementById('changed');
 
 		id.innerText = item['id'];
-		title.value = item['title'];
+		status.value = item['title'];
 		desc.value = item['description'];
 		price.value = item['price'];
 
+		id.style.display = 'none';
 		formEdit.style.display = 'block';
 		buttonAdd.style.display = 'none';
 		buttonEdit.style.display = 'block';
@@ -103,13 +102,13 @@ export class UserList
 		formEdit.style.display = 'none';
 	}
 
-	handleDeleteTag(event)
+	handleDeleteRole(event)
 	{
 		const container = event.target.parentNode.parentNode;
 		container.parentNode.removeChild(container);
 	}
 
-	handleAddTags()
+	handleAddRole()
 	{
 		const tagsContainer = document.querySelector('.form__container-tag');
 
@@ -120,7 +119,7 @@ export class UserList
 
 		const deleteTag = document.createElement('button');
 		deleteTag.classList.add('form__delete-tag');
-		deleteTag.addEventListener('click', this.handleDeleteTag.bind(this));
+		deleteTag.addEventListener('click', this.handleDeleteRole.bind(this));
 
 		const iconDelete = document.createElement('i');
 		iconDelete.classList.add('material-icons', 'form__icon-delete');
@@ -457,7 +456,7 @@ export class UserList
 		const addTags = document.createElement('button');
 		addTags.classList.add('form__add-tag');
 		addTags.innerText = 'Добавить тег';
-		addTags.addEventListener('click', this.handleAddTags.bind(this));
+		addTags.addEventListener('click', this.handleAddRole.bind(this));
 
 		const icon = document.createElement('i');
 		icon.classList.add('material-icons', 'form__icon-add');
@@ -489,7 +488,7 @@ export class UserList
 
 			const deleteTag = document.createElement('button');
 			deleteTag.classList.add('form__delete-tag');
-			deleteTag.addEventListener('click', this.handleDeleteTag.bind(this));
+			deleteTag.addEventListener('click', this.handleDeleteRole.bind(this));
 
 			const iconDelete = document.createElement('i');
 			iconDelete.classList.add('material-icons', 'form__icon-delete');

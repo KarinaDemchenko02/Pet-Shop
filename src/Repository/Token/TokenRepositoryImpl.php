@@ -10,7 +10,6 @@ use Up\Util\Database\Tables\TokenTable;
 
 class TokenRepositoryImpl implements TokenRepository
 {
-
 	public static function getByJti(string $jti): TokenDto
 	{
 		return self::createTokenList(self::getTokenList(['AND', ['=jti' => $jti]]))[$jti];
