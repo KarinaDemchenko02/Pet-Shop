@@ -1,3 +1,6 @@
+<?php
+$isLogin = $this->getVariable('isLogIn');
+?>
 <div class="main__container">
 	<section class="form">
 		<?php $this->getVariable('form')->display() ?>
@@ -13,3 +16,13 @@
 		</ul>
 	</section>
 </div>
+<script type="module">
+	import {Auth} from "/js/main/auth/auth.js";
+
+	const auth = new Auth({
+		attachToNodeId: 'form-auth',
+		login: <?= \Up\Util\Json::encode($isLogin) ?>,
+	})
+
+	auth.render();
+</script>
