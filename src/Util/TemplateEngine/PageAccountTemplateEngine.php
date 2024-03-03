@@ -7,11 +7,13 @@ class PageAccountTemplateEngine implements TemplateEngine
 	public function getPageTemplate($variables): Template
 	{
 		$user = $variables['user'];
+		$orders = $variables['orders'];
 		$isLogIn = $variables['isLogIn'];
 		$header = $this->getHeaderTemplate($isLogIn);
 		$footer = new Template('components/main/footer');
 		$userInfo = new Template('components/account/pageUserInfo', [
-			'user' => $user
+			'user' => $user,
+			'orders' => $orders
 		]);
 
 
@@ -47,5 +49,4 @@ class PageAccountTemplateEngine implements TemplateEngine
 		}
 		return new Template('components/main/header', ['authSection' => $authSection]);
 	}
-
 }

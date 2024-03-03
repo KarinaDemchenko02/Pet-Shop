@@ -75,26 +75,9 @@ export class BasketList
 
 	openFormBuyProduct()
 	{
-		const items = this.items;
-
-		let html = '';
-
-		for (let i = 0; i < items.length; i++) {
-			const item = items[i];
-
-			html += `
-			<div class="form-product__item form__basket-add ">
-				<img class="form-product__images" src="${item.imagePath}" alt="product">
-				<h2 class="form-product__heading">${item.title}</h2>
-				<p class="form-product__price">${item.price} ₽</p>
-		  	</div>`;
-		}
-
 		this.renderFormBuy();
 
 		document.getElementById('basket__buyProduct').style.display = 'block';
-
-		document.querySelector('.form-product__modal').innerHTML = html;
 
 		const formBuyOrder = document.getElementById('form__order-add');
 		const formClose = document.querySelector('.form-product__close');
@@ -196,9 +179,6 @@ export class BasketList
 				<button class="form-product__close">
 					<i class="form-product__close-icon material-icons">close</i>
 				</button>
-				<div class="form-product__modal form__basket-add-container">
-					<div class="form-product__round"></div>
-				</div>
 				<div class="form-product__container-info">
 					<div class="form-product__info">
 					<h2 class="form-product__info-heading">Оформление заказа</h2>

@@ -1,7 +1,7 @@
 <header class="header">
 	<div class="header__top-menu">
 		<img class="header__logo" src="/../compressImages/logoMadagascar.png" alt="logo">
-		<div class="header__form"></div>
+		<div class="header__form" id="header-search"></div>
 		<div class="header__phone">
 			<i class="header__call material-icons">call</i>
 			<a class="header__link-phone" href="tel:+79521132415">+7 (952) 113-24-15</a>
@@ -46,4 +46,3 @@
 		</nav>
 	</div>
 </header>
-

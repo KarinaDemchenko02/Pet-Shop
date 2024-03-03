@@ -1,9 +1,9 @@
-import {TagItem} from "./tag-item.js";
-import {ProductItem} from "../product/product-item.js";
-import {ProductList} from "../product/product-list.js";
-import {BasketItem} from "../basket/basket-item.js";
+import {Error} from "../../error/error.js";
+import {ProductItem} from "../product-item.js";
+import {ProductList} from "../product-list.js";
+import {BasketItem} from "../../basket/basket-item.js";
 
-export class TagList
+export class Search
 {
 	attachToNodeId = '';
 	rootNode;
@@ -15,6 +15,7 @@ export class TagList
 	{
 		if (attachToNodeId === '')
 		{
+			new basketItem
 			throw new Error('attachToNodeId must be a filled string.');
 		}
 
@@ -25,6 +26,7 @@ export class TagList
 		}
 
 		this.rootNode = rootNode;
+
 		this.items = items.map((itemData) => {
 			return this.createItem(itemData)
 		})
@@ -36,12 +38,6 @@ export class TagList
 
 	createItem(itemData)
 	{
-		itemData.filterTagButtonHandler = this.handleFilterTagButtonClick.bind(this);
-		return new TagItem(itemData);
-	}
-
-	createProduct(itemData)
-	{
 		return new ProductItem(itemData);
 	}
 
@@ -50,28 +46,41 @@ export class TagList
 		return new BasketItem(itemData)
 	}
 
-	handlePaginationButtonClick(event)
+	handleSearchButtonSubmit()
 	{
-		if (this.items)
-		{
-			const page = event.target.innerText;
-			const tag = new URLSearchParams(window.location.search).get('tag');
+		const inputSearch = document.getElementById('search');
 
-			let currentUrl = window.location.href;
+		const title = inputSearch.value;
 
-			let newUrl = new URL(currentUrl);
-			newUrl.searchParams.set('tag', tag);
-			newUrl.searchParams.set('page', page);
+		let currentUrl = window.location.href;
 
-			window.history.replaceState({}, '', newUrl);
+		let page = '1';
 
-			fetch(
-				`/tags-json/?tag=${tag}&page=${page}`,
-				{
-					method: 'GET',
-				}
-			)
+		this.currentPagination = '1';
+
+		let newUrl = new URL(currentUrl);
+
+		newUrl.searchParams.set('title', title);
+		newUrl.searchParams.set('page', page);
+
+		window.history.replaceState({}, '', newUrl);
+
+		const spinner = document.querySelector('.spinner-product');
+
+		if (spinner) {
+			spinner.classList.add('disabled');
+		}
+
+		fetch(
+			`/search-json/?title=${title}&page=${page}`,
+			{
+				method: 'GET',
+			}
+		)
 			.then((response) => {
+				if (response.status >= 300 || response.status < 200) {
+					throw new Error('Network response was not ok');
+				}
 				return response.json();
 			})
 			.then(async (response) => {
@@ -80,7 +89,7 @@ export class TagList
 				}
 
 				let products = response.products.map((itemData) => {
-					return this.createProduct(itemData);
+					return this.createItem(itemData);
 				});
 
 				const productsList = new ProductList({
@@ -93,63 +102,35 @@ export class TagList
 
 				this.renderPagination();
 
-				const spinner = document.querySelector('.spinner-product');
-				spinner.classList.remove('disabled');
+				if (spinner) {
+					spinner.classList.remove('disabled');
+				}
 			})
 			.catch((error) => {
-				console.error('Error while deleting item.', error);
-				const spinner = document.querySelector('.spinner-product');
-				spinner.classList.remove('disabled');
-			})
-		}
+				console.error('Error while changing item:', error);
+				if (spinner) {
+					spinner.classList.remove('disabled');
+				}
+			});
 	}
 
-	handleFilterTagButtonClick(item)
+	handlePaginationButtonClick(event)
 	{
 		if (this.items)
 		{
-			const tag = item.id;
-
-			let page = '1';
-
-			this.currentPagination = '1';
+			const page = event.target.innerText;
+			const title = new URLSearchParams(window.location.search).get('title');
 
 			let currentUrl = window.location.href;
 
 			let newUrl = new URL(currentUrl);
-
-			let currentTags = newUrl.searchParams.getAll('tag');
-
-			currentTags.push(tag.toString());
-
-			currentTags = currentTags.filter((item, index) => currentTags.indexOf(item) === index);
-
-			if (currentTags[1]) {
-				if (currentTags[0].includes(currentTags[1])) {
-					const newArr = currentTags[0].split(',');
-					const index = newArr.indexOf(currentTags[1]);
-					newArr.splice(index, 1);
-					currentTags[0] = newArr.join(',');
-
-					currentTags.splice(1, 1);
-				}
-			}
-
-			newUrl.searchParams.set('tag', currentTags.join(','));
+			newUrl.searchParams.set('title', title);
 			newUrl.searchParams.set('page', page);
 
 			window.history.replaceState({}, '', newUrl);
 
-			const inputCheckbox = document.querySelectorAll('.tags__checkbox');
-			inputCheckbox.forEach(checkbox => {
-				checkbox.disabled = true;
-			})
-
-			const spinner = document.querySelector('.spinner-product');
-			spinner.classList.add('disabled');
-
 			fetch(
-				`/tags-json/?tag=${currentTags.join(',')}&page=${page}`,
+				`/tags-json/?title=${title}&page=${page}`,
 				{
 					method: 'GET',
 				}
@@ -163,7 +144,7 @@ export class TagList
 					}
 
 					let products = response.products.map((itemData) => {
-						return this.createProduct(itemData);
+						return this.createItem(itemData);
 					});
 
 					const productsList = new ProductList({
@@ -178,34 +159,55 @@ export class TagList
 
 					const spinner = document.querySelector('.spinner-product');
 					spinner.classList.remove('disabled');
-
-					inputCheckbox.forEach(checkbox => {
-						checkbox.disabled = false;
-					})
 				})
 				.catch((error) => {
 					console.error('Error while deleting item.', error);
 					const spinner = document.querySelector('.spinner-product');
 					spinner.classList.remove('disabled');
-
-					inputCheckbox.forEach(checkbox => {
-						checkbox.disabled = false;
-					})
 				})
 		}
 	}
 
 	render()
 	{
-		if (this.items.length === 0) {
-			return false;
-		}
-
 		this.rootNode.innerHTML = '';
 
-		this.items.forEach((item) => {
-			this.rootNode.append(item.render())
-		});
+		const form = document.createElement('form');
+		form.classList.add('header__main-form');
+
+		form.addEventListener('submit', function(event) {
+			event.preventDefault();
+			this.handleSearchButtonSubmit();
+		}.bind(this));
+
+		const labelSearch = document.createElement('label');
+		labelSearch.classList.add('header__label');
+
+		const inputSearch = document.createElement('input');
+		inputSearch.classList.add('header__input');
+		inputSearch.name = 'title';
+		inputSearch.id = 'search'
+		inputSearch.placeholder = 'Поиск товаров';
+
+		if (new URLSearchParams(window.location.search).get('title'))
+		{
+			inputSearch.value = new URLSearchParams(window.location.search).get('title');
+		}
+
+		const searchButton = document.createElement('button');
+		searchButton.classList.add('header__button')
+		searchButton.type = 'submit';
+
+		const buttonIcon = document.createElement('i');
+		buttonIcon.classList.add('header__search', 'material-icons');
+		buttonIcon.innerText = 'search';
+
+		searchButton.append(buttonIcon)
+
+		labelSearch.append(inputSearch);
+		form.append(labelSearch, searchButton);
+
+		this.rootNode.append(form);
 	}
 
 	renderPagination()

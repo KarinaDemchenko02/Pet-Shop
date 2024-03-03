@@ -4,12 +4,13 @@ namespace Up\Util\Compression;
 
 use Up\Exceptions\Images\ImageNotCopy;
 use Up\Exceptions\Images\ImageNotResize;
+use Up\Util\Configuration;
 
 class CompressionImages
 {
 	private string $path;
 	private string $destination;
-	private array $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+
 
 	public function __construct(string $path, string $destination)
 	{
@@ -81,9 +82,12 @@ class CompressionImages
 
 	private function checkImage(string $filePath): bool
 	{
+		$configuration = Configuration::getInstance();
+
+		$allowedTypes = $configuration->option('ALLOWED_IMAGES_TYPE');
 		$fileExtension = pathinfo($filePath, PATHINFO_EXTENSION);
 
-		if (in_array($fileExtension, $this->allowedExtensions, true)) {
+		if (in_array($fileExtension, $allowedTypes, true)) {
 			return true;
 		}
 
@@ -92,29 +96,35 @@ class CompressionImages
 
 	private function resizeImage(string $path, string $movePath, string $nameImage): void
 	{
-		$imageSize = getimagesize($path);
+		$imageSize = exif_imagetype($path);
+
+		$configuration = Configuration::getInstance();
+		$resizeJpeg = $configuration->option('IMAGE_COMPRESSION_VALUE_JPEG');
+		$resizePNG = $configuration->option('IMAGE_COMPRESSION_VALUE_PNG');
 
 		if (!$imageSize)
 		{
 			return;
 		}
 
-		switch ($imageSize['mime']) {
-			case 'image/jpeg':
+		switch ($imageSize) {
+			case IMAGETYPE_JPEG:
 				$image = imagecreatefromjpeg($path);
-				imagejpeg($image, $movePath . '/' . $nameImage, 80);
+				imagejpeg($image, $movePath . '/' . $nameImage, $resizeJpeg);
 				break;
-			case 'image/png':
+			case IMAGETYPE_PNG:
 				$image = imagecreatefrompng($path);
-				imagepng($image, $movePath .  '/' . $nameImage, 9);
+				imagealphablending($image, false);
+				imagesavealpha($image, true);
+				imagepng($image, $movePath . '/' . $nameImage, $resizePNG);
 				break;
-			case 'image/git':
+			case IMAGETYPE_GIF:
 				$image = imagecreatefromgif($path);
 				imagegif($image, $movePath .  '/' . $nameImage);
 				break;
 			default:
 				$image = imagecreatefromjpeg($path);
-				imagejpeg($image, $movePath .  '/' . $nameImage, 80);
+				imagejpeg($image, $movePath .  '/' . $nameImage, $resizeJpeg);
 		}
 
 	}

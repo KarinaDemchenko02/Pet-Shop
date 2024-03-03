@@ -1,4 +1,5 @@
 import { UserItem } from "./user-item.js";
+import {OrderItem} from "./user-order-item.js";
 
 export class UserList
 {
@@ -6,12 +7,14 @@ export class UserList
 	rootNode;
 	itemsContainer;
 	items = [];
-	constructor({ attachToNodeId = '', items })
+	orders = [];
+	constructor({ attachToNodeId = '', items, orders})
 	{
 		if (attachToNodeId === '')
 		{
 			throw new Error('attachToNodeId must be a filled string.');
 		}
+
 
 		const rootNode = document.getElementById(attachToNodeId)
 		if (!rootNode)
@@ -22,14 +25,22 @@ export class UserList
 		this.rootNode = rootNode;
 		this.items = this.createItem(items);
 
-		this.createItemsContainer()
-	}
+		this.orders = orders.map((orderData) => {
+			return this.createOrder(orderData)
+		})
 
+		this.createItemsContainer();
+	}
 
 	createItem(itemData)
 	{
 		itemData.editButtonHandler = this.handleEditButtonClick.bind(this);
 		return new UserItem(itemData);
+	}
+
+	createOrder(orderData)
+	{
+		return new OrderItem(orderData);
 	}
 
 	createItemsContainer()
@@ -51,6 +62,7 @@ export class UserList
 			}
 
 			const name = document.getElementById('name').value;
+			const surname = document.getElementById('surname').value;
 			const phone = document.getElementById('phone').value;
 			const email = document.getElementById('email').value;
 			const password = document.getElementById('password').value;
@@ -58,9 +70,10 @@ export class UserList
 			const newDataInput = {
 				id: Number(item.id),
 				name: name,
+				surname: surname,
 				phoneNumber: phone,
 				email: email,
-				password: password,
+				password: password
 			}
 
 			const buttonSave = document.getElementById('save');
@@ -85,22 +98,28 @@ export class UserList
 						const inputPassword = document.getElementById('password');
 						inputPassword.value = '';
 						buttonSave.disabled = false;
-						this.render();
 					}
 					else
 					{
-						console.error('Error while deleting item.');
+						console.error('Error while deleting item.', response);
 						buttonSave.disabled = false;
 					}
 				})
 				.catch((error) => {
-					console.error('Error while deleting item.');
+					console.error('Error while deleting item.', error);
 					buttonSave.disabled = false;
 				})
 		}
 	}
 	render()
 	{
+		const containerOrder = document.createElement('ul');
+		containerOrder.classList.add('account__container-order');
+
+		const orderHeading = document.createElement('h2');
+		orderHeading.classList.add('account__order-heading');
+		orderHeading.innerText = 'Ваши заказы:';
+
 		const userIcon = document.createElement('img');
 		userIcon.classList.add('account__image');
 		userIcon.src = '/../compressImages/accountIcon.png';
@@ -109,8 +128,13 @@ export class UserList
 		const form = document.createElement('div');
 		form.classList.add('account__form');
 
+		this.itemsContainer.append(userIcon, form, orderHeading);
 
-		this.itemsContainer.append(userIcon, form);
+		this.orders.forEach((order) => {
+			containerOrder.append(order.render());
+		});
+
+		this.rootNode.append(containerOrder);
 
 		form.append(this.items.render());
 	}

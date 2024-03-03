@@ -12,15 +12,6 @@ class PageMainTemplateEngine implements TemplateEngine
 		$tags = $variables['tag'];
 		$isLogIn = $variables['isLogIn'];
 		$nextPage = $variables['nextPage'];
-
-		$footer = new Template('components/main/footer');
-		$header = new Template('components/main/header');
-		$form = new Template('components/main/formAuthorization');
-		$pagination = new Template('components/main/pagination', [
-			'products' => $products,
-			'nextPage' => $nextPage
-		]);
-
 		$basketItems = Session::get('shoppingSession')->getProducts();
 
 		$basketItemsTemplates = [];
@@ -35,6 +26,20 @@ class PageMainTemplateEngine implements TemplateEngine
 			];
 		}
 
+		$footer = new Template('components/main/footer');
+		$header = new Template('components/main/header', [
+			'basketItem' => $basketItemsTemplates,
+			'products' => $products,
+		]);
+
+		$form = new Template('components/main/formAuthorization');
+		$pagination = new Template('components/main/pagination', [
+			'products' => $products,
+			'nextPage' => $nextPage
+		]);
+
+
+
 		$basketModal = new Template('components/main/basket', ['items' => $basketItemsTemplates]);
 
 		$mainPageTemplate = new Template('page/main/main', [
@@ -44,7 +49,7 @@ class PageMainTemplateEngine implements TemplateEngine
 			'basket' => $basketModal,
 			'isLogIn' => $isLogIn,
 			'basketItem' => $basketItemsTemplates,
-			'pagination' => $pagination
+			'pagination' => $pagination,
 		],);
 
 		return (new Template('layout', [

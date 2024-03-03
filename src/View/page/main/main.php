@@ -25,6 +25,7 @@ $isLogin = $this->getVariable('isLogIn');
 	import { ProductList } from "/js/main/product/product-list.js";
 	import { TagList } from "/js/main/tag/tag-list.js";
 	import {Auth} from "/js/main/auth/auth.js";
+	import {Search} from "/js/main/product/search/search.js";
 
 	const mainList = new ProductList({
 		attachToNodeId: 'product__list-container',
@@ -47,5 +48,27 @@ $isLogin = $this->getVariable('isLogIn');
 	})
 
 	auth.render();
+
+	const search = new Search({
+		attachToNodeId: 'header-search',
+		items: <?= \Up\Util\Json::encode($products) ?>,
+		basketItem: []
+	});
+
+	search.render();
+
+	if (window.location.search.includes('tag=')) {
+		const urlParams = new URLSearchParams(window.location.search);
+		const tags = urlParams.getAll('tag');
+
+		tagList.handleFilterTagButtonClick({ id: tags });
+	}
+
+	if (window.location.search.includes('title=')) {
+		const urlParams = new URLSearchParams(window.location.search);
+		const title = urlParams.get('title');
+
+		search.handleSearchButtonSubmit({ title: title });
+	}
 </script>
 

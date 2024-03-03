@@ -1,0 +1,46 @@
+networks:
+    network:
+        name: network
+services:
+    nginx:
+        container_name: nginx
+        image: nginx
+        ports:
+            - 8000:8000
+        volumes:
+            - ./vhost.conf:/etc/nginx/conf.d/default.conf
+            - ./:/var/www/public_html
+        networks:
+            - network
+        depends_on:
+            - php
+            - mysql
+    php:
+        container_name: php
+        build: ./images/php
+        volumes:
+            - ./:/var/www/public_html
+        networks:
+            - network
+        depends_on:
+            - mysql
+    mysql:
+        container_name: mysql
+        image: mysql
+        volumes:
+            - ./Migration:/var/lib/mysql
+        environment:
+            - MYSQL_ROOT_PASSWORD=root
+        networks:
+            - network
+    phpmyadmin:
+        container_name: phpmyadmin
+        image: phpmyadmin
+        ports:
+            - 1500:80
+        environment:
+            - PMA_HOST=mysql
+        networks:
+            - network
+        depends_on:
+            - mysql

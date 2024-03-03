@@ -323,17 +323,12 @@ class ProductRepositoryImpl implements ProductRepository
 		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
 		$offset = $limit * ($page - 1);
 
-		foreach ($tags as $tag)
-		{
-			$tagIds[] = $tag->id;
-		}
-
 		$sql = "select up_item.id, up_item.name, description, price, id_tag, is_active,
                 added_at, edited_at, up_image.id as imageId, path
 				from up_item
 				left join up_image on up_item.id = item_id
 	            left join up_item_tag it on up_item.id = it.id_item
-				WHERE it.id_tag IN (" . implode(",", $tagIds) . ") AND up_item.is_active = 1
+				WHERE it.id_tag IN (" . implode(",", $tags) . ") AND up_item.is_active = 1
 				LIMIT {$limit} OFFSET {$offset}";
 
 		$result = $query->getQueryResult($sql);

@@ -10,6 +10,7 @@ use Up\Http\Response;
 use Up\Http\Status;
 use Up\Repository\ShoppingSession\ShoppingSessionRepositoryImpl;
 use Up\Repository\User\UserRepositoryImpl;
+use Up\Service\OrderService\OrderService;
 use Up\Service\ProductService\ProductService;
 use Up\Service\UserService\UserService;
 use Up\Util\Session;
@@ -46,9 +47,12 @@ class PageAccountController extends Controller
 		$userId = $request->getDataByKey('userId');
 
 		$user = UserService::getUserById($userId);
+		$orders = OrderService::getOrderByUser($userId);
 
 		$dataUser = [
 			'id' => $user->id,
+			'name' => $user->name,
+			'surname' => $user->surname,
 			'email' => $user->email,
 			'role' => $user->roleTitle,
 			'phoneNumber' => $user->phoneNumber
@@ -56,7 +60,8 @@ class PageAccountController extends Controller
 
 		$template = $this->engine->getPageTemplate([
 			'isLogIn' => $this->isLogIn(),
-			'user' => $dataUser
+			'user' => $dataUser,
+			'orders' => $orders
 		]);
 
 		return new Response(Status::OK, ['template' => $template]);

@@ -8,7 +8,6 @@ use Up\Http\Request;
 use Up\Http\Response;
 use Up\Http\Status;
 use Up\Service\UserService\UserService;
-use Up\Util\Json;
 
 class ChangeAccountController extends Controller
 {
@@ -21,7 +20,7 @@ class ChangeAccountController extends Controller
 
 		try
 		{
-			UserService::changeUser((int) $data['id'], $data['name'], $data['email'], $data['phoneNumber'], $data['password']);
+			UserService::changeUser((int) $data['id'], $data['name'], $data['surname'], $data['email'], $data['phoneNumber'], $data['password']);
 			$result = true;
 		}
 		catch (UserNotFound)

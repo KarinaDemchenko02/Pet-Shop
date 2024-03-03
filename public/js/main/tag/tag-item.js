@@ -17,16 +17,31 @@ export class TagItem
 
 	render()
 	{
+		let currentUrl = window.location.href;
+		let newUrl = new URL(currentUrl);
+		let tags = newUrl.searchParams.get('tag');
+
 		const itemTag = document.createElement('li');
 		itemTag.classList.add('tags__item');
 
-		const linkItem = document.createElement('a');
-		linkItem.classList.add('tags__link');
-		linkItem.id = 'tag:' + this.id;
-		linkItem.innerText = this.title;
-		linkItem.addEventListener('click', this.handleFilterTagButtonClick.bind(this));
+		const inputItem = document.createElement('input');
+		inputItem.classList.add('tags__checkbox')
+		inputItem.type = "checkbox";
+		inputItem.id = 'tag:' + this.id;
+		inputItem.name = 'tag:' + this.id;
 
-		itemTag.append(linkItem);
+		if (tags && tags.includes(this.id)) {
+			inputItem.checked = true;
+		}
+
+		const labelInput = document.createElement('label');
+		labelInput.textContent = this.title;
+		labelInput.htmlFor = 'tag:' + this.id;
+
+
+		inputItem.addEventListener('click', this.handleFilterTagButtonClick.bind(this));
+
+		itemTag.append(inputItem, labelInput);
 
 		return itemTag;
 	}

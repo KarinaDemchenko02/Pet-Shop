@@ -1,2 +1,0 @@
-ALTER TABLE up_users
-    MODIFY email VARCHAR(20) NOT NULL UNIQUE;

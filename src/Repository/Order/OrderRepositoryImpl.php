@@ -4,6 +4,7 @@ namespace Up\Repository\Order;
 
 use Up\Dto\Order\OrderAdding;
 use Up\Dto\Order\OrderChangingDto;
+use Up\Dto\Order\OrderUserDto;
 use Up\Dto\Product\ProductAddingDto;
 use Up\Entity;
 use Up\Exceptions\Admin\Order\OrderNotChanged;
@@ -74,6 +75,34 @@ class OrderRepositoryImpl implements OrderRepository
 		$result = $query->getQueryResult($sql);
 
 		return self::createOrderList($result)[$id];
+	}
+
+	public static function getByUser(int $id): array
+	{
+		$query = Query::getInstance();
+		$sql = "SELECT ui.id, ui.name, img.path, ui.price, uoi.quantities, us.title FROM `up_order` uo
+				JOIN up_status us ON us.id = uo.status_id 
+				JOIN up_order_item uoi ON uoi.order_id = uo.id
+				JOIN up_item ui ON ui.id = uoi.item_id
+                JOIN up_image img ON img.item_id = ui.id
+				WHERE uo.user_id = {$id};";
+
+		$result = $query->getQueryResult($sql);
+
+		$ordersUser = [];
+
+		while ($row = mysqli_fetch_assoc($result)) {
+			$ordersUser[] = new OrderUserDto(
+				$row['id'],
+				$row['name'],
+				$row['path'],
+				$row['price'],
+				$row['quantities'],
+				$row['title']
+			);
+		}
+
+		return $ordersUser;
 	}
 
 	/**

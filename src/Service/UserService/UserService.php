@@ -60,7 +60,7 @@ class UserService
 	 * @throws UserNotFound
 	 * @throws InvalidPassword
 	 */
-	public static function changeUser($id, $name, $email, $phoneNumber, $password): void
+	public static function changeUser($id, $name, $surname, $email, $phoneNumber, $password): void
 	{
 		if (empty($password))
 		{
@@ -71,6 +71,6 @@ class UserService
 			$password = Auth::hashPassword($password);
 		}
 
-		UserRepositoryImpl::change($id, $name, $email, $phoneNumber, $password);
+		UserRepositoryImpl::change($id, $name, $surname, $email, $phoneNumber, $password);
 	}
 }
