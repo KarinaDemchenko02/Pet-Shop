@@ -33,7 +33,7 @@ class IsLogin implements PreMiddleware
 				$accessToken = self::refreshTokens($request->getCookie('JWT-REFRESH'));
 			}
 		}
-		catch (InvalidToken|TokensNotRefreshed|EmptyToken)
+		catch (InvalidToken|TokensNotRefreshed)
 		{
 			self::disableUser($request);
 			return $next($request);

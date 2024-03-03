@@ -57,6 +57,7 @@ export class ProductList
 		const title = document.getElementById('title');
 		const desc = document.getElementById('desc');
 		const price = document.getElementById('price');
+		const priority = document.getElementById('priority');
 
 		const buttonAdd = document.getElementById('add');
 		const buttonEdit = document.getElementById('changed');
@@ -65,7 +66,10 @@ export class ProductList
 		title.value = item['title'];
 		desc.value = item['description'];
 		price.value = item['price'];
+		priority.value = item['priority'];
 
+
+		id.style.display = 'none';
 		formEdit.style.display = 'block';
 		buttonAdd.style.display = 'none';
 		buttonEdit.style.display = 'block';
@@ -160,6 +164,7 @@ export class ProductList
 		const title = document.getElementById('title').value;
 		const desc = document.getElementById('desc').value;
 		const price = document.getElementById('price').value;
+		const priority = document.getElementById('priority').value;
 		const tags = document.querySelectorAll('.form__select-input-tag');
 
 		let idTags = [];
@@ -184,6 +189,7 @@ export class ProductList
 			title: title,
 			description: desc,
 			price: price,
+			priority: priority,
 			tags: idTags,
 		}
 
@@ -212,6 +218,7 @@ export class ProductList
 							item.title = changeParams.title;
 							item.description = changeParams.description;
 							item.price = changeParams.price;
+							item.priority = changeParams.priority;
 							item.tags = objectTags;
 							item.editedAt = item.renderDate();
 
@@ -572,6 +579,17 @@ export class ProductList
 		priceInput.type = 'text';
 		priceInput.name = 'price';
 
+		const priorityLabel = document.createElement('label');
+		priorityLabel.classList.add('form__label');
+		priorityLabel.htmlFor = 'priority';
+		priorityLabel.innerText = 'Приоритет';
+
+		const priorityInput = document.createElement('input');
+		priorityInput.classList.add('form__input');
+		priorityInput.id = 'priority';
+		priorityInput.type = 'text';
+		priorityInput.name = 'priority';
+
 		const tagsLabel = document.createElement('label');
 		tagsLabel.classList.add('form__label');
 		tagsLabel.htmlFor = 'tags';
@@ -617,7 +635,8 @@ export class ProductList
 		acceptAddButton.append(spinnerAdd);
 
 		form.append(spanId, titleLabel, titleInput, descLabel, descInput,
-			priceLabel, priceInput, tagsLabel, containerTagsSelect, addTags, acceptButton, acceptAddButton);
+			priceLabel, priceInput, priorityLabel, priorityInput,
+			tagsLabel, containerTagsSelect, addTags, acceptButton, acceptAddButton);
 		formContainer.append(closeButton, form);
 		formBox.append(formContainer);
 

@@ -85,6 +85,7 @@ class ProductAdminController extends Controller
 			$request->getDataByKey('description'),
 			$request->getDataByKey('price'),
 			$request->getDataByKey('tags'),
+			$request->getDataByKey('priority'),
 		);
 
 		$response = [];
