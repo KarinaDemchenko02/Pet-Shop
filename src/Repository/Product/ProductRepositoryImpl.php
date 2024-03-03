@@ -98,7 +98,13 @@ class ProductRepositoryImpl implements ProductRepository
 				offset:                  $offset)
 		);
 
+		if (empty($ids))
+		{
+			return [];
+		}
+
 		$result = self::getAllProductList(['AND', ['in=id' => $ids]]);
+
 
 		return self::createProductList($result);
 	}

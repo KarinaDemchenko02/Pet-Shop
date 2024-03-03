@@ -15,7 +15,7 @@ class SpecialOfferPreviewProducts implements Entity
 
 	public function addProduct(Product $product)
 	{
-		if (!in_array($product, $this->products, true))
+		if (!in_array($product, $this->products, true) && count($this->products)<\Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PREVIEW'))
 		{
 			$this->products[$product->id] = $product;
 		}

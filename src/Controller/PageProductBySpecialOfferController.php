@@ -19,17 +19,14 @@ class PageProductBySpecialOfferController extends Controller
 	public function showProductBySpecialOfferAction(Request $request): Response
 	{
 		$id = $request->getVariable('id');
+		$page = $request->getVariable('page');
 
-		$specialOfferTitle = SpecialOfferRepositoryImpl::getById($id)->title;
-
-		if (isset($_GET['page']) && is_numeric($_GET['page']) && $_GET['page'] > 0)
-		{
-			$page = $_GET['page'];
-		}
-		else
+		if (!(is_numeric($page) || $page > 0))
 		{
 			$page = 1;
 		}
+
+		$specialOfferTitle = SpecialOfferRepositoryImpl::getById($id)->title;
 
 		$products = ProductService::getProductsBySpecialOffer($id, $page);
 

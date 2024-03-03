@@ -31,11 +31,10 @@ class SpecialOfferRepositoryImpl implements SpecialOfferRepository
 		return true;
 	}
 
-	public static function getPreviewProducts()
+	public static function getPreviewProducts(): array
 	{
 		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PREVIEW');
-		$result = SpecialOfferTable::getList(['special_offer_id' => 'id'],
-			limit:                           $limit);
+		$result = SpecialOfferTable::getList(['special_offer_id' => 'id']);
 		$ids = self::getIds($result);
 
 		$result = SpecialOfferTable::getList(
@@ -78,7 +77,10 @@ class SpecialOfferRepositoryImpl implements SpecialOfferRepository
 						ProductRepositoryImpl::createProductEntity($row)
 					);
 				}
-				$product = $specialOfferPreviewProduct->getProducts()[$row['id']];
+				if (isset($specialOfferPreviewProduct->getProducts()[$row['id']]))
+				{
+					$product = $specialOfferPreviewProduct->getProducts()[$row['id']];
+				}
 			}
 			if (
 				!is_null($row['special_offer_id']) && !is_null($product)
