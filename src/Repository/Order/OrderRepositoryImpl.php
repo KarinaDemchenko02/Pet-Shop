@@ -49,6 +49,11 @@ class OrderRepositoryImpl implements OrderRepository
 		return self::createOrderList(self::getOrderList(['AND', '=order_id' => $id]))[$id];
 	}
 
+	public static function getByUser(int $userId): array
+	{
+		return self::createOrderList(self::getOrderList(['AND', ['=user_id' => $userId]]));
+	}
+
 	/**
 	 * @throws OrderNotCompleted
 	 */
