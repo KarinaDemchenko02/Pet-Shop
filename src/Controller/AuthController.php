@@ -104,11 +104,19 @@ class AuthController extends Controller
 			$request->getDataByKey('email'),
 			$request->getDataByKey('password'),
 			$request->getDataByKey('phone'),
-			'Пользователь',
+			2,
 		);
-		if (!$this->authService->registerUser($user))
+		try
 		{
-			$this->errors[] = $this->authService->getErrors();
+			if (!$this->authService->registerUser($user))
+			{
+				$this->errors[] = $this->authService->getErrors();
+				return new  Response(Status::BAD_REQUEST, ['result' => false, 'errors' => $this->errors]);
+			}
+		}
+		catch (\Exception)
+		{
+			return new  Response(Status::BAD_REQUEST, ['result' => false, 'errors' => $this->errors]);
 		}
 		return new Response(Status::OK, ['result' => true, 'errors' => $this->errors]);
 	}

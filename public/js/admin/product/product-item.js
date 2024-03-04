@@ -163,7 +163,12 @@ export class ProductItem
 
 		const actionsColumn = document.createElement('td');
 		actionsColumn.classList.add('table__th', 'table__th_button');
-		actionsColumn.append(editButton, removeButton, restoreButton);
+
+		if (!this.isActive) {
+			actionsColumn.append(editButton, restoreButton);
+		} else {
+			actionsColumn.append(editButton, removeButton);
+		}
 
 		trProduct.append(idColumn, titleColumn, descColumn, priceColumn, addedAtColumn, editedAtColumn, isActiveColumn, tagsColumn, imagesFormContainer, actionsColumn);
 		return trProduct;

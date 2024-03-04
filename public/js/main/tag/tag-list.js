@@ -11,7 +11,7 @@ export class TagList
 	basketItem = [];
 	currentPagination = new URLSearchParams(window.location.search).get('page');
 
-	constructor({ attachToNodeId = '', items, basketItem })
+	constructor({ attachToNodeId = '', items, basketItem})
 	{
 		if (attachToNodeId === '')
 		{
@@ -31,6 +31,10 @@ export class TagList
 
 		this.basketItem = basketItem.map((itemData) => {
 			return this.createBasket(itemData);
+		})
+
+		this.allProducts = items.map((itemData) => {
+			return this.createProduct(itemData)
 		})
 	}
 
@@ -122,7 +126,7 @@ export class TagList
 
 			currentTags.push(tag.toString());
 
-			currentTags = currentTags.filter((item, index) => currentTags.indexOf(item) === index);
+			//currentTags = currentTags.filter((item, index) => currentTags.indexOf(item) === index);
 
 			if (currentTags[1]) {
 				if (currentTags[0].includes(currentTags[1])) {
@@ -135,7 +139,12 @@ export class TagList
 				}
 			}
 
-			newUrl.searchParams.set('tag', currentTags.join(','));
+			if (currentTags[0].length === 0) {
+				newUrl.searchParams.set('tag', '');
+			} else {
+				newUrl.searchParams.set('tag', currentTags.join(','));
+			}
+
 			newUrl.searchParams.set('page', page);
 
 			window.history.replaceState({}, '', newUrl);
@@ -160,6 +169,10 @@ export class TagList
 				.then(async (response) => {
 					if (response.nextPage.length !== 0) {
 						this.currentPagination = Number(page) + 1;
+					}
+
+					if (currentTags[0].length === 0) {
+						console.log(response.allProducts);
 					}
 
 					let products = response.products.map((itemData) => {

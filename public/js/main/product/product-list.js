@@ -62,6 +62,8 @@ export class ProductList
 
 		let currentUrl = window.location.href;
 
+		this.currentPagination = page;
+
 		let newUrl = new URL(currentUrl);
 		newUrl.searchParams.set('page', page);
 
@@ -82,7 +84,7 @@ export class ProductList
 			}
 			return response.json();
 		})
-		.then((response) => {
+		.then(async (response) => {
 			if (response.nextPage.length !== 0) {
 				this.currentPagination = Number(page) + 1;
 			}
@@ -93,7 +95,7 @@ export class ProductList
 				return this.createItem(itemData)
 			})
 
-			this.render();
+			await this.render();
 
 			spinner.classList.remove('disabled');
 		})
@@ -276,7 +278,7 @@ export class ProductList
 			}
 		}
 
-		let currentPage = parseInt(new URLSearchParams(window.location.search).get('page') || '1');
+		let currentPage = parseInt(new URLSearchParams(window.location.search).get('page') || 1);
 		const startIndex = Math.max(1, currentPage - 1);
 		const endIndex = Math.min(parseInt(this.currentPagination), currentPage + 1);
 

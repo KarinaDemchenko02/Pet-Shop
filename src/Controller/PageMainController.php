@@ -78,6 +78,8 @@ class PageMainController extends Controller
 
 		$products = ProductService::getProductsByTags(array($tagParam), $page);
 
+		$productsAll = ProductService::getAllProducts($page);
+
 		$nextPage = ProductService::getProductsByTags(array($tagParam), $page + 1);
 
 		$content = [];
@@ -92,7 +94,7 @@ class PageMainController extends Controller
 			];
 		}
 
-		return new Response(Status::OK, ['products' => $content, 'nextPage' => $nextPage]);
+		return new Response(Status::OK, ['products' => $content, 'nextPage' => $nextPage, 'allProducts' => $productsAll]);
 	}
 
 	public function getSearchJsonAction(Request $request): Response

@@ -85,7 +85,7 @@ class OrderRepositoryImpl implements OrderRepository
 				JOIN up_order_item uoi ON uoi.order_id = uo.id
 				JOIN up_item ui ON ui.id = uoi.item_id
                 JOIN up_image img ON img.item_id = ui.id
-				WHERE uo.user_id = {$id};";
+				WHERE uo.user_id = {$id}";
 
 		$result = $query->getQueryResult($sql);
 

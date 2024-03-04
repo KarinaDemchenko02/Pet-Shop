@@ -75,7 +75,7 @@ export class Auth
 					console.error(response.errors);
 					logIn.disabled = false;
 
-					new Error('Что-то пошло не так', formContainer).printError();
+					new Error('Данные введены некорректно', formContainer).printError();
 				}
 			})
 			.catch((error) => {
@@ -131,6 +131,13 @@ export class Auth
 		const register = document.getElementById('register');
 		register.disabled = true;
 
+		const formContainer = document.querySelector('.form__main-container');
+		const errorContainer = document.querySelector('.form__alert-container');
+
+		if (errorContainer) {
+			errorContainer.remove();
+		}
+
 		const authParams = {
 			action: 'register',
 			name: name,
@@ -170,11 +177,15 @@ export class Auth
 				{
 					console.error(response.errors);
 					register.disabled = false;
+
+					new Error('Данные введены некорректно', formContainer).printError();
 				}
 			})
 			.catch((error) => {
 				console.error('Error while changing item.', error);
 				register.disabled = false;
+
+				new Error('Что-то пошло не так', formContainer).printError();
 			})
 	}
 
@@ -209,6 +220,12 @@ export class Auth
 		let phone = document.getElementById('phone');
 		let email = document.getElementById('email');
 		let password = document.getElementById('password');
+
+		const errorContainer = document.querySelector('.form__alert-container');
+
+		if (errorContainer) {
+			errorContainer.remove();
+		}
 
 		name.value = '';
 		surname.value = '';
