@@ -26,6 +26,7 @@ class PageSpecialOfferIdTemplateEngine implements TemplateEngine
 			'specialOfferTitle'=>$specialOfferTitle,
 			'products' => $this->getProductsSectionTemplate($products),
 			'form' => $form,
+			'isLogIn' => $isLogIn,
 			'basket' => $basket,
 			'pagination' => $pagination
 		],);

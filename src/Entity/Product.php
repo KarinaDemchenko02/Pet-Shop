@@ -62,12 +62,17 @@ class Product implements Entity
 		}
 	}
 
-	public function addCharacteristic(ProductCharacteristic $characteristic): void
+	public function addCharacteristic(ProductCharacteristic $productCharacteristic): void
 	{
-		if (!in_array($characteristic, $this->characteristics, true))
+		foreach ($this->characteristics as $characteristic)
 		{
-			$this->characteristics[] = $characteristic;
+			if ($characteristic->title===$productCharacteristic->title)
+			{
+				return;
+			}
 		}
+
+		$this->characteristics[]=$productCharacteristic;
 	}
 	// public function addImage(Image $image)
 	// {
