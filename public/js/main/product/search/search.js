@@ -130,7 +130,7 @@ export class Search
 			window.history.replaceState({}, '', newUrl);
 
 			fetch(
-				`/tags-json/?title=${title}&page=${page}`,
+				`/search-json/?title=${title}&page=${page}`,
 				{
 					method: 'GET',
 				}
