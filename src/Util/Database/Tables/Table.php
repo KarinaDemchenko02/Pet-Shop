@@ -188,8 +188,8 @@ abstract class Table implements TableInterface
 			else
 			{
 
-				preg_match('/(!)?(>=|<=|!=|=|>|<|in)(.*)/', $logic, $matches);
-				$not = isset($matches[1]) ? 'NOT ' : '';
+				preg_match('/(!)?(>=|<=|!=|=|>|<|in=|%=)(.*)/', $logic, $matches);
+				$not = $matches[1] === '!' ? 'NOT ' : '';
 				$func = $matches[2];
 				$fieldName = $matches[3];
 				$fieldName = $alias[$fieldName] ?? "$tableName.$fieldName";
@@ -213,13 +213,18 @@ abstract class Table implements TableInterface
 						array_map('\Up\Util\Database\Tables\Table::prepareString', $condition)
 					);
 				}
-				switch ($func)
-				{
-					case '=' | '>' | '<' | '>=' | '<=':
-						$where[] = "{$not}$fieldName {$func} $preparedCondition";
-						break;
-					case 'in' | '%':
+				switch ($func) {
+					case 'in':
+					case '%':
+						$func = strpos(-1, $func);
 						$where[] = "$fieldName {$not}{$func} ($preparedCondition)";
+						break;
+					case '=':
+					case '>':
+					case '<':
+					case '>=':
+					case '<=':
+						$where[] = "{$not}{$fieldName}{$func}{$preparedCondition}";
 						break;
 				}
 			}
