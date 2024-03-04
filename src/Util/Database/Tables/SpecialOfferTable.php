@@ -16,6 +16,8 @@ class SpecialOfferTable extends Table
 			new IntegerField('id', true, false, true),
 			new StringField('title', false, false),
 			new StringField('description', false, false),
+			new StringField('start_date', false, false),
+			new StringField('end_date', false, false),
 			new Reflection('product_special_offer', new ProductSpecialOfferTable(), 'special_offer')
 		];
 	}

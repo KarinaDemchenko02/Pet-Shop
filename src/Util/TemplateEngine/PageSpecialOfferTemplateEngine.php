@@ -70,6 +70,8 @@ class PageSpecialOfferTemplateEngine implements TemplateEngine
 					'description' =>$specialOffersPreview->specialOffer->description,
 					'title' => $specialOffersPreview->specialOffer->title,
 					'id' => $specialOffersPreview->specialOffer->id,
+					'startDate' => $specialOffersPreview->specialOffer->startDate,
+					'endDate' => $specialOffersPreview->specialOffer->endDate,
 					'products' => $this->getProductsSectionTemplate($specialOffersPreview->getProducts()),
 				]
 			);
