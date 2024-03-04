@@ -38,15 +38,6 @@ abstract class Table implements TableInterface
 		return $orm->affectedRows();
 	}
 
-	/*foreach ($joins as $join => $joinData)
-	{
-	$joinType = $joinData['type'];
-	$condition = $joinData['condition'];
-	$query .= " $joinType JOIN $join ON $condition";
-
-	'up_image' => ['type' => 'INNER', 'condition' => 'up_item.id=item_id'],
-	}*/
-
 	private static function formatCondition(string $condition, Table $referenceTable): string
 	{
 		$condition = str_replace(['this', 'ref'],

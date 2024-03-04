@@ -83,6 +83,27 @@ class ProductRepositoryImpl implements ProductRepository
 		return self::createProductList($result);
 	}
 
+	public static function getByTagsTitle(array $tags, string $title, int $page = 1): array
+	{
+		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
+		$offset = $limit * ($page - 1);
+		$title = urldecode($title);
+		$ids = self::getIds(
+			ProductTable::getList(['id', 'product_tag' => ['tag_id']],
+				conditions:       ['AND', ['=is_active' => 1, '%=name' => $title, 'in=tag_id' => $tags]],
+				orderBy:          ['priority' => 'ASC'],
+				limit:            $limit,
+				offset:           $offset)
+		);
+		if (empty($ids))
+		{
+			return [];
+		}
+		$result = self::getProductList(['AND', ['in=id' => $ids]]);
+
+		return self::createProductList($result);
+	}
+
 	public static function getProductsBySpecialOffer(int $specialOfferId, int $page): array
 	{
 		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
