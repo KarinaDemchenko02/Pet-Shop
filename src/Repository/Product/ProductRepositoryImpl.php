@@ -10,13 +10,10 @@ use Up\Exceptions\Admin\ProductNotAdd;
 use Up\Exceptions\Admin\ProductNotChanged;
 use Up\Exceptions\Admin\ProductNotDisabled;
 use Up\Exceptions\Admin\ProductNotRestored;
-use Up\Exceptions\Images\ImageNotAdd;
-use Up\Exceptions\Product\ProductNotFound;
 use Up\Repository\Image\ImageRepositoryImpl;
 use Up\Repository\SpecialOffer\SpecialOfferRepositoryImpl;
 use Up\Repository\Tag\TagRepositoryImpl;
 use Up\Util\Database\Orm;
-use Up\Util\Database\Query;
 use Up\Util\Database\Tables\ProductTable;
 use Up\Util\Database\Tables\ProductTagTable;
 
@@ -29,7 +26,7 @@ class ProductRepositoryImpl implements ProductRepository
 		$offset = $limit * ($page - 1);
 		$result = ProductTable::getList(['id'],
 			conditions:                 ['AND', ['=is_active' => 1]],
-			orderBy:                    ['priority' => 'ASC'],
+			orderBy:                    ['priority' => 'DESC'],
 			limit:                      $limit,
 			offset:                     $offset);
 		$ids = self::getIds($result);
@@ -126,10 +123,8 @@ class ProductRepositoryImpl implements ProductRepository
 			ImageRepositoryImpl::add($productAddingDto->imagePath, $lastItem);
 			foreach ($productAddingDto->tags as $tag)
 			{
-				TagRepositoryImpl::add($tag);
+				ProductTagTable::add(['product_id' => $lastItem, 'tag_id' => $tag]);
 			}
-			$lastTag = $orm->last();
-			ProductTagTable::add(['product_id' => $lastItem, 'tag_id' => $lastTag]);
 			$orm->commit();
 
 			return $lastItem;
@@ -175,13 +170,6 @@ class ProductRepositoryImpl implements ProductRepository
 		$orm = Orm::getInstance();
 		$time = new \DateTime();
 		$now = $time->format('Y-m-d H:i:s');
-
-		/*foreach ($tags as $tag)
-		{
-			$tagIds[] = $tag->id;
-		}*/
-
-		/*$strTags = implode(', ', $tagIds);*/
 		try
 		{
 			$orm->begin();
@@ -191,11 +179,16 @@ class ProductRepositoryImpl implements ProductRepository
 					'description' => $productChangeDto->description,
 					'price' => $productChangeDto->price,
 					'edited_at' => $now,
+					'priority' => $productChangeDto->priority,
 				], ['AND', ['=id' => $productChangeDto->id]]
 			);
-			if ($orm->affectedRows() === 0)
+
+			ProductTagTable::delete(
+				['AND', ['!in=tag_id' => $productChangeDto->tags, '=product_id' => $productChangeDto->id]]
+			);
+			foreach ($productChangeDto->tags as $tagId)
 			{
-				throw new ProductNotChanged();
+				ProductTagTable::add(['product_id' => $productChangeDto->id, 'tag_id' => $tagId], true);
 			}
 			/*$deleteProductSQL = "DELETE FROM up_item_tag WHERE id_item={$productChangeDto->id} AND tag_id NOT IN ({$strTags})";
 			QueryResult::getQueryResult($deleteProductSQL);
@@ -204,6 +197,11 @@ class ProductRepositoryImpl implements ProductRepository
 				$addLinkToTagSQL = "INSERT IGNORE INTO up_item_tag (id_item, tag_id) VALUES ({$id}, {$tag->id})";
 				QueryResult::getQueryResult($addLinkToTagSQL);
 			}*/
+
+			if ($orm->affectedRows() === 0)
+			{
+				throw new ProductNotChanged();
+			}
 			$orm->commit();
 		}
 		catch (\Throwable $e)
@@ -391,6 +389,6 @@ class ProductRepositoryImpl implements ProductRepository
 										 'image' => ['image_id' => 'id', 'path'],
 									 ],
 									 $where,
-									 ['priority' => 'ASC']);
+									 ['priority' => 'DESC']);
 	}
 }

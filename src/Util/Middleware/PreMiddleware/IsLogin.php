@@ -75,8 +75,10 @@ class IsLogin implements PreMiddleware
 		{
 			$tokens = JwtService::refreshTokens($refreshToken);
 		}
-		catch (InvalidToken|EmptyToken)
+		catch (\JsonException|InvalidToken|EmptyToken)
 		{
+			JwtService::deleteCookie(TokenType::ACCESS);
+			JwtService::deleteCookie( TokenType::REFRESH);
 			throw new TokensNotRefreshed();
 		}
 		$access = $tokens['access'];

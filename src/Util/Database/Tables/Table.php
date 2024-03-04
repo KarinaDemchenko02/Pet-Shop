@@ -33,8 +33,9 @@ abstract class Table implements TableInterface
 				$insertData[$field->getName()] = $data[$field->getName()];
 			}
 		}
+		$orm->insert(static::getTableName(), $insertData, $isIgnore);
 
-		return $orm->insert(static::getTableName(), $insertData, $isIgnore);
+		return $orm->affectedRows();
 	}
 
 	/*foreach ($joins as $join => $joinData)
@@ -187,7 +188,10 @@ abstract class Table implements TableInterface
 			else
 			{
 
-				[$func, $fieldName] = explode('=', $logic);
+				preg_match('/(!)?(>=|<=|!=|=|>|<|in)(.*)/', $logic, $matches);
+				$not = isset($matches[1]) ? 'NOT ' : '';
+				$func = $matches[2];
+				$fieldName = $matches[3];
 				$fieldName = $alias[$fieldName] ?? "$tableName.$fieldName";
 				$preparedCondition = $condition;
 				if (is_string($condition))
@@ -209,22 +213,13 @@ abstract class Table implements TableInterface
 						array_map('\Up\Util\Database\Tables\Table::prepareString', $condition)
 					);
 				}
-				$not = '';
-				if (!empty($func) && $func[0] === '!')
-				{
-					$func = substr($func, 1);
-					$not = 'NOT ';
-				}
 				switch ($func)
 				{
-					case '':
-						$where[] = "{$not}$fieldName=$preparedCondition";
+					case '=' | '>' | '<' | '>=' | '<=':
+						$where[] = "{$not}$fieldName {$func} $preparedCondition";
 						break;
-					case 'in':
-						$where[] = "$fieldName {$not}IN ($preparedCondition)";
-						break;
-					case '%':
-						$where[] = "$fieldName {$not}LIKE $preparedCondition";
+					case 'in' | '%':
+						$where[] = "$fieldName {$not}{$func} ($preparedCondition)";
 						break;
 				}
 			}
@@ -252,9 +247,11 @@ abstract class Table implements TableInterface
 
 	public static function update(array $data, array $condition, $isIgnore = false): int
 	{
+		$orm = Orm::getInstance();
 		$where = self::makeWhere($condition[0], $condition[1]);
+		$orm->update(static::getTableName(), $data, $where, $isIgnore);
 
-		return Orm::getInstance()->update(static::getTableName(), $data, $where, $isIgnore);
+		return $orm->affectedRows();
 	}
 
 	public static function delete(array $condition): int
@@ -267,6 +264,7 @@ abstract class Table implements TableInterface
 		$where = self::makeWhere($condition[0], $condition[1]);
 
 		$orm->delete(static::getTableName(), $where);
+
 		return $orm->affectedRows();
 	}
 
