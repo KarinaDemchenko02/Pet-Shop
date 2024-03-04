@@ -112,6 +112,7 @@ class AuthController extends Controller
 			if (!$this->authService->registerUser($user))
 			{
 				$this->errors[] = $this->authService->getErrors();
+				return new  Response(Status::BAD_REQUEST, ['result' => false, 'errors' => $this->errors]);
 			}
 		}
 		catch (\Exception)

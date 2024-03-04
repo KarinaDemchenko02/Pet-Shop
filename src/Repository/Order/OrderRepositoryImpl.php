@@ -107,7 +107,7 @@ class OrderRepositoryImpl implements OrderRepository
 			}
 			$orm->commit();
 		}
-		catch (\Throwable $e)
+		catch (\Throwable)
 		{
 			$orm->rollback();
 			throw new OrderNotCompleted();

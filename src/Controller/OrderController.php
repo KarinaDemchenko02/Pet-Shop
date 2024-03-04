@@ -15,9 +15,6 @@ class OrderController extends Controller
 {
 	public function buyProductAction(Request $request): Response
 	{
-
-		$request->getDataByKey('surname');
-		$request->getDataByKey('address');
 		try
 		{
 			$orderDto = new OrderAddingDto(
@@ -27,11 +24,11 @@ class OrderController extends Controller
 				$request->getDataByKey('address'),
 			);
 			OrderService::createOrder($orderDto);
-			return new Response(Status::CREATED, ['redirect' => '/success/']);
+			return new Response(Status::CREATED, ['result' => true, 'redirect' => '/success/']);
 		}
 		catch (OrderNotCompleted)
 		{
-			return new Response(Status::BAD_REQUEST);
+			return new Response(Status::BAD_REQUEST, ['result' => true]);
 		}
 	}
 
@@ -55,7 +52,7 @@ class OrderController extends Controller
 			{
 				Session::unset('shoppingSession');
 			}
-			return new Response(Status::CREATED, ['result' => true, /*'redirect' => '/success/'*/]);
+			return new Response(Status::CREATED, ['result' => true,]);
 		}
 		catch (OrderNotCompleted)
 		{
