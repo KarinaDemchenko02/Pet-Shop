@@ -22,6 +22,7 @@ class UserTable extends Table
 			new Reference('role', new RoleTable, 'this.role_id=ref.id'),
 			new StringField('tel', isNullable: false),
 			new StringField('name'),
+			new StringField('surname'),
 			new BooleanField('is_active', false, true, true),
 			new Reflection('order', new OrderTable(), 'user')
 		];

@@ -15,10 +15,6 @@ class RequiredLogin implements PreMiddleware
 	 */
 	public function handle(Request $request, callable $next): Response
 	{
-		if ($request->getCookie('jwt') === '')
-		{
-			return new Response(Status::UNAUTHORIZED, ['redirect' => '/']);
-		}
 		return $next($request);
 	}
 }

@@ -33,7 +33,7 @@ class AuthController extends Controller
 		}
 		catch (\Error)
 		{
-			return new Response(Status::UNAUTHORIZED, ['errors' => $this->authService->getErrors()]);
+			return new Response(Status::UNAUTHORIZED, ['errors' => $this->errors/*$this->authService->getErrors()*/]);
 		}
 	}
 
@@ -46,7 +46,7 @@ class AuthController extends Controller
 		catch (UserNotFound)
 		{
 			$this->errors[] = 'Неправильно введён Email';
-			return new Response(Status::UNAUTHORIZED, ['result' => false, 'errors' => $this->authService->getErrors()]);
+			return new Response(Status::UNAUTHORIZED, ['result' => false, 'errors' => $this->errors]);
 		}
 
 		if ($this->authService->verifyUser($user, $request->getDataByKey('password')))
@@ -73,7 +73,7 @@ class AuthController extends Controller
 		}
 		else
 		{
-			return new Response(Status::UNAUTHORIZED, ['result' => false,'errors' => $this->authService->getErrors()]);
+			return new Response(Status::UNAUTHORIZED, ['result' => false,'errors' => $this->errors]);
 		}
 		return new Response(Status::OK, ['result' => true]);
 	}
@@ -105,11 +105,18 @@ class AuthController extends Controller
 			$request->getDataByKey('email'),
 			$request->getDataByKey('password'),
 			$request->getDataByKey('phone'),
-			1,
+			2,
 		);
-		if (!$this->authService->registerUser($user))
+		try
 		{
-			$this->errors[] = $this->authService->getErrors();
+			if (!$this->authService->registerUser($user))
+			{
+				$this->errors[] = $this->authService->getErrors();
+			}
+		}
+		catch (\Exception)
+		{
+			return new  Response(Status::BAD_REQUEST, ['result' => false, 'errors' => $this->errors]);
 		}
 		return new Response(Status::OK, ['result' => true, 'errors' => $this->errors]);
 	}

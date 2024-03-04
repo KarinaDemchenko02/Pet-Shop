@@ -32,6 +32,10 @@ class UserService
 	{
 		return UserTable::getColumnsName();
 	}
+
+	/**
+	 * @throws UserNotFound
+	 */
 	public static function getUserByEmail(string $email): UserDto
 	{
 		$user = UserRepositoryImpl::getByEmail($email);

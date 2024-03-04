@@ -58,7 +58,7 @@ class UserRepositoryImpl implements UserRepository
 	public static function change($id, $name, $surname, $email, $phoneNumber, $password): void
 	{
 		$orm = Orm::getInstance();
-		UserTable::update(['name' => $name, 'email' => $email, 'tel' => $phoneNumber, 'password' => $password],
+		UserTable::update(['name' => $name, 'surname' => $surname, 'email' => $email, 'tel' => $phoneNumber, 'password' => $password],
 						  ['AND', ['id' => $id]]);
 
 		if ($orm->affectedRows() === 0)
@@ -72,6 +72,7 @@ class UserRepositoryImpl implements UserRepository
 		return new User(
 			$row['user_id'] ?? null,
 			$row['user_name'] ?? null,
+				$row['user_surname'] ?? null,
 			$row['tel'] ?? null,
 			$row['email'] ?? null,
 			$row['password'] ?? null,
@@ -97,6 +98,7 @@ class UserRepositoryImpl implements UserRepository
 						[
 							'user_id' => 'id',
 							'user_name' => 'name',
+							'user_surname' => 'surname',
 							'tel',
 							'email',
 							'password',
