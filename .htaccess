@@ -1,4 +1,3 @@
-
 <IfModule mod_rewrite.c>
     RewriteEngine On
     # Block direct requests to the "public" subdirectory

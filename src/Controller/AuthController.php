@@ -65,6 +65,7 @@ class AuthController extends Controller
 				$user->roleTitle,
 			);
 
+			JwtService::saveTokenInDb($refreshToken);
 			JwtService::saveTokenInCookie($accessToken, TokenType::ACCESS);
 			JwtService::saveTokenInCookie($refreshToken, TokenType::REFRESH);
 
@@ -115,6 +116,7 @@ class AuthController extends Controller
 
 	private function logOutAction(Request $request): Response
 	{
+		JwtService::deleteTokenFromDb($request->getCookie('JWT-REFRESH'));
 		JwtService::deleteCookie(TokenType::ACCESS);
 		JwtService::deleteCookie(TokenType::REFRESH);
 		return new Response(Status::OK, ['result' => true]);

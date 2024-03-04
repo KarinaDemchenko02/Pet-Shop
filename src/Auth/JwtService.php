@@ -8,6 +8,7 @@ use Firebase\JWT\Key;
 use Up\Dto\TokenDto;
 use Up\Exceptions\Auth\EmptyToken;
 use Up\Exceptions\Auth\InvalidToken;
+use Up\Exceptions\Auth\TokenNotDeleted;
 use Up\Exceptions\Auth\TokenNotUpdated;
 use Up\Repository\Token\TokenRepositoryImpl;
 use Up\Util\Configuration;
@@ -44,6 +45,18 @@ class JwtService
 		return JWT::encode($token, self::getConfig('secret'), self::getConfig('alg'));
 	}
 
+	public static function saveTokenInDb(string $jwt): void
+	{
+		$payload = self::getPayload($jwt);
+
+		$tokenDto = new TokenDto(
+			$payload['uid'],
+			$payload['jti'],
+			$payload['exp'],
+		);
+		TokenRepositoryImpl::addToken($tokenDto);
+	}
+
 	/**
 	 * @throws EmptyToken
 	 * @throws ExpiredException
@@ -68,6 +81,21 @@ class JwtService
 		catch (\Exception)
 		{
 			throw new InvalidToken();
+		}
+	}
+
+	public static function deleteTokenFromDb(string $jwt): bool
+	{
+		$payload = self::getPayload($jwt);
+
+		try
+		{
+			TokenRepositoryImpl::deleteByJti($payload['jti']);
+			return true;
+		}
+		catch (TokenNotDeleted)
+		{
+			return false;
 		}
 	}
 

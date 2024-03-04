@@ -55,7 +55,7 @@ class Auth
 			$user->email,
 			$password,
 			$user->phoneNumber,
-			1,
+			2,
 		);
 		try
 		{

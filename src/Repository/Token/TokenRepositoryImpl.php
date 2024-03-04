@@ -41,7 +41,7 @@ class TokenRepositoryImpl implements TokenRepository
 			self::addToken($newToken);
 			$orm->commit();
 		}
-		catch (\Throwable $e)
+		catch (\Throwable)
 		{
 			$orm->rollback();
 			throw new TokenNotUpdated();
