@@ -193,6 +193,10 @@ abstract class Table implements TableInterface
 				$func = $matches[2];
 				$fieldName = $matches[3];
 				$fieldName = $alias[$fieldName] ?? "$tableName.$fieldName";
+				if (is_null($func))
+				{
+					throw new \RuntimeException("Error! Function is not set for: $fieldName");
+				}
 				$preparedCondition = $condition;
 				if (is_string($condition))
 				{
