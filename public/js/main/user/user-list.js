@@ -24,7 +24,6 @@ export class UserList
 
 		this.rootNode = rootNode;
 		this.items = this.createItem(items);
-
 		this.orders = orders.map((orderData) => {
 			return this.createOrder(orderData)
 		})

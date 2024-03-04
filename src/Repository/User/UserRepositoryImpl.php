@@ -59,7 +59,7 @@ class UserRepositoryImpl implements UserRepository
 	{
 		$orm = Orm::getInstance();
 		UserTable::update(['name' => $name, 'surname' => $surname, 'email' => $email, 'tel' => $phoneNumber, 'password' => $password],
-						  ['AND', ['id' => $id]]);
+						  ['AND', ['=id' => [$id]]]);
 
 		if ($orm->affectedRows() === 0)
 		{

@@ -7,10 +7,10 @@ class Order implements Entity
 	public readonly int $id;
 	private array $products;
 	public readonly ?User $user;
-	public readonly string $deliveryAddress;
-	public readonly int $createdAt;
-	public readonly int $editedAt;
-	public readonly string $status;
+	public readonly ?string $deliveryAddress;
+	public readonly ?int $createdAt;
+	public readonly ?int $editedAt;
+	public readonly ?string $status;
 	public readonly ?string $name;
 	public readonly ?string $surname;
 

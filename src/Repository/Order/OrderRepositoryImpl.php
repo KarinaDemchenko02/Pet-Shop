@@ -4,6 +4,7 @@ namespace Up\Repository\Order;
 
 use Up\Dto\Order\OrderAdding;
 use Up\Dto\Order\OrderChangingDto;
+use Up\Dto\Order\OrderUserDto;
 use Up\Entity;
 use Up\Entity\Order;
 use Up\Exceptions\Admin\Order\OrderNotChanged;
@@ -11,7 +12,6 @@ use Up\Exceptions\Order\OrderNotCompleted;
 use Up\Repository\Product\ProductRepositoryImpl;
 use Up\Repository\User\UserRepositoryImpl;
 use Up\Util\Database\Orm;
-use Up\Util\Database\Query;
 use Up\Util\Database\Tables\OrderProductTable;
 use Up\Util\Database\Tables\OrderTable;
 
@@ -49,6 +49,31 @@ class OrderRepositoryImpl implements OrderRepository
 		return self::createOrderList(self::getOrderList(['AND', '=order_id' => $id]))[$id];
 	}
 
+	public static function getByUser(int $userId): array
+	{
+		$result = OrderTable::getList(
+			[
+				'user_id',
+				'order_product' => [
+					'quantities',
+					'price',
+					'product' => ['id', 'name', 'image' => ['path']],
+				],
+				'status' => ['title'],
+			], ['AND', ['=user_id' => $userId]]
+		);
+
+		$ordersUser = [];
+
+		while ($row = mysqli_fetch_assoc($result))
+		{
+			$ordersUser[] = new OrderUserDto(
+				$row['id'], $row['name'], $row['path'], $row['price'], $row['quantities'], $row['title'],
+			);
+		}
+		return $ordersUser;
+	}
+
 	/**
 	 * @throws OrderNotCompleted
 	 */
@@ -82,7 +107,7 @@ class OrderRepositoryImpl implements OrderRepository
 			}
 			$orm->commit();
 		}
-		catch (\Throwable $e)
+		catch (\Throwable)
 		{
 			$orm->rollback();
 			throw new OrderNotCompleted();
@@ -103,6 +128,7 @@ class OrderRepositoryImpl implements OrderRepository
 				'delivery_address' => $order->deliveryAddress,
 				'name' => $order->name,
 				'surname' => $order->surname,
+				'status_id' => $order->statusId,
 			], ['AND', ['=id' => $order->id]]
 		);
 		if ($orm->affectedRows() === 0)
@@ -117,12 +143,12 @@ class OrderRepositoryImpl implements OrderRepository
 			$row['order_id'],
 			[],
 			UserRepositoryImpl::createUserEntity($row),
-			$row['delivery_address'],
-			$row['created_at'],
-			$row['edited_at'],
+			$row['delivery_address'] ?? null,
+			$row['created_at'] ?? null,
+			$row['edited_at'] ?? null,
 			$row['status_title'],
-			$row['name'],
-			$row['surname']
+			$row['name'] ?? null,
+			$row['surname'] ?? null,
 		);
 	}
 
