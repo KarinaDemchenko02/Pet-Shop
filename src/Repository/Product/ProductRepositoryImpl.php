@@ -363,6 +363,8 @@ class ProductRepositoryImpl implements ProductRepository
 												 'special_offer_id' => 'id',
 												 'special_offer_title' => 'title',
 												 'special_offer_description' => 'description',
+												 'special_offer_start_date' => 'start_date',
+												 'special_offer_end_date' => 'end_date',
 											 ],
 										 ],
 										 'product_characteristic' => [
