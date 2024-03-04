@@ -5,16 +5,14 @@ namespace Up\Controller;
 use Up\Auth\Auth;
 use Up\Auth\JwtService;
 use Up\Auth\TokenType;
-use Up\Dto\UserAddingDto;
+use Up\Dto\User\UserAddingDto;
 use Up\Exceptions\User\UserNotFound;
 use Up\Http\Request;
 use Up\Http\Response;
 use Up\Http\Status;
 use Up\Repository\ShoppingSession\ShoppingSessionRepositoryImpl;
-use Up\Routing\Router;
 use Up\Service\UserService\UserService;
 use Up\Util\Session;
-use Up\Util\TemplateEngine\PageMainTemplateEngine;
 
 class AuthController extends Controller
 {
