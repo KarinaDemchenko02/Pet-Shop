@@ -90,10 +90,10 @@ class JwtService
 
 		try
 		{
-			TokenRepositoryImpl::deleteByJti($payload['jti']);
+			@TokenRepositoryImpl::deleteByJti($payload['jti']);
 			return true;
 		}
-		catch (TokenNotDeleted)
+		catch (TokenNotDeleted|\TypeError)
 		{
 			return false;
 		}
@@ -117,8 +117,15 @@ class JwtService
 
 	public static function getPayload(string $jwt): array
 	{
-		$decoded = JWT::decode($jwt, new Key(self::getConfig('secret'), self::getConfig('alg')));
-		return json_decode(json_encode($decoded, JSON_THROW_ON_ERROR), true, 512, JSON_THROW_ON_ERROR);
+		try
+		{
+			$decoded = JWT::decode($jwt, new Key(self::getConfig('secret'), self::getConfig('alg')));
+			return json_decode(json_encode($decoded, JSON_THROW_ON_ERROR), true, 512, JSON_THROW_ON_ERROR);
+		}
+		catch (\Exception)
+		{
+			return [];
+		}
 	}
 
 	public static function saveTokenInCookie(string $jwt, TokenType $tokenType): bool
@@ -151,7 +158,7 @@ class JwtService
 	}
 
 	/**
-	 * @throws InvalidToken|\JsonException|EmptyToken
+	 * @throws InvalidToken|EmptyToken
 	 */
 	public static function refreshTokens(string $refreshToken): array
 	{

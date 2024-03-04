@@ -21,11 +21,11 @@ class TokenRepositoryImpl implements TokenRepository
 	public static function deleteByJti(string $jti): void
 	{
 		$affectedRows = TokenTable::delete(['AND', ['=jti' => $jti]]);
+
 		if ($affectedRows === 0)
 		{
 			throw new TokenNotDeleted();
 		}
-
 	}
 
 	/**
