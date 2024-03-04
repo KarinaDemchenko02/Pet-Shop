@@ -200,7 +200,7 @@ abstract class Table implements TableInterface
 				$preparedCondition = $condition;
 				if (is_string($condition))
 				{
-					if ($func === '%')
+					if ($func === '%=')
 					{
 						$preparedCondition = "%$preparedCondition%";
 					}
@@ -213,15 +213,16 @@ abstract class Table implements TableInterface
 						continue;
 					}
 					$preparedCondition = implode(
-						', ',
-						array_map('\Up\Util\Database\Tables\Table::prepareString', $condition)
+						', ', $condition
 					);
 				}
 				switch ($func) {
-					case 'in':
-					case '%':
-						$func = strpos(-1, $func);
-						$where[] = "$fieldName {$not}{$func} ($preparedCondition)";
+					case 'in=':
+						$func = substr($func, 0, -1);
+						$where[] = "$fieldName {$not}IN ($preparedCondition)";
+						break;
+					case '%=':
+						$where[] = "$fieldName {$not}LIKE $preparedCondition";
 						break;
 					case '=':
 					case '>':
