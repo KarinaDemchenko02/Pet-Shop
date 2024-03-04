@@ -33,7 +33,6 @@ $tags = $this->getVariable('tag');
 	}
 	if ('<?=$contentName?>' === 'orders')
 	{
-		console.log(<?=\Up\Util\Json::encode($columns)?>);
 		const mainList = new OrderList({
 			attachToNodeId: 'item-list',
 			items: <?= \Up\Util\Json::encode($content) ?>,

@@ -22,10 +22,11 @@ class PageMainController extends Controller
 		$titleParam = $request->getVariable('title');
 		$tagParam = $request->getVariable('tag');
 
-		if (!(is_numeric($page) || $page > 0))
+		if (!(is_numeric($page) && $page > 0))
 		{
 			$page = 1;
 		}
+
 		$tags = TagService::getAllTags();
 
 		if (!is_null($titleParam))
@@ -69,13 +70,15 @@ class PageMainController extends Controller
 	{
 		$page = $request->getVariable('page');
 		$tagParam = $request->getVariable('tag');
-
-		if (!(is_numeric($page) || $page > 0))
+		
+		if (!(is_numeric($page) && $page > 0))
 		{
 			$page = 1;
 		}
 
-		$products = ProductService::getProductsByTag((int)$tagParam, $page);
+		$products = ProductService::getProductsByTags(array($tagParam), $page);
+
+		$nextPage = ProductService::getProductsByTags(array($tagParam), $page + 1);
 
 		$content = [];
 		foreach ($products as $product)
@@ -89,19 +92,20 @@ class PageMainController extends Controller
 			];
 		}
 
-		return new Response(Status::OK, ['products' => $content]);
+		return new Response(Status::OK, ['products' => $content, 'nextPage' => $nextPage]);
 	}
 
 	public function getSearchJsonAction(Request $request): Response
 	{
 		$page = $request->getVariable('page');
 		$titleParam = $request->getVariable('title');
-		if (!(is_numeric($page) || $page > 0))
+		if (!(is_numeric($page) && $page > 0))
 		{
 			$page = 1;
 		}
 
 		$products = ProductService::getProductByTitle((string)$titleParam, $page);
+		$nextPage  = ProductService::getProductByTitle((string)$titleParam, $page+1);
 
 		$content = [];
 		foreach ($products as $product)
@@ -115,14 +119,14 @@ class PageMainController extends Controller
 			];
 		}
 
-		return new Response(Status::OK, ['title' => $titleParam, 'products' => $content]);
+		return new Response(Status::OK, ['title' => $titleParam, 'products' => $content, 'nextPage' => $nextPage]);
 	}
 
 	public function getProductsJsonAction(Request $request): Response
 	{
 		$page = $request->getVariable('page');
 
-		if (!(is_numeric($page) || $page > 0))
+		if (!(is_numeric($page) && $page > 0))
 		{
 			$page = 1;
 		}

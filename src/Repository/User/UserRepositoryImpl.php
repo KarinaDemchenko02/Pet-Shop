@@ -55,7 +55,7 @@ class UserRepositoryImpl implements UserRepository
 	/**
 	 * @throws UserNotFound
 	 */
-	public static function change($id, $name, $email, $phoneNumber, $password): void
+	public static function change($id, $name, $surname, $email, $phoneNumber, $password): void
 	{
 		$orm = Orm::getInstance();
 		UserTable::update(['name' => $name, 'email' => $email, 'tel' => $phoneNumber, 'password' => $password],

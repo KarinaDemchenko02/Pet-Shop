@@ -70,6 +70,7 @@
 		price: <?= \Up\Util\Json::encode($this->getVariable('price')) ?>,
 		imagePath: <?= \Up\Util\Json::encode($this->getVariable('imagePath'))?>
 	});
+
 	mainList.render();
 
 	const auth = new Auth({

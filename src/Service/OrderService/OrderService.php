@@ -65,4 +65,9 @@ class OrderService
 	{
 		OrderRepositoryImpl::change($dto);
 	}
+
+	public static function getOrderByUser(int $id): array
+	{
+		return OrderRepositoryImpl::getByUser($id);
+	}
 }

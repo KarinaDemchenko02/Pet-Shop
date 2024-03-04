@@ -1,3 +1,5 @@
+import {Error} from "../error/error.js";
+
 export class Auth
 {
 	attachToNodeId = '';
@@ -27,6 +29,13 @@ export class Auth
 		const form = document.querySelector('.form');
 		let email = document.getElementById('email').value;
 		let password = document.getElementById('password').value;
+
+		const formContainer = document.querySelector('.form__main-container');
+		const errorContainer = document.querySelector('.form__alert-container');
+
+		if (errorContainer) {
+			errorContainer.remove();
+		}
 
 		const logIn = document.getElementById('logIn');
 		logIn.disabled = true;
@@ -65,11 +74,14 @@ export class Auth
 				{
 					console.error(response.errors);
 					logIn.disabled = false;
+
+					new Error('Что-то пошло не так', formContainer).printError();
 				}
 			})
 			.catch((error) => {
 				console.error('Error while changing item.', error);
 				logIn.disabled = false;
+				new Error('Что-то пошло не так', formContainer).printError();
 			})
 	}
 
@@ -247,23 +259,23 @@ export class Auth
 							<div class="form__input-container">
 								<div class="form__input-container form__container-name form__input-register">
 									<label class="form__label" for="name">ИМЯ</label>
-									<input class="form__input" type="text" id="name" name="name" >
+									<input class="form__input" type="text" id="name" name="name" required>
 								</div>
 								<div class="form__input-container form__container-surname form__input-register">
 									<label class="form__label" for="surname">ФАМИЛИЯ</label>
-									<input class="form__input" type="text" id="surname" name="surname">
+									<input class="form__input" type="text" id="surname" name="surname" required>
 								</div>
 								<div class="form__input-container form__container-phone form__input-register">
 									<label class="form__label" for="phone">Телефон</label>
-									<input class="form__input" type="text" id="phone" name="phone">
+									<input class="form__input" type="text" id="phone" name="phone" required>
 								</div>
 								<div class="form__input-container form__container-email">
 									<label class="form__label" for="email">E-MAIL</label>
-									<input class="form__input" type="text" id="email" name="email" >
+									<input class="form__input" type="text" id="email" name="email" required>
 								</div>
 								<div class=" form__input-container form__container-password">
 									<label class="form__label" for="password">ПАРОЛЬ</label>
-									<input class="form__input" type="password" id="password" name="password">
+									<input class="form__input" type="password" id="password" name="password" required>
 								</div>
 							</div>
 							<button class="form__button" id="logIn" type="submit" name="logIn">ВОЙТИ</button>

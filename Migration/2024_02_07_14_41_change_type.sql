@@ -1,1 +1,0 @@
-ALTER TABLE up_users MODIFY COLUMN password VARCHAR(255) NULL AFTER email;

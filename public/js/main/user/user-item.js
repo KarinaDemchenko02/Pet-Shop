@@ -2,6 +2,7 @@ export class UserItem
 {
 	id;
 	name;
+	surname;
 	email;
 	phoneNumber;
 	role;
@@ -9,10 +10,11 @@ export class UserItem
 	removeButtonHandler;
 	restoreButtonHandler;
 
-	constructor({ id, name, email, phoneNumber, role, editButtonHandler, removeButtonHandler, restoreButtonHandler })
+	constructor({ id, name, surname, email, phoneNumber, role, editButtonHandler, removeButtonHandler, restoreButtonHandler })
 	{
 		this.id = Number(id);
 		this.name = String(name);
+		this.surname = String(surname)
 		this.email = String(email);
 		this.phoneNumber = String(phoneNumber);
 		this.role = String(role);
@@ -53,6 +55,18 @@ export class UserItem
 		inputName.type = 'text';
 		inputName.name = 'name';
 		inputName.value = this.name;
+
+		const labelSurname = document.createElement('label');
+		labelSurname.classList.add('account__label');
+		labelSurname.htmlFor = 'surname'
+		labelSurname.innerText = 'Фамилия';
+
+		const inputSurname = document.createElement('input');
+		inputSurname.classList.add('account__input');
+		inputSurname.id = 'surname';
+		inputSurname.type = 'text';
+		inputSurname.name = 'surname';
+		inputSurname.value = this.surname;
 
 		const labelPhone = document.createElement('label');
 		labelPhone.classList.add('account__label');
@@ -105,7 +119,7 @@ export class UserItem
 
 		buttonSubmit.append(spinner);
 
-		containerInput.append(labelRole, labelName, inputName, labelPhone, inputPhone, labelEmail, inputEmail, labelPassword, inputPassword, buttonSubmit);
+		containerInput.append(labelRole, labelName, inputName, labelSurname, inputSurname, labelPhone, inputPhone, labelEmail, inputEmail, labelPassword, inputPassword, buttonSubmit);
 
 		return containerInput;
 	}

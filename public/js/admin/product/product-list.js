@@ -112,7 +112,8 @@ export class ProductList
 
 	handleDeleteTag(event)
 	{
-		const container = event.target.parentNode.parentNode;
+		const container = event.target.parentNode;
+
 		container.parentNode.removeChild(container);
 	}
 
@@ -129,10 +130,6 @@ export class ProductList
 		deleteTag.classList.add('form__delete-tag');
 		deleteTag.addEventListener('click', this.handleDeleteTag.bind(this));
 
-		const iconDelete = document.createElement('i');
-		iconDelete.classList.add('material-icons', 'form__icon-delete');
-		iconDelete.innerText = 'close';
-
 		tagsSelect = document.createElement('select');
 		tagsSelect.classList.add('form__select-input-tag', 'form-select')
 		tagsSelect.name = 'tags';
@@ -147,7 +144,6 @@ export class ProductList
 		})
 
 		selectContainer.append(tagsSelect);
-		deleteTag.append(iconDelete);
 		selectContainer.append(deleteTag);
 		tagsContainer.append(selectContainer);
 	}
@@ -659,10 +655,6 @@ export class ProductList
 			deleteTag.classList.add('form__delete-tag');
 			deleteTag.addEventListener('click', this.handleDeleteTag.bind(this));
 
-			const iconDelete = document.createElement('i');
-			iconDelete.classList.add('material-icons', 'form__icon-delete');
-			iconDelete.innerText = 'close';
-
 			tagsSelect = document.createElement('select');
 			tagsSelect.classList.add('form__select-input-tag', 'form-select')
 			tagsSelect.name = 'tags';
@@ -682,7 +674,6 @@ export class ProductList
 			})
 
 			selectContainer.append(tagsSelect);
-			deleteTag.append(iconDelete);
 			selectContainer.append(deleteTag);
 			tagsContainer.append(selectContainer);
 		})

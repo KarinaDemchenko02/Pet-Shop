@@ -1,6 +1,7 @@
 import {ProductItem} from "./product-item.js";
 import AddBasket from "../../AddBasket.js";
 import {BasketItem} from "../basket/basket-item.js";
+import {Error} from '../error/error.js';
 
 export class ProductList
 {
@@ -10,6 +11,7 @@ export class ProductList
 	items = [];
 	basketItem = [];
 	currentPagination = new URLSearchParams(window.location.search).get('page');
+	nextPage = [];
 
 	constructor({ attachToNodeId = '', items, basketItem })
 	{
@@ -54,113 +56,6 @@ export class ProductList
 		this.rootNode.append(this.itemsContainer);
 	}
 
-	handlePrevPaginationButtonClick() {
-		if (parseInt(this.currentPagination) === 1) {
-			return;
-		}
-
-		this.currentPagination = new URLSearchParams(window.location.search).get('page');
-
-		let prevPageNumber = parseInt(this.currentPagination) - 1;
-
-		const spinner = document.querySelector('.spinner-product');
-		spinner.classList.add('disabled');
-
-		fetch(`/products-json/?page=${prevPageNumber}`, {
-			method: 'GET',
-		})
-			.then((response) => {
-				if (!response.ok) {
-					throw new Error('Network response was not ok');
-				}
-				return response.json();
-			})
-			.then((response) => {
-				this.currentPagination = prevPageNumber;
-
-				let currentUrl = window.location.href;
-				let newUrl = new URL(currentUrl);
-				newUrl.searchParams.set('page', this.currentPagination);
-				window.history.replaceState({}, '', newUrl);
-
-				this.items = response.products.map((itemData) => {
-					return this.createItem(itemData);
-				});
-
-				this.render();
-
-				if (this.currentPagination === 1) {
-					document.querySelector('.pagination__button_prev').disabled = true;
-					localStorage.setItem('prevButtonDisabled', 'true');
-				}
-
-				if (response.nextPage.length !== 0) {
-					document.querySelector('.pagination__button_next').disabled = false;
-					localStorage.setItem('nextButtonDisabled', 'false');
-				}
-
-				const spinner = document.querySelector('.spinner-product');
-				spinner.classList.remove('disabled');
-			})
-			.catch((error) => {
-				console.error('Error while changing item:', error);
-				const spinner = document.querySelector('.spinner-product');
-				spinner.classList.remove('disabled');
-			});
-	}
-
-	handleNextPaginationButtonClick() {
-		this.currentPagination = new URLSearchParams(window.location.search).get('page');
-
-		let nextPageNumber = parseInt(this.currentPagination) + 1;
-
-		this.currentPagination = nextPageNumber;
-
-		let currentUrl = window.location.href;
-		let newUrl = new URL(currentUrl);
-		newUrl.searchParams.set('page', this.currentPagination);
-		window.history.replaceState({}, '', newUrl);
-
-		const spinner = document.querySelector('.spinner-product');
-		spinner.classList.add('disabled');
-
-		fetch(`/products-json/?page=${nextPageNumber}`, {
-			method: 'GET',
-		})
-			.then((response) => {
-				if (!response.ok) {
-					throw new Error('Network response was not ok');
-				}
-				return response.json();
-			})
-			.then((response) => {
-				this.items = response.products.map((itemData) => {
-					return this.createItem(itemData);
-				});
-
-				this.render();
-
-				if (response.nextPage.length === 0) {
-					document.querySelector('.pagination__button_next').disabled = true;
-					localStorage.setItem('nextButtonDisabled', 'true');
-				}
-
-				if (this.currentPagination > 1)
-				{
-					document.querySelector('.pagination__button_prev').disabled = false;
-					localStorage.setItem('prevButtonDisabled', 'false');
-				}
-
-				const spinner = document.querySelector('.spinner-product');
-				spinner.classList.remove('disabled');
-			})
-			.catch((error) => {
-				console.error('Error while changing item:', error);
-				const spinner = document.querySelector('.spinner-product');
-				spinner.classList.remove('disabled');
-			});
-	}
-
 	handleChangePaginationButtonClick(event) {
 		event.preventDefault();
 		const page = event.target.innerText;
@@ -192,27 +87,13 @@ export class ProductList
 				this.currentPagination = Number(page) + 1;
 			}
 
+			this.nextPage = response.nextPage;
+
 			this.items = response.products.map((itemData) => {
 				return this.createItem(itemData)
 			})
 
 			this.render();
-
-			if (response.nextPage.length === 0) {
-				document.querySelector('.pagination__button_next').disabled = true;
-				localStorage.setItem('nextButtonDisabled', 'true');
-			} else {
-				document.querySelector('.pagination__button_next').disabled = false;
-				localStorage.setItem('nextButtonDisabled', 'false');
-			}
-
-			if ((this.currentPagination - 1) === 1) {
-				document.querySelector('.pagination__button_prev').disabled = true;
-				localStorage.setItem('prevButtonDisabled', 'true');
-			} else {
-				document.querySelector('.pagination__button_prev').disabled = false;
-				localStorage.setItem('prevButtonDisabled', 'false');
-			}
 
 			spinner.classList.remove('disabled');
 		})
@@ -220,47 +101,6 @@ export class ProductList
 			console.error('Error while changing item:', error);
 			spinner.classList.remove('disabled');
 		});
-	}
-
-	handleSearchButtonSubmit()
-	{
-		const inputSearch = document.getElementById('search');
-		const title = inputSearch.value;
-
-		let currentUrl = window.location.href;
-
-		let newUrl = new URL(currentUrl);
-		newUrl.searchParams.set('title', title);
-
-		window.history.replaceState({}, '', newUrl);
-
-		const spinner = document.querySelector('.spinner-product');
-		spinner.classList.add('disabled');
-
-		fetch(
-			`/search-json/?title=${title}`,
-			{
-				method: 'GET',
-			}
-		)
-			.then((response) => {
-				if (response.status >= 300 || response.status < 200) {
-					throw new Error('Network response was not ok');
-				}
-				return response.json();
-			})
-			.then((response) => {
-				this.items = response.products.map((itemData) => {
-					return this.createItem(itemData)
-				})
-				this.render();
-
-				spinner.classList.remove('disabled');
-			})
-			.catch((error) => {
-				console.error('Error while changing item:', error);
-				spinner.classList.remove('disabled');
-			});
 	}
 
 	handleBasketAddButtonSubmit(item) {
@@ -287,6 +127,7 @@ export class ProductList
 				if (response.result) {
 					const counterOrder = document.querySelector('.header__basket-number');
 					counterOrder.innerText = Number(counterOrder.innerText) + 1;
+
 					this.items.forEach(item => {
 						if (item.id === Number(id)) {
 							const basketContainer = document.getElementById('basket-list');
@@ -333,16 +174,19 @@ export class ProductList
 				if (response.result) {
 					const counterOrder = document.querySelector('.header__basket-number');
 					counterOrder.innerText = Number(counterOrder.innerText) - 1;
+
 					this.items.forEach(item => {
 						if (item.id === Number(id)) {
 							const basketItem = document.getElementById(`itemBasket${id}`);
 							basketItem.remove();
+
 							this.basketItem.forEach((item, index) => {
 								if (item.id === Number(id)) {
 									this.basketItem.splice(index, 1);
 									return true;
 								}
 							});
+
 							const bottomMenu = document.getElementById(`bottom${id}`)
 							bottomMenu.classList.remove('clicked');
 							return true;
@@ -355,8 +199,13 @@ export class ProductList
 			});
 	}
 
-	render()
-	{
+	async render() {
+		if (this.items.length === 0) {
+			const modal = new Error('Данная страница не найдена!').render();
+			this.rootNode.append(modal);
+			return false;
+		}
+
 		this.rootNode.innerHTML = '';
 
 		let itemsHtml = '';
@@ -393,56 +242,54 @@ export class ProductList
 
 		buttonBuy.forEach(btn => {
 			btn.addEventListener('click', this.handleBasketAddButtonSubmit.bind(this))
-		})
+		});
 
 		buttonRemove.forEach(btn => {
 			btn.addEventListener('click', this.handleBasketRemoveButtonSubmit.bind(this))
-		})
+		});
 
-		this.renderPagination();
-		this.renderSearchForm();
+		await this.renderPagination();
 	}
 
-	renderPagination()
-	{
+	async renderPagination() {
 		const paginationContainer = document.createElement('div');
 		paginationContainer.id = 'buttonPagination'
 		paginationContainer.classList.add('pagination');
 
-		const prevButton = document.createElement('button');
-		prevButton.classList.add('pagination__button-switch', 'pagination__button_prev');
-		prevButton.innerText = 'Назад';
-		prevButton.addEventListener('click', this.handlePrevPaginationButtonClick.bind(this));
-
-		if (!localStorage.getItem('prevButtonDisabled')) {
-			prevButton.disabled = true;
-		}
-
-		const prevButtonDisabled = localStorage.getItem('prevButtonDisabled');
-		if (prevButtonDisabled === 'true') {
-			prevButton.disabled = true;
-		}
-
-		paginationContainer.append(prevButton);
-
 		let current = 0;
 
 		if (!this.currentPagination) {
+			const result = await this.checkPageNumberOne();
+
+			if (result) {
+				current = 1;
+			}
+
 			this.currentPagination = 1;
 		}
 
-		if (parseInt(this.currentPagination) === 1) {
-			current = 1;
+		if (this.currentPagination === '1') {
+			const result = await this.checkPageNumberOne();
+
+			if (result) {
+				current = 1;
+			}
 		}
 
-		for (let i = 1; i <= parseInt(this.currentPagination) + current; i++) {
+		let currentPage = parseInt(new URLSearchParams(window.location.search).get('page') || '1');
+		const startIndex = Math.max(1, currentPage - 1);
+		const endIndex = Math.min(parseInt(this.currentPagination), currentPage + 1);
+
+		for (let i = startIndex; i <= endIndex + current; i++) {
 			const buttonPagination = document.createElement('button');
 			buttonPagination.classList.add('pagination__button');
 			buttonPagination.innerText = String(i);
 			buttonPagination.addEventListener('click', this.handleChangePaginationButtonClick.bind(this));
 
-			const currentPage = new URLSearchParams(window.location.search).get('page');
-			if (buttonPagination.innerText === currentPage) {
+			if (currentPage === null) {
+				currentPage = '1';
+			}
+			if (buttonPagination.innerText === String(currentPage)) {
 				buttonPagination.classList.add('is-active');
 			}
 
@@ -450,62 +297,27 @@ export class ProductList
 
 			this.rootNode.append(paginationContainer);
 		}
-
-		const nextButton = document.createElement('button');
-		nextButton.classList.add('pagination__button-switch', 'pagination__button_next');
-		nextButton.innerText = 'Вперед';
-		nextButton.addEventListener('click', this.handleNextPaginationButtonClick.bind(this));
-
-		const nextButtonDisabled = localStorage.getItem('nextButtonDisabled');
-		if (nextButtonDisabled === 'true') {
-			nextButton.disabled = true;
-		}
-		paginationContainer.append(nextButton);
 	}
 
-	renderSearchForm()
+	checkPageNumberOne()
 	{
-		const containerForm = document.querySelector('.header__form');
-
-		containerForm.innerHTML = '';
-
-		const form = document.createElement('form');
-		form.classList.add('header__main-form');
-
-		form.addEventListener('submit', function(event) {
-			event.preventDefault();
-			this.handleSearchButtonSubmit();
-		}.bind(this));
-
-		const labelSearch = document.createElement('label');
-		labelSearch.classList.add('header__label');
-
-		const inputSearch = document.createElement('input');
-		inputSearch.classList.add('header__input');
-		inputSearch.name = 'title';
-		inputSearch.id = 'search'
-		inputSearch.placeholder = 'Поиск товаров';
-
-		if (new URLSearchParams(window.location.search).get('title'))
-		{
-			inputSearch.value = new URLSearchParams(window.location.search).get('title');
-		}
-
-		const searchButton = document.createElement('button');
-		searchButton.classList.add('header__button')
-		searchButton.type = 'submit';
-
-		const buttonIcon = document.createElement('i');
-		buttonIcon.classList.add('header__search', 'material-icons');
-		buttonIcon.innerText = 'search';
-
-		searchButton.append(buttonIcon)
-
-		labelSearch.append(inputSearch);
-		form.append(labelSearch, searchButton);
-
-		containerForm.append(form);
-
-		return containerForm;
+		return fetch(
+			`/products-json/?page=1`,
+			{
+				method: 'GET',
+			}
+		)
+		.then((response) => {
+			if (!response.ok) {
+				throw new Error('Network response was not ok');
+			}
+			return response.json();
+		})
+		.then((response) => {
+			return response.nextPage.length !== 0;
+		})
+		.catch((error) => {
+			console.error('Error while checking for items on next page:', error);
+		});
 	}
 }

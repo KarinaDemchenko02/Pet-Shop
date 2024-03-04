@@ -6,6 +6,7 @@ class User implements Entity
 {
 	public readonly ?int $id;
 	public readonly ?string $name;
+	public readonly ?string $surname;
 	public readonly ?string $phoneNumber;
 	public readonly ?string $email;
 	public readonly ?string $password;
@@ -15,6 +16,7 @@ class User implements Entity
 	public function __construct(
 		? int    $id,
 		?string $name,
+		?string $surname,
 		?string $phoneNumber,
 		?string $email,
 		?string $password,
@@ -24,6 +26,7 @@ class User implements Entity
 	{
 		$this->id = $id;
 		$this->name = $name;
+		$this->surname = $surname;
 		$this->phoneNumber = $phoneNumber;
 		$this->email = $email;
 		$this->password = $password;

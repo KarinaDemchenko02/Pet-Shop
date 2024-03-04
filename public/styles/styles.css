@@ -187,8 +187,64 @@ button {
 	color: #ffffff;
 }
 
+.tags__item {
+	display: flex;
+	align-items: center;
+}
+
 .tags__item:not(:last-child) {
 	margin-bottom: 20px;
+}
+
+.tags__checkbox {
+	position: absolute;
+	z-index: -1;
+	opacity: 0;
+}
+
+.tags__checkbox + label {
+	display: inline-flex;
+	align-items: center;
+	user-select: none;
+}
+
+.tags__checkbox + label::before {
+	content: '';
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	flex-shrink: 0;
+	flex-grow: 0;
+	border: 1px solid #adb5bd;
+	border-radius: 0.25em;
+	margin-right: 0.5em;
+	background-repeat: no-repeat;
+	background-position: center center;
+	background-size: 50% 50%;
+}
+
+.tags__checkbox:checked + label::before {
+	border-color: #1c7430;
+	background-color: #1c7430;
+	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23fff' d='M6.564.75l-3.59 3.612-1.538-1.55L0 4.26 2.974 7.25 8 2.193z'/%3e%3c/svg%3e");
+}
+
+
+.tags__checkbox:not(:disabled):not(:checked)+label:hover::before {
+	border-color: #2ca02c;
+}
+
+.tags__checkbox:not(:disabled):active+label::before {
+	background-color: #2ca02c;
+	border-color: #2ca02c;
+}
+
+.tags__checkbox:focus+label::before {
+	box-shadow: 0 0 0 0.2rem rgba(44, 160, 44, 1);
+}
+
+.tags__checkbox:focus:not(:checked)+label::before {
+	border-color: #2ca02c;
 }
 
 .tags__list {
@@ -809,6 +865,11 @@ button {
 	outline: none;
 }
 
+.form__alert-heading {
+	margin-top: 8px;
+	color: #a40000;
+}
+
 .spinner-action {
 	position: absolute;
 	right: 30%;
@@ -1389,15 +1450,61 @@ button {
 	justify-content: center;
 }
 
+.account__container {
+	padding: 20px;
+	background-color: #ffffff;
+	width: 60%;
+}
+
 .account__list {
 	display: flex;
-	padding: 20px;
 	flex-wrap: wrap;
 	justify-content: space-between;
 	align-items: center;
-	background-color: #ffffff;
 	border-radius: 5px;
 	width: 100%;
+}
+
+.account__item-heading {
+	width: 16%;
+}
+
+.account__order-price {
+	width: 10%;
+}
+
+.account__order-quantities {
+	width: 5%;
+}
+
+.account__order-status {
+	width: 20%;
+}
+
+.account__order-heading {
+	margin-bottom: 20px;
+	font-size: 24px;
+	font-weight: 700;
+	color: #000000;
+}
+
+.account__item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	border-bottom: 1px solid #000000;
+}
+
+.account__item:first-child {
+	border-top: 1px solid #000000;
+}
+
+.account__item:not(:last-child) {
+	margin-bottom: 15px;
+}
+
+.account__order-image {
+	width: 11%;
 }
 
 .account__label {
@@ -1461,6 +1568,7 @@ button {
 }
 
 .account__image {
+	margin-bottom: 20px;
 	border-radius: 50%;
 	width: 30%;
 }
@@ -1498,6 +1606,34 @@ button {
 	position: inherit;
 	transform: inherit;
 	border-bottom: 1px solid #000000;
+}
+
+.product__error {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 20px;
+	padding-top: 13%;
+	margin: 0 auto;
+	justify-content: center;
+	background-color: #ffffff;
+	background-image: url("../images/error.png");
+	background-repeat: no-repeat;
+	background-position: 50% -38%;
+	background-size: 50%;
+	width: 37%;
+}
+
+.product__error-link {
+	transition: color .3s ease-in-out;
+}
+
+.product__error-link:hover {
+	color: #1c7430;
+}
+
+.product__error-heading {
+	margin-bottom: 10px;
 }
 
 .is-active {
