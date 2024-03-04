@@ -102,6 +102,7 @@ class OrderAdminController extends Controller
 				$data['deliveryAddress'],
 				$data['name'],
 				$data['surname'],
+				$data['statusId']
 			);
 			OrderService::changeOrder($orderDto);
 			$result = true;
