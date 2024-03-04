@@ -62,6 +62,8 @@ export class ProductList
 
 		let currentUrl = window.location.href;
 
+		this.currentPagination = page;
+
 		let newUrl = new URL(currentUrl);
 		newUrl.searchParams.set('page', page);
 
