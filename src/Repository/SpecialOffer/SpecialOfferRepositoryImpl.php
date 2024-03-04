@@ -63,8 +63,8 @@ class SpecialOfferRepositoryImpl implements SpecialOfferRepository
 			 [
 				 '=is_active' => 1,
 				 'in=special_offer_id' => $ids,
-				 '>=special_offer_start_date' => $now,
-				 '<=special_offer_end_date' => $now,
+				 '<=special_offer_start_date' => $now,
+				 '>=special_offer_end_date' => $now,
 			 ],
 			],
 			['priority' => 'ASC'],
