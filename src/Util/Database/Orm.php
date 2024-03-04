@@ -154,7 +154,6 @@ class Orm
 		}
 		catch (\Throwable $e)
 		{
-			var_dump($sql);
 			throw $e;
 		}
 
