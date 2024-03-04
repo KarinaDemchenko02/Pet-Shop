@@ -1,9 +1,9 @@
 <?php
 
-namespace Up\Dto;
+namespace Up\Dto\User;
 
+use Up\Dto\Dto;
 use Up\Entity\Entity;
-use Up\Entity\User;
 
 class UserAddingDto implements Dto
 {

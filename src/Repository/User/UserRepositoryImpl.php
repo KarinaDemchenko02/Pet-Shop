@@ -2,11 +2,12 @@
 
 namespace Up\Repository\User;
 
-use Up\Dto\UserAddingDto;
+use Up\Dto\User\UserAddingDto;
+use Up\Dto\User\UserAdminChangeDto;
+use Up\Dto\User\UserChangeDto;
 use Up\Entity\User;
 use Up\Exceptions\User\UserAdding;
 use Up\Exceptions\User\UserNotFound;
-use Up\Util\Database\Orm;
 use Up\Util\Database\Tables\UserTable;
 
 class UserRepositoryImpl implements UserRepository
@@ -35,11 +36,10 @@ class UserRepositoryImpl implements UserRepository
 
 	/**
 	 * @throws UserAdding
-	 * @throws \Exception
 	 */
 	public static function add(UserAddingDto $user): void
 	{
-		UserTable::add(
+		$result = UserTable::add(
 			[
 				'name' => $user->name,
 				'surname' => $user->surname,
@@ -49,19 +49,48 @@ class UserRepositoryImpl implements UserRepository
 				'tel' => $user->phoneNumber,
 			]
 		);
-		throw new UserAdding('Failed to add a user');
+		if ($result === 0)
+		{
+			throw new UserAdding('Failed to add a user');
+		}
 	}
 
 	/**
 	 * @throws UserNotFound
 	 */
-	public static function change($id, $name, $surname, $email, $phoneNumber, $password): void
+	public static function change(UserChangeDto $user): void
 	{
-		$orm = Orm::getInstance();
-		UserTable::update(['name' => $name, 'surname' => $surname, 'email' => $email, 'tel' => $phoneNumber, 'password' => $password],
-						  ['AND', ['=id' => [$id]]]);
+		$result = UserTable::update(
+			[
+				'name' => $user->name,
+				'surname' => $user->surname,
+				'email' => $user->email,
+				'tel' => $user->phoneNumber,
+				'password' => $user->password,
+			], ['AND', ['=id' => $user->id]]
+		);
+		if ($result === 0)
+		{
+			throw new UserNotFound();
+		}
+	}
 
-		if ($orm->affectedRows() === 0)
+	/**
+	 * @throws UserNotFound
+	 */
+	public static function adminChange(UserAdminChangeDto $user): void
+	{
+		$result = UserTable::update(
+			[
+				'role_id' => $user->roleId,
+				'name' => $user->name,
+				'surname' => $user->surname,
+				'email' => $user->email,
+				'tel' => $user->phoneNumber,
+				'password' => $user->password,
+			], ['AND', ['=id' => $user->id]]
+		);
+		if ($result === 0)
 		{
 			throw new UserNotFound();
 		}
@@ -72,7 +101,7 @@ class UserRepositoryImpl implements UserRepository
 		return new User(
 			$row['user_id'] ?? null,
 			$row['user_name'] ?? null,
-				$row['user_surname'] ?? null,
+			$row['user_surname'] ?? null,
 			$row['tel'] ?? null,
 			$row['email'] ?? null,
 			$row['password'] ?? null,
