@@ -55,7 +55,7 @@ class Application
 
 	public function run(): void
 	{
-		Util\Database\Migration::migrate();
+		// Util\Database\Migration::migrate();
 
 		$this->compressImages();
 

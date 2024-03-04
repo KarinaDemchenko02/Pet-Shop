@@ -37,11 +37,16 @@ class SpecialOfferRepositoryImpl implements SpecialOfferRepository
 		$result = SpecialOfferTable::getList(['special_offer_id' => 'id']);
 		$ids = self::getIds($result);
 
+		$time = new \DateTime();
+		$now = $time->format('Y-m-d');
+
 		$result = SpecialOfferTable::getList(
 			[
 				'special_offer_id' => 'id',
 				'special_offer_title' => 'title',
 				'special_offer_description' => 'description',
+				'special_offer_start_date' => 'start_date',
+				'special_offer_end_date' => 'end_date',
 				'product_special_offer' => [
 					'product' => [
 						'id',
@@ -54,7 +59,14 @@ class SpecialOfferRepositoryImpl implements SpecialOfferRepository
 					],
 				],
 			],
-			['AND', ['=is_active' => 1, 'in=special_offer_id' => $ids]],
+			['AND',
+			 [
+				 '=is_active' => 1,
+				 'in=special_offer_id' => $ids,
+				 '>=special_offer_start_date' => $now,
+				 '<=special_offer_end_date' => $now,
+			 ],
+			],
 			['priority' => 'ASC'],
 		);
 		$specialOfferPreviewProducts = [];
@@ -118,7 +130,11 @@ class SpecialOfferRepositoryImpl implements SpecialOfferRepository
 	public static function createSpecialOfferEntity(array $row): SpecialOffer
 	{
 		return new SpecialOffer(
-			$row['special_offer_id'], $row['special_offer_title'], $row['special_offer_description']
+			$row['special_offer_id'],
+			$row['special_offer_title'],
+			$row['special_offer_description'],
+			$row['special_offer_start_date'],
+			$row['special_offer_end_date'],
 		);
 	}
 
