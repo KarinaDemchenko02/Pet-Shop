@@ -140,15 +140,15 @@ class ProductRepositoryImpl implements ProductRepository
 			ProductTable::add(
 				['name' => $productAddingDto->title, 'description' => $description, 'price' => $productAddingDto->price]
 			);
-			$lastItem = $orm->last();
-			ImageRepositoryImpl::add($productAddingDto->imagePath, $lastItem);
+			$lastProduct = $orm->last();
+			ImageRepositoryImpl::add($productAddingDto->imagePath, $lastProduct);
 			foreach ($productAddingDto->tags as $tag)
 			{
-				ProductTagTable::add(['product_id' => $lastItem, 'tag_id' => $tag]);
+				ProductTagTable::add(['product_id' => $lastProduct, 'tag_id' => $tag]);
 			}
 			$orm->commit();
 
-			return $lastItem;
+			return $orm->affectedRows();
 		}
 		catch (\Throwable $e)
 		{

@@ -55,6 +55,15 @@ class UserRepositoryImpl implements UserRepository
 		}
 	}
 
+	public static function disable($id)
+	{
+		$result = UserTable::update(['is_active' => 0], ['AND', ['=id' => $id]]);
+		if ($result === 0)
+		{
+			throw new \RuntimeException('User is not disabled');
+		}
+	}
+
 	/**
 	 * @throws UserNotFound
 	 */
