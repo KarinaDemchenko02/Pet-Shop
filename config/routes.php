@@ -3,6 +3,7 @@
 use Up\Routing\Router;
 
 Router::group(['preMiddleware' => 'isLogin'], [
+	Router::post('/product/:id/', new \Up\Controller\PageDetailController(), 'buyProductAction'),
 	Router::get('/', new \Up\Controller\PageMainController(), 'showProductsAction'),
 	Router::get('/product/:id/', new \Up\Controller\PageDetailController(), 'showProductAction'),
 	Router::get('/special-offer/', new \Up\Controller\PageSpecialOfferController(), 'showSpecialOfferAction'),
@@ -47,7 +48,6 @@ Router::group(['preMiddleware' => ['isLogin', 'isAdmin'], 'postMiddleware' => 'i
 	]);
 
 
-Router::post('/product/:id/', new \Up\Controller\PageDetailController(), 'buyProductAction');
 
 Router::get('/success/', new \Up\Controller\PageDetailController(), 'showModalSuccess');
 
