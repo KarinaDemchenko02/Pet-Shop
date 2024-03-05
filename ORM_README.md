@@ -343,3 +343,33 @@ $result =  ProductTable::getList([
 
 ### Про $condition
 $condition передается в виде массива ['{Логическое условие (AND или OR)}', [{Массив условий}]]. Условия могут быть вложенные, такое условие задается следующим образом '{Логическое условие}' => [{Массив вложенных условий}].
+
+### Пример использования
+```php
+class OrderTable extends Table
+{
+	// в getMap() вы должны описать все поля называя их как в БД и задавая им необходимые свойства. Также вы должны описать и все связи с помощью полей связи
+	public static function getMap(): array
+	{
+		return [
+			new IntegerField('id', true, false, true),
+			new Reference('user', new UserTable, 'this.user_id=ref.id', isNullable: true),
+			new IntegerField('user_id', false, false),
+			new StringField('delivery_address', isNullable: false),
+			new Reference('status', new StatusTable, 'this.status_id=ref.id', isNullable: false),
+			new IntegerField('status_id', false, false),
+			new StringField('created_at', isDefaultExists: true),
+			new StringField('edited_at', isDefaultExists: true),
+			new StringField('name', isNullable: true),
+			new StringField('surname', isNullable: true),
+			new Reflection('order_product', new OrderProductTable(), 'order')
+		];
+	}
+	
+	// Просто задать имя самой таблицы в БД
+	public static function getTableName(): string
+	{
+		return 'up_order';
+	}
+}
+```
