@@ -39,4 +39,9 @@ class ProductCharacteristicImpl implements ProductCharacteristic
 		return CharacteristicTable::getList(['characteristic_id' => 'id', 'characteristic_title' => 'title'],
 			conditions:                     $where);
 	}
+
+	public static function add(string $characteristicTitle): void
+	{
+		CharacteristicTable::add(['title' => $characteristicTitle]);
+	}
 }

@@ -152,4 +152,16 @@ class ProductService
 		$columns[] = 'Теги';
 		return $columns;
 	}
+
+	public static function getByTagsTitle(array $tags, string $title, int $page = 1): array
+	{
+		$products = ProductRepositoryImpl::getByTagsTitle($tags, $title, $page);
+		$productsDto = [];
+		foreach ($products as $product)
+		{
+			$productsDto[] = new ProductDto($product);
+		}
+
+		return $productsDto;
+	}
 }

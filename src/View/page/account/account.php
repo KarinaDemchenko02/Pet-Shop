@@ -16,7 +16,6 @@
 			integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
 			crossorigin="anonymous">
 	</script>
-	<script defer src="/js/index.js" type="module"></script>
 </head>
 <body class="body">
 	<?php $this->getVariable('header')->display(); ?>
