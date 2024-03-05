@@ -2,7 +2,6 @@
 
 namespace Up\Repository\ProductCharacteristic;
 
-use Up\Dto\ProductCharacteristicAddingDto;
 use Up\Entity\Characteristic;
 use Up\Util\Database\Tables\CharacteristicTable;
 
@@ -41,8 +40,8 @@ class ProductCharacteristicImpl implements ProductCharacteristic
 			conditions:                     $where);
 	}
 
-	public static function add(ProductCharacteristicAddingDto $productCharacteristic): void
+	public static function add(string $characteristicTitle): void
 	{
-		CharacteristicTable::add(['title' => $productCharacteristic->title, 'value' => $productCharacteristic->value]);
+		CharacteristicTable::add(['title' => $characteristicTitle]);
 	}
 }
