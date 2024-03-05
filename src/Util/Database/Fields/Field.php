@@ -34,5 +34,4 @@ abstract class Field implements FieldInterface
 	{
 		return $this->isDefaultExists;
 	}
-
 }

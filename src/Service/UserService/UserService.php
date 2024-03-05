@@ -3,8 +3,9 @@
 namespace Up\Service\UserService;
 
 use Up\Auth\Auth;
-use Up\Dto\UserAddingDto;
-use Up\Dto\UserDto;
+use Up\Dto\User\UserAddingDto;
+use Up\Dto\User\UserChangeDto;
+use Up\Dto\User\UserDto;
 use Up\Exceptions\Auth\InvalidPassword;
 use Up\Exceptions\User\UserAdding;
 use Up\Exceptions\User\UserNotFound;
@@ -25,6 +26,7 @@ class UserService
 		{
 			$usersDto[$user->id] = new UserDto($user);
 		}
+
 		return $usersDto;
 	}
 
@@ -43,6 +45,7 @@ class UserService
 		{
 			throw new UserNotFound('Пользователь с этим email не существует');
 		}
+
 		return new UserDto($user);
 	}
 
@@ -58,7 +61,9 @@ class UserService
 	 */
 	public static function addUser(UserAddingDto $userAddingDto): void
 	{
+
 		UserRepositoryImpl::add($userAddingDto);
+
 	}
 
 	/**
@@ -69,13 +74,13 @@ class UserService
 	{
 		if (empty($password))
 		{
-			$password =  self::getUserById($id)->password;
+			$password = self::getUserById($id)->password;
 		}
 		else
 		{
 			$password = Auth::hashPassword($password);
 		}
-
-		UserRepositoryImpl::change($id, $name, $surname, $email, $phoneNumber, $password);
+		$user = new UserChangeDto($id, $name, $surname, $email, $phoneNumber, $password);
+		UserRepositoryImpl::change($user);
 	}
 }

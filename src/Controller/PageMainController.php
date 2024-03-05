@@ -70,6 +70,7 @@ class PageMainController extends Controller
 	{
 		$page = $request->getVariable('page');
 		$tagParam = $request->getVariable('tag');
+		$titleParam = $request->getVariable('title');
 		
 		if (!(is_numeric($page) && $page > 0))
 		{
@@ -77,49 +78,44 @@ class PageMainController extends Controller
 		}
 
 		$products = ProductService::getProductsByTags(array($tagParam), $page);
-
+		$productsTitle = ProductService::getProductByTitle((string) $titleParam, $page);
 		$nextPage = ProductService::getProductsByTags(array($tagParam), $page + 1);
+		$allProducts = ProductService::getAllProducts($page);
+		$productsByTagTitle = ProductService::getByTagsTitle((array) $tagParam, $titleParam, $page);
+		$productsByTagTitleNext = ProductService::getByTagsTitle((array) $tagParam, $titleParam, $page + 1);
 
-		$content = [];
-		foreach ($products as $product)
-		{
-			$content[] = [
-				'title' => $product->title,
-				'description' => $product->description,
-				'price' => $product->price,
-				'id' => $product->id,
-				'imagePath' => $product->imagePath,
-			];
-		}
-
-		return new Response(Status::OK, ['products' => $content, 'nextPage' => $nextPage]);
+		return new Response(Status::OK, [
+			'products' => $products,
+			'nextPage' => $nextPage,
+			'allProducts' => $allProducts,
+			'productsByTagTitle' => $productsByTagTitle,
+			'productTitle' => $productsTitle,
+			'productsByTagTitleNext' => $productsByTagTitleNext
+		]);
 	}
 
 	public function getSearchJsonAction(Request $request): Response
 	{
 		$page = $request->getVariable('page');
 		$titleParam = $request->getVariable('title');
+		$tagParam = $request->getVariable('tag');
 		if (!(is_numeric($page) && $page > 0))
 		{
 			$page = 1;
 		}
 
-		$products = ProductService::getProductByTitle((string)$titleParam, $page);
-		$nextPage  = ProductService::getProductByTitle((string)$titleParam, $page+1);
+		$products = ProductService::getProductByTitle((string) $titleParam, $page);
+		$nextPage  = ProductService::getProductByTitle((string) $titleParam, $page+1);
+		$productsByTagTitle = ProductService::getByTagsTitle((array) $tagParam, $titleParam, $page);
+		$productsByTagTitleNext = ProductService::getByTagsTitle((array) $tagParam, $titleParam, $page + 1);
 
-		$content = [];
-		foreach ($products as $product)
-		{
-			$content[] = [
-				'title' => $product->title,
-				'description' => $product->description,
-				'price' => $product->price,
-				'id' => $product->id,
-				'imagePath' => $product->imagePath,
-			];
-		}
-
-		return new Response(Status::OK, ['title' => $titleParam, 'products' => $content, 'nextPage' => $nextPage]);
+		return new Response(Status::OK, [
+			'title' => $titleParam,
+			'products' => $products,
+			'nextPage' => $nextPage,
+			'productsByTagTitle' => $productsByTagTitle,
+			'productsByTagTitleNext' => $productsByTagTitleNext
+		]);
 	}
 
 	public function getProductsJsonAction(Request $request): Response
@@ -132,22 +128,10 @@ class PageMainController extends Controller
 		}
 
 		$products = ProductService::getAllProducts($page);
-		$content = [];
-		foreach ($products as $product)
-		{
-			$content[] = [
-				'title' => $product->title,
-				'description' => $product->description,
-				'price' => $product->price,
-				'id' => $product->id,
-				'imagePath' => $product->imagePath,
-			];
-		}
 
 		return new Response(Status::OK, [
-			'products' => $content,
+			'products' => $products,
 			'nextPage' => ProductService::getAllProducts($page + 1),
 			]);
 	}
-
 }

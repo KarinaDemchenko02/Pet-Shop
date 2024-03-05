@@ -2,20 +2,12 @@
 
 namespace Up\Controller;
 
-use Up\Auth\JwtService;
-use Up\Dto\UserDto;
-use Up\Exceptions\User\UserNotFound;
 use Up\Http\Request;
 use Up\Http\Response;
 use Up\Http\Status;
-use Up\Repository\ShoppingSession\ShoppingSessionRepositoryImpl;
-use Up\Repository\User\UserRepositoryImpl;
 use Up\Service\OrderService\OrderService;
-use Up\Service\ProductService\ProductService;
 use Up\Service\UserService\UserService;
-use Up\Util\Session;
 use Up\Util\TemplateEngine\PageAccountTemplateEngine;
-use Up\Util\TemplateEngine\Template;
 
 class PageAccountController extends Controller
 {

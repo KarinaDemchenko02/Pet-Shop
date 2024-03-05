@@ -60,6 +60,8 @@ td {
 }
 
 .table__th_button {
+	display: flex;
+	flex-direction: column;
 	text-align: center;
 }
 
@@ -81,6 +83,7 @@ td {
 
 .table__button {
 	position: relative;
+	margin-bottom: 10px;
 	padding: 5px 26px !important;
 	border: none;
 	border-radius: 3px;
@@ -98,12 +101,10 @@ td {
 }
 
 .table__button_edit {
-	margin-right: 15px;
 	background-color: #2ca02c !important;
 }
 
 .table__button_delete {
-	margin-right: 15px;
 	background-color: #a40000 !important;
 }
 

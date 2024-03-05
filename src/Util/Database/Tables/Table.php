@@ -38,15 +38,6 @@ abstract class Table implements TableInterface
 		return $orm->affectedRows();
 	}
 
-	/*foreach ($joins as $join => $joinData)
-	{
-	$joinType = $joinData['type'];
-	$condition = $joinData['condition'];
-	$query .= " $joinType JOIN $join ON $condition";
-
-	'up_image' => ['type' => 'INNER', 'condition' => 'up_item.id=item_id'],
-	}*/
-
 	private static function formatCondition(string $condition, Table $referenceTable): string
 	{
 		$condition = str_replace(['this', 'ref'],
@@ -105,6 +96,11 @@ abstract class Table implements TableInterface
 	{
 		$tableAlias = [];
 		$tableName = static::getTableName();
+		if (isset($selectedColumns[0]) && $selectedColumns[0] === '*')
+		{
+			array_shift($selectedColumns);
+			$selectedColumns = array_merge(self::getAllColumns(), $selectedColumns);
+		}
 		$columns = [];
 
 		foreach ($selectedColumns as $aliasOrTableName => $column)
@@ -121,6 +117,7 @@ abstract class Table implements TableInterface
 			if ($fieldType !== 'reference' && $fieldType !== 'reflection')
 			{
 				$fieldFullName = "$tableName.$fieldName";
+				$key = array_search($fieldFullName, $columns, true);
 				if (is_int($aliasOrTableName))
 				{
 					$tableAlias[$fieldName] = $fieldFullName;
@@ -130,7 +127,15 @@ abstract class Table implements TableInterface
 					$tableAlias[$aliasOrTableName] = $fieldFullName;
 					$fieldFullName .= " AS $aliasOrTableName";
 				}
-				$columns[] = $fieldFullName;
+				if ($key !== false)
+				{
+					$columns[$key] = $fieldFullName;
+				}
+				else
+				{
+					$columns[] = $fieldFullName;
+				}
+
 			}
 			else
 			{
@@ -174,7 +179,7 @@ abstract class Table implements TableInterface
 		return ['columns' => $columns, 'joins' => $joins, 'alias' => $tableAlias];
 	}
 
-	public static function makeWhere($logicCondition, $conditions, $alias = []): string
+	private static function makeWhere($logicCondition, $conditions, $alias = []): string
 	{
 		$tableName = static::getTableName();
 		$where = [];
@@ -213,10 +218,12 @@ abstract class Table implements TableInterface
 						continue;
 					}
 					$preparedCondition = implode(
-						', ', $condition
+						', ',
+						$condition
 					);
 				}
-				switch ($func) {
+				switch ($func)
+				{
 					case 'in=':
 						$func = substr($func, 0, -1);
 						$where[] = "$fieldName {$not}IN ($preparedCondition)";
@@ -255,11 +262,11 @@ abstract class Table implements TableInterface
 		return implode(', ', $orderByCondition);
 	}
 
-	public static function update(array $data, array $condition, $isIgnore = false): int
+	public static function update(array $data, array $condition): int
 	{
 		$orm = Orm::getInstance();
 		$where = self::makeWhere($condition[0], $condition[1]);
-		$orm->update(static::getTableName(), $data, $where, $isIgnore);
+		$orm->update(static::getTableName(), $data, $where);
 
 		return $orm->affectedRows();
 	}
@@ -287,6 +294,19 @@ abstract class Table implements TableInterface
 		}
 
 		return $orm->escapeString($string);
+	}
+
+	private static function getAllColumns(): array
+	{
+		$columns = [];
+		foreach (static::getMap() as $field)
+		{
+			if ($field->getType() !== 'reference' && $field->getType() !== 'reflection')
+			{
+				$columns[] = $field->getName();
+			}
+		}
+		return $columns;
 	}
 
 	abstract public static function getMap(): array;
