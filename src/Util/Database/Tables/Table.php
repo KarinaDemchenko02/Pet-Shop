@@ -125,6 +125,10 @@ abstract class Table implements TableInterface
 				else
 				{
 					$tableAlias[$aliasOrTableName] = $fieldFullName;
+					if (isset($tableAlias[$fieldName]))
+					{
+						unset($tableAlias[$fieldName]);
+					}
 					$fieldFullName .= " AS $aliasOrTableName";
 				}
 				if ($key !== false)
@@ -225,7 +229,6 @@ abstract class Table implements TableInterface
 				switch ($func)
 				{
 					case 'in=':
-						$func = substr($func, 0, -1);
 						$where[] = "$fieldName {$not}IN ($preparedCondition)";
 						break;
 					case '%=':
