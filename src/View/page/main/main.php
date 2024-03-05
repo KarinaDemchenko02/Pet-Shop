@@ -57,18 +57,27 @@ $isLogin = $this->getVariable('isLogIn');
 
 	search.render();
 
-	if (window.location.search.includes('tag=')) {
-		const urlParams = new URLSearchParams(window.location.search);
-		const tags = urlParams.getAll('tag');
+	const urlParams = new URLSearchParams(window.location.search);
+
+	if (window.location.search.includes('tag=') && window.location.search.includes('title=')) {
+		const tags = urlParams.get('tag');
 
 		tagList.handleFilterTagButtonClick({ id: tags });
+
+	} else {
+		if (window.location.search.includes('tag=')) {
+			const tags = urlParams.get('tag');
+
+			tagList.handleFilterTagButtonClick({ id: tags });
+		}
+
+		if (window.location.search.includes('title=')) {
+			const title = urlParams.get('title');
+
+			search.handleSearchButtonSubmit({ title: title });
+		}
 	}
 
-	if (window.location.search.includes('title=')) {
-		const urlParams = new URLSearchParams(window.location.search);
-		const title = urlParams.get('title');
 
-		search.handleSearchButtonSubmit({ title: title });
-	}
 </script>
 
