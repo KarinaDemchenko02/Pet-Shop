@@ -44,10 +44,12 @@ class PageAdminController extends Controller
 			{
 				$content[] = [
 					'id' => $user->id,
+					'name' => $user->name,
+					'surname' => $user->surname,
 					'email' => $user->email,
-					'password' => $user->password,
 					'roleTitle' => $user->roleTitle,
 					'phoneNumber' => $user->phoneNumber,
+					'isActive' => $user->isActive
 				];
 			}
 		}

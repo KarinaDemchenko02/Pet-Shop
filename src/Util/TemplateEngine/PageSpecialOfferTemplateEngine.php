@@ -13,7 +13,7 @@ class PageSpecialOfferTemplateEngine implements TemplateEngine
 
 
 		$footer = new Template('components/main/footer');
-		$header = $this->getHeaderTemplate($isLogIn);
+		$header = new Template('components/specialOffers/header');
 		$form = new Template('components/main/formAuthorization');
 		$basket = $this->getBasketTemplate(Session::get('shoppingSession')->getProducts());
 
@@ -29,19 +29,6 @@ class PageSpecialOfferTemplateEngine implements TemplateEngine
 			'content' => $specialOfferPageTemplate,
 			'footer' => $footer,
 		]));
-	}
-
-	public function getHeaderTemplate(bool $isLogIn): Template
-	{
-		if ($isLogIn)
-		{
-			$authSection = new Template('components/main/logOut');
-		}
-		else
-		{
-			$authSection = new Template('components/main/logIn');
-		}
-		return new Template('components/main/header', ['authSection' => $authSection]);
 	}
 
 	public function getBasketTemplate(array $basketItems): Template

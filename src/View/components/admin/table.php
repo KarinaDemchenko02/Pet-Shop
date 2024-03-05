@@ -21,6 +21,8 @@ $tags = $this->getVariable('tag');
 	import { ProductList } from "/js/admin/product/product-list.js";
 	import { OrderList } from "/js/admin/order/order-list.js";
 	import {TagList} from "/js/admin/tag/tag-list.js";
+	import {UserList} from "/js/admin/user/user-list.js";
+
 	if ('<?=$contentName?>' === 'products')
 	{
 		const mainList = new ProductList({
@@ -47,6 +49,17 @@ $tags = $this->getVariable('tag');
 			items: <?= \Up\Util\Json::encode($content) ?>,
 			columns: <?= \Up\Util\Json::encode($columns) ?>,
 		});
+		mainList.render();
+	}
+
+	if ('<?=$contentName?>' === 'users')
+	{
+		const mainList = new UserList({
+			attachToNodeId: 'item-list',
+			items: <?= \Up\Util\Json::encode($content) ?>,
+			columns: <?= \Up\Util\Json::encode($columns) ?>
+		})
+
 		mainList.render();
 	}
 

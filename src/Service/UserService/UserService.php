@@ -83,4 +83,9 @@ class UserService
 		$user = new UserChangeDto($id, $name, $surname, $email, $phoneNumber, $password);
 		UserRepositoryImpl::change($user);
 	}
+
+//	public static function disableProduct(int $id): void
+//	{
+//		UserRepositoryImpl::
+//	}
 }

@@ -36,7 +36,59 @@ export class UserList
 	createItem(itemData)
 	{
 		itemData.editButtonHandler = this.handleEditButtonClick.bind(this);
+		itemData.removeButtonHandler = this.handleRemoveButtonClick(this);
 		return new UserItem(itemData);
+	}
+
+	handleRemoveButtonClick(item) {
+		const itemIndex = this.items.indexOf(item);
+
+		if (itemIndex > -1)
+		{
+			const shouldRemove = confirm(`Are you sure you want to delete this product: ${item.title}?`)
+			if (!shouldRemove)
+			{
+				return;
+			}
+
+			const removeParams = {
+				id: item.id,
+			}
+
+			const buttonRemove = document.getElementById(item.id + 'remove');
+			buttonRemove.disabled = true;
+
+			fetch(
+				'/admin/user/disable/',
+				{
+					method: 'PATCH',
+					headers: {
+						'Content-Type': 'application/json;charset=utf-8'
+					},
+					body: JSON.stringify(removeParams),
+				}
+			)
+				.then((response) => {
+					return response.json();
+				})
+				.then((response) => {
+					if (response.result)
+					{
+						this.items[itemIndex].isActive = false;
+						buttonRemove.disabled = false;
+						this.render();
+					}
+					else
+					{
+						console.error('Error while deleting item.');
+						buttonRemove.disabled = false;
+					}
+				})
+				.catch((error) => {
+					console.error('Error while deleting item.');
+					buttonRemove.disabled = false;
+				})
+		}
 	}
 
 	createItemsContainer()
@@ -333,17 +385,39 @@ export class UserList
 		const containerColumn = document.createElement('tr');
 		containerColumn.classList.add('table__tr');
 
-		this.columns.forEach(column => {
-			const tableColumn = document.createElement('th');
-			tableColumn.classList.add('table__th', 'table__th-heading');
-			tableColumn.innerText = column;
+		const columnId = document.createElement('th');
+		columnId.classList.add('table__th', 'table__th-heading');
+		columnId.innerText = 'ID';
 
-			containerColumn.append(tableColumn);
-		})
+		const columnName = document.createElement('th');
+		columnName.classList.add('table__th', 'table__th-heading');
+		columnName.innerText = 'Имя';
 
-		const columnImages = document.createElement('th');
-		columnImages.classList.add('table__th', 'table__th-heading');
-		columnImages.innerText = 'изображение';
+		const columnSurname = document.createElement('th');
+		columnSurname.classList.add('table__th', 'table__th-heading');
+		columnSurname.innerText = 'Фамилия';
+
+		const columnEmail = document.createElement('th');
+		columnEmail.classList.add('table__th', 'table__th-heading');
+		columnEmail.innerText = 'Email';
+
+		const columnRole = document.createElement('th');
+		columnRole.classList.add('table__th', 'table__th-heading');
+		columnRole.innerText = 'Роль';
+
+		const columnOrders = document.createElement('th');
+		columnOrders.classList.add('table__th', 'table__th-heading');
+		columnOrders.innerText = 'Заказы';
+
+		const columnPhone = document.createElement('th');
+		columnPhone.classList.add('table__th', 'table__th-heading');
+		columnPhone.innerText = 'Телефон';
+
+		const columnActive = document.createElement('th');
+		columnActive.classList.add('table__th', 'table__th-heading');
+		columnActive.innerText = 'isActive';
+
+		containerColumn.append(columnId, columnName, columnSurname, columnEmail, columnPhone, columnRole, columnOrders, columnActive);
 
 		const columnAction = document.createElement('th');
 		columnAction.classList.add('table__th', 'table__th-heading');
@@ -353,9 +427,9 @@ export class UserList
 		addButton.classList.add('form__button', 'form__button_add');
 		addButton.id = 'addOpen';
 		addButton.innerText = 'Добавить';
-		addButton.addEventListener('click', this.handleAddButtonClick.bind(this));
+		//addButton.addEventListener('click', this.handleAddButtonClick.bind(this));
 
-		containerColumn.append(columnImages, columnAction);
+		containerColumn.append(columnAction);
 		table.append(containerColumn);
 
 		this.itemsContainer.append(addButton);

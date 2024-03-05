@@ -11,7 +11,6 @@ class UserAddingDto implements Dto
 		public readonly string $name,
 		public readonly string $surname,
 		public readonly string $email,
-		public readonly string $password,
 		public readonly string $phoneNumber,
 		public readonly int $roleId,
 	){}

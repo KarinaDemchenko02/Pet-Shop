@@ -37,6 +37,8 @@ Router::group(['preMiddleware' => ['isLogin', 'isAdmin'], 'postMiddleware' => 'i
 	Router::post('/admin/product/image/', new \Up\Controller\ProductAdminController(), 'imageAction'),
 	Router::post('/admin/product/add/', new \Up\Controller\ProductAdminController(), 'addAction'),
 
+	Router::patch('/admin/user/disable/', new \Up\Controller\UserAdminController(), 'disableAction'),
+
 	Router::delete('/admin/order/', new \Up\Controller\OrderAdminController(), 'deleteAction'),
 	Router::post('/admin/order/add/', new \Up\Controller\OrderAdminController(), 'addAction'),
 	Router::patch('/admin/order/change/', new \Up\Controller\OrderAdminController(), 'changeAction'),
