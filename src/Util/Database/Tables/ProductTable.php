@@ -24,7 +24,7 @@ class ProductTable extends Table
 			new IntegerField('priority', isDefaultExists: true),
 			new Reflection('image', new ImageTable(), 'product'),
 			new Reflection('product_tag', new ProductTagTable(), 'product'),
-			new Reflection('shopping_session_product', new ShoppingSessionTable(), 'product'),
+			new Reflection('shopping_session_product', new ShoppingSessionProductTable(), 'product'),
 			new Reflection('order_product', new OrderProductTable(), 'product'),
 			new Reflection('product_special_offer', new ProductSpecialOfferTable(), 'product'),
 			new Reflection('product_characteristic', new ProductCharacteristicTable(), 'product')
