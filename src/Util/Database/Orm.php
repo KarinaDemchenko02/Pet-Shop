@@ -10,11 +10,12 @@ class Orm
 
 	private function __construct()
 	{
+		$configuration = \Up\Util\Configuration::getInstance();
 		$this->db = new \mysqli(
-			\Up\Util\Configuration::getInstance()->option('DB_HOST'),
-			\Up\Util\Configuration::getInstance()->option('DB_USER'),
-			\Up\Util\Configuration::getInstance()->option('DB_PASSWORD'),
-			\Up\Util\Configuration::getInstance()->option('DB_NAME')
+			$configuration->option('DB_HOST'),
+			$configuration->option('DB_USER'),
+			$configuration->option('DB_PASSWORD'),
+			$configuration->option('DB_NAME')
 		);
 		if ($this->db->connect_errno)
 		{
@@ -113,7 +114,7 @@ class Orm
 		$columns = [];
 		foreach ($data as $column => $value)
 		{
-			$value = $this->	escapeString($value);
+			$value = $this->escapeString($value);
 			$columns[] = "$column=$value";
 		}
 		$columns = implode(', ', $columns);
