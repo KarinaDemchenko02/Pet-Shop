@@ -112,13 +112,17 @@ export class TagList
 
 			let page = '1';
 
-			this.currentPagination = '1';
+			if (!this.currentPagination) {
+				this.currentPagination = 1;
+			}
 
 			let currentUrl = window.location.href;
 
 			let newUrl = new URL(currentUrl);
 
 			let currentTags = newUrl.searchParams.getAll('tag');
+
+			const checkboxes = document.querySelectorAll('.tags__checkbox');
 
 			currentTags.push(tag.toString());
 
@@ -135,7 +139,18 @@ export class TagList
 				}
 			}
 
-			newUrl.searchParams.set('tag', currentTags.join(','));
+			checkboxes.forEach(checkbox => {
+				if (checkbox.checked) {
+					newUrl.searchParams.set('tag', currentTags.join(','));
+				} else if (currentTags[0].length === 1) {
+					const checkboxWithId = document.getElementById(`tag:${currentTags[0]}`);
+					if (!checkboxWithId.checked) {
+						newUrl.searchParams.delete('tag');
+						return false;
+					}
+				}
+			})
+
 			newUrl.searchParams.set('page', page);
 
 			window.history.replaceState({}, '', newUrl);
@@ -158,23 +173,47 @@ export class TagList
 					return response.json();
 				})
 				.then(async (response) => {
+
+					let products;
+					const urlParams = new URLSearchParams(window.location.search);
+					const paramValue = urlParams.get('tag');
+
 					if (response.nextPage.length !== 0) {
 						this.currentPagination = Number(page) + 1;
 					}
 
-					let products = response.products.map((itemData) => {
-						return this.createProduct(itemData);
-					});
+					if (paramValue === null) {
+						products = response.allProducts.map((itemData) => {
+							return this.createProduct(itemData);
+						});
 
-					const productsList = new ProductList({
-						attachToNodeId: 'product__list-container',
-						items: products,
-						basketItem: this.basketItem
-					});
+						const productsList = new ProductList({
+							attachToNodeId: 'product__list-container',
+							items: products,
+							basketItem: this.basketItem
+						});
 
-					await productsList.render();
+						await productsList.render();
 
-					this.renderPagination();
+						document.getElementById('buttonPagination').innerHTML = '';
+
+						await productsList.renderPagination();
+
+					} else {
+						products = response.products.map((itemData) => {
+							return this.createProduct(itemData);
+						});
+
+						const productsList = new ProductList({
+							attachToNodeId: 'product__list-container',
+							items: products,
+							basketItem: this.basketItem
+						});
+
+						await productsList.render();
+
+						this.renderPagination();
+					}
 
 					const spinner = document.querySelector('.spinner-product');
 					spinner.classList.remove('disabled');
