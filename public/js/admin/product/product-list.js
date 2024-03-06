@@ -166,6 +166,8 @@ export class ProductList
 		const priority = document.getElementById('priority').value;
 		const tags = document.querySelectorAll('.form__select-input-tag');
 
+		const buttonEditSend = document.getElementById('changed');
+
 		const formContainer = document.querySelector('.form');
 		const errorContainer = document.querySelector('.form__alert-container');
 
@@ -201,6 +203,7 @@ export class ProductList
 
 		const buttonEdit = document.getElementById(changeParams.id + 'edit');
 		buttonEdit.disabled = true;
+		buttonEditSend.disabled = true;
 
 		fetch(
 			'/admin/product/change/',
@@ -231,6 +234,7 @@ export class ProductList
 					})
 
 					buttonEdit.disabled = false;
+					buttonEditSend.disabled = false;
 
 					await this.render();
 
@@ -239,6 +243,7 @@ export class ProductList
 					new Error(`Что-то пошло не так`,
 						formContainer).printError();
 					buttonEdit.disabled = false;
+					buttonEditSend.disabled = false;
 				}
 			})
 			.catch((error) => {
