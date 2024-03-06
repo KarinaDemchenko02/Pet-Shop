@@ -4,8 +4,10 @@ namespace Up\Service\OrderService;
 
 use Up\Dto\Order\OrderAdding;
 use Up\Dto\Order\OrderAddingAdminDto;
+use Up\Dto\Order\OrderAddingDto;
 use Up\Dto\Order\OrderChangingDto;
 use Up\Dto\Order\OrderGettingAdminDto;
+use Up\Entity\Order;
 use Up\Exceptions\Admin\Order\OrderNotChanged;
 use Up\Exceptions\Admin\Order\OrderNotDeleted;
 use Up\Exceptions\Order\OrderNotCompleted;
@@ -69,5 +71,27 @@ class OrderService
 	public static function getOrderByUser(int $id): array
 	{
 		return OrderRepositoryImpl::getByUser($id);
+	}
+
+	public static function getAllProductsForAdmin(int $page = 1): array
+	{
+		$orders = OrderRepositoryImpl::getAllForAdmin($page);
+		$ordersDto = [];
+		foreach ($orders as $order)
+		{
+			$ordersDto[] = new OrderGettingAdminDto(
+				$order->id,
+				$order->getProducts(),
+				is_null($order->user) ? null : $order->user->id,
+				$order->deliveryAddress,
+				$order->createdAt,
+				$order->editedAt,
+				$order->name,
+				$order->surname,
+				(string)$order->status,
+			);
+		}
+
+		return $ordersDto;
 	}
 }

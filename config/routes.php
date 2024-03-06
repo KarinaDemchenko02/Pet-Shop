@@ -38,15 +38,21 @@ Router::group(['preMiddleware' => ['isLogin', 'isAdmin'], 'postMiddleware' => 'i
 	Router::post('/admin/product/image/', new \Up\Controller\ProductAdminController(), 'imageAction'),
 	Router::post('/admin/product/add/', new \Up\Controller\ProductAdminController(), 'addAction'),
 
+	Router::get('/productsAdmin-json/', new \Up\Controller\ProductAdminController(), 'getProductsAdminJsonAction'),
+
 	Router::patch('/admin/user/disable/', new \Up\Controller\UserAdminController(), 'disableAction'),
+	Router::patch('/admin/user/restore/', new \Up\Controller\UserAdminController(), 'restoreAction'),
+	Router::get('/userAdmin-json/', new \Up\Controller\UserAdminController(), 'getUserAdminJsonAction'),
 
 	Router::delete('/admin/order/', new \Up\Controller\OrderAdminController(), 'deleteAction'),
 	Router::post('/admin/order/add/', new \Up\Controller\OrderAdminController(), 'addAction'),
 	Router::patch('/admin/order/change/', new \Up\Controller\OrderAdminController(), 'changeAction'),
+	Router::get('/orderAdmin-json/', new \Up\Controller\OrderAdminController(), 'getOrderAdminJsonAction'),
 
 	Router::delete('/admin/tag/', new \Up\Controller\TagAdminController(), 'deleteAction'),
 	Router::post('/admin/tag/add/', new \Up\Controller\TagAdminController(), 'addAction'),
 	Router::patch('/admin/tag/change/', new \Up\Controller\TagAdminController(), 'changeAction'),
+	Router::get('/tagsAdmin-json/', new \Up\Controller\TagAdminController(), 'getTagAdminJsonAction'),
 	]);
 
 

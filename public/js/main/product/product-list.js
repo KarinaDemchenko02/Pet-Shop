@@ -84,7 +84,7 @@ export class ProductList
 			}
 			return response.json();
 		})
-		.then((response) => {
+		.then(async (response) => {
 			if (response.nextPage.length !== 0) {
 				this.currentPagination = Number(page) + 1;
 			}
@@ -95,7 +95,7 @@ export class ProductList
 				return this.createItem(itemData)
 			})
 
-			this.render();
+			await this.render();
 
 			spinner.classList.remove('disabled');
 		})

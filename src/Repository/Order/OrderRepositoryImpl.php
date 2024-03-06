@@ -49,6 +49,23 @@ class OrderRepositoryImpl implements OrderRepository
 		return self::createOrderList(self::getOrderList(['AND', '=order_id' => $id]))[$id];
 	}
 
+	public static function getAllForAdmin(int $page = 1): array
+	{
+		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
+		$offset = $limit * ($page - 1);
+
+		$result = OrderTable::getList(['id'],
+			limit:                      $limit,
+			offset:                     $offset);
+		$ids = self::getIds($result);
+		if (empty($ids))
+		{
+			return [];
+		}
+
+		return self::createOrderList(self::getOrderList(['AND', ['in=id' => $ids]]));
+	}
+
 	public static function getByUser(int $userId): array
 	{
 		$result = OrderTable::getList(
@@ -168,5 +185,16 @@ class OrderRepositoryImpl implements OrderRepository
 						],
 			conditions: $where
 		);
+	}
+
+	private static function getIds(\mysqli_result $result): array
+	{
+		$ids = [];
+		while ($row = $result->fetch_assoc())
+		{
+			$ids[] = $row['id'];
+		}
+
+		return $ids;
 	}
 }

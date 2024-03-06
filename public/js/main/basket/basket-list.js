@@ -81,6 +81,9 @@ export class BasketList
 
 		const formBuyOrder = document.getElementById('form__order-add');
 		const formClose = document.querySelector('.form-product__close');
+		const buttonSubmit = document.querySelector('.form-product__submit');
+		const emptyBasket = document.createElement('span');
+		const containerForm = document.querySelector('.form-product__container-info');
 
 		formClose.addEventListener('click', () => {
 			document.getElementById('basket__buyProduct').style.display = 'none';
@@ -100,6 +103,16 @@ export class BasketList
 			event.preventDefault();
 			this.handleBuyBasketButtonClick();
 		}.bind(this));
+
+		const list = document.getElementById('basket-list');
+		if (!list.firstChild) {
+			containerForm.append(emptyBasket)
+			emptyBasket.innerText = 'Пустая корзина'
+			buttonSubmit.style.display = 'none';
+		} else {
+			emptyBasket.innerText = '';
+			buttonSubmit.style.display = 'block';
+		}
 	}
 
 	handleBuyBasketButtonClick()

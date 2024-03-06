@@ -7,7 +7,10 @@ use Up\Dto\User\UserAdminChangeDto;
 use Up\Dto\User\UserChangeDto;
 use Up\Entity\User;
 use Up\Exceptions\User\UserAdding;
+use Up\Exceptions\User\UserNotDisabled;
 use Up\Exceptions\User\UserNotFound;
+use Up\Exceptions\User\UserNotRestored;
+use Up\Util\Database\Orm;
 use Up\Util\Database\Tables\UserTable;
 
 class UserRepositoryImpl implements UserRepository
@@ -35,32 +38,26 @@ class UserRepositoryImpl implements UserRepository
 	}
 
 	/**
-	 * @throws UserAdding
+	 * @throws UserNotDisabled
 	 */
-	public static function add(UserAddingDto $user): void
-	{
-		$result = UserTable::add(
-			[
-				'name' => $user->name,
-				'surname' => $user->surname,
-				'email' => $user->email,
-				'password' => $user->password,
-				'role_id' => $user->roleId,
-				'tel' => $user->phoneNumber,
-			]
-		);
-		if ($result === 0)
-		{
-			throw new UserAdding('Failed to add a user');
-		}
-	}
-
-	public static function disable($id)
+	public static function disable($id): void
 	{
 		$result = UserTable::update(['is_active' => 0], ['AND', ['=id' => $id]]);
 		if ($result === 0)
 		{
-			throw new \RuntimeException('User is not disabled');
+			throw new UserNotDisabled('User is not disabled');
+		}
+	}
+
+	/**
+	 * @throws UserNotRestored
+	 */
+	public static function restore($id): void
+	{
+		$result = UserTable::update(['is_active' => 1], ['AND', ['=id' => $id]]);
+		if ($result === 0)
+		{
+			throw new UserNotRestored('User is not disabled');
 		}
 	}
 
@@ -105,6 +102,23 @@ class UserRepositoryImpl implements UserRepository
 		}
 	}
 
+	public static function getAllForAdmin(int $page = 1): array
+	{
+		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
+		$offset = $limit * ($page - 1);
+
+		$result = UserTable::getList(['id'],
+			limit:                      $limit,
+			offset:                     $offset);
+		$ids = self::getIds($result);
+		if (empty($ids))
+		{
+			return [];
+		}
+
+		return self::createUserList(self::getUserList(['AND', ['in=id' => $ids]]));
+	}
+
 	public static function createUserEntity(array $row): User
 	{
 		return new User(
@@ -145,5 +159,16 @@ class UserRepositoryImpl implements UserRepository
 						],
 			conditions: $where
 		);
+	}
+
+	private static function getIds(\mysqli_result $result): array
+	{
+		$ids = [];
+		while ($row = $result->fetch_assoc())
+		{
+			$ids[] = $row['id'];
+		}
+
+		return $ids;
 	}
 }

@@ -1,4 +1,5 @@
 import {ProductItem} from "./product-item.js";
+import {Error} from "../../main/error/error.js";
 
 export class ProductList
 {
@@ -8,6 +9,8 @@ export class ProductList
 	items = [];
 	columns= [];
 	tags = [];
+	currentPagination = new URLSearchParams(window.location.search).get('page');
+
 	constructor({ attachToNodeId = '', items, columns, tags })
 	{
 		if (attachToNodeId === '')
@@ -163,6 +166,13 @@ export class ProductList
 		const priority = document.getElementById('priority').value;
 		const tags = document.querySelectorAll('.form__select-input-tag');
 
+		const formContainer = document.querySelector('.form');
+		const errorContainer = document.querySelector('.form__alert-container');
+
+		if (errorContainer) {
+			errorContainer.remove();
+		}
+
 		let idTags = [];
 		let objectTags = [];
 
@@ -205,12 +215,10 @@ export class ProductList
 			.then((response) => {
 				return response.json();
 			})
-			.then((response) => {
-				if (response.result)
-				{
+			.then(async (response) => {
+				if (response.result) {
 					this.items.forEach(item => {
-						if (item.id === changeParams.id)
-						{
+						if (item.id === changeParams.id) {
 							item.title = changeParams.title;
 							item.description = changeParams.description;
 							item.price = changeParams.price;
@@ -224,16 +232,19 @@ export class ProductList
 
 					buttonEdit.disabled = false;
 
-					this.render();
-				}
-				else
-				{
+					await this.render();
+
+				} else {
 					console.error(response.errors);
+					new Error(`Что-то пошло не так`,
+						formContainer).printError();
 					buttonEdit.disabled = false;
 				}
 			})
 			.catch((error) => {
 				console.error('Error while changing item.');
+				new Error('Что-то пошло не так. Проверьте введенные Вами данные или повторить попытку позже',
+					formContainer).printError();
 				buttonEdit.disabled = false;
 			})
 	}
@@ -249,6 +260,13 @@ export class ProductList
 		const title = document.getElementById('title').value;
 		const desc = document.getElementById('desc').value;
 		const price = document.getElementById('price').value;
+
+		const formContainer = document.querySelector('.form');
+		const errorContainer = document.querySelector('.form__alert-container');
+
+		if (errorContainer) {
+			errorContainer.remove();
+		}
 
 		const tags = document.querySelectorAll('.form__select-input-tag');
 
@@ -322,11 +340,14 @@ export class ProductList
 				else
 				{
 					console.error(response.errors);
+					new Error('Товар с таким ID не найден', formContainer).printError();
 					buttonAdd.disabled = false;
 				}
 			})
 			.catch((error) => {
 				console.error('Error while changing item.');
+				new Error('Что-то пошло не так. Проверьте введенные Вами данные или повторить попытку позже',
+					formContainer).printError();
 				buttonAdd.disabled = false;
 			})
 	}
@@ -362,18 +383,13 @@ export class ProductList
 				.then((response) => {
 					return response.json();
 				})
-				.then((response) => {
-					if (response.result)
-					{
+				.then(async (response) => {
+					if (response.result) {
 						this.items[itemIndex].isActive = false;
 						buttonRemove.disabled = false;
-						this.render();
+						await this.render();
 					}
-					else
-					{
-						console.error('Error while deleting item.');
-						buttonRemove.disabled = false;
-					}
+
 				})
 				.catch((error) => {
 					console.error('Error while deleting item.');
@@ -413,15 +429,12 @@ export class ProductList
 				.then((response) => {
 					return response.json();
 				})
-				.then((response) => {
-					if (response.result)
-					{
+				.then(async (response) => {
+					if (response.result) {
 						this.items[itemIndex].isActive = true;
 						buttonRestore.disabled = false;
-						this.render();
-					}
-					else
-					{
+						await this.render();
+					} else {
 						console.error('Error while deleting item.');
 						buttonRestore.disabled = false;
 					}
@@ -476,9 +489,76 @@ export class ProductList
 				})
 		}
 	}
-	render()
-	{
+
+	handleChangePaginationButtonClick(event) {
+		const page = event.target.innerText;
+
+		let currentUrl = window.location.href;
+
+		this.currentPagination = page;
+
+		let newUrl = new URL(currentUrl);
+		newUrl.searchParams.set('page', page);
+
+		window.history.replaceState({}, '', newUrl);
+
+		fetch(
+			`/productsAdmin-json/?page=${page}`,
+			{
+				method: 'GET',
+			}
+		)
+			.then((response) => {
+				if (!response.ok) {
+					throw new Error('Network response was not ok');
+				}
+				return response.json();
+			})
+			.then(async (response) => {
+				if (response.nextPage.length !== 0) {
+					this.currentPagination = Number(page) + 1;
+				}
+
+				response.products.forEach(product => {
+
+					let arr = [];
+
+					for (const key in product.tags) {
+						const info = product.tags[key];
+						arr.push(info)
+					}
+
+					product.tags = arr.map((tag) => {
+						return {
+							tagId: tag.id,
+							tagTitle: tag.title,
+						};
+					});
+				});
+
+				this.items = response.products.map((itemData) => {
+					return this.createItem(itemData)
+				})
+
+				await this.render();
+			})
+			.catch((error) => {
+				console.error('Error while changing item:', error);
+			});
+	}
+
+	async render() {
+		if (this.items.length === 0) {
+			this.rootNode.innerHTML = '';
+			const modal = new Error('Данная страница не найдена!', null, '/admin/').render();
+			this.rootNode.append(modal);
+
+			return false;
+		}
 		this.itemsContainer.innerHTML = '';
+
+		const paginationContainer = document.createElement('div');
+		paginationContainer.classList.add('table__pagination-container')
 
 		const table = document.createElement('table');
 		table.classList.add('table');
@@ -511,13 +591,13 @@ export class ProductList
 		containerColumn.append(columnImages, columnAction);
 		table.append(containerColumn);
 
-		this.itemsContainer.append(addButton);
-
-		this.itemsContainer.append(table, this.renderForm());
+		this.itemsContainer.append(addButton, table, this.renderForm());
 
 		this.items.forEach((item) => {
 			table.append(item.render());
 		});
+
+		await this.renderPagination();
 	}
 
 	renderForm()
@@ -677,5 +757,76 @@ export class ProductList
 			selectContainer.append(deleteTag);
 			tagsContainer.append(selectContainer);
 		})
+	}
+
+	async renderPagination() {
+		const paginationContainer = document.createElement('div');
+		paginationContainer.id = 'buttonPagination'
+		paginationContainer.classList.add('pagination');
+
+		let current = 0;
+
+		if (!this.currentPagination) {
+			const result = await this.checkPageNumberOne();
+
+			if (result) {
+				current = 1;
+			}
+
+			this.currentPagination = 1;
+		}
+
+
+		if (this.currentPagination === '1') {
+			const result = await this.checkPageNumberOne();
+
+			if (result) {
+				current = 1;
+			}
+		}
+
+		let currentPage = parseInt(new URLSearchParams(window.location.search).get('page') || '1');
+		const startIndex = Math.max(1, currentPage - 1);
+		const endIndex = Math.min(parseInt(this.currentPagination), currentPage + 1);
+
+		for (let i = startIndex; i <= endIndex + current; i++) {
+			const buttonPagination = document.createElement('button');
+			buttonPagination.classList.add('pagination__button');
+			buttonPagination.innerText = String(i);
+			buttonPagination.addEventListener('click', this.handleChangePaginationButtonClick.bind(this));
+
+			if (currentPage === null) {
+				currentPage = '1';
+			}
+			if (buttonPagination.innerText === String(currentPage)) {
+				buttonPagination.classList.add('is-active');
+			}
+
+			paginationContainer.append(buttonPagination)
+
+			this.itemsContainer.append(paginationContainer);
+		}
+	}
+
+	checkPageNumberOne()
+	{
+		return fetch(
+			`/productsAdmin-json/?page=1`,
+			{
+				method: 'GET',
+			}
+		)
+			.then((response) => {
+				if (!response.ok) {
+					throw new Error('Network response was not ok');
+				}
+				return response.json();
+			})
+			.then((response) => {
+				return response.nextPage.length !== 0;
+			})
+			.catch((error) => {
+				console.error('Error while checking for items on next page:', error);
+			});
 	}
 }

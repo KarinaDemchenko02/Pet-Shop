@@ -126,4 +126,22 @@ class OrderAdminController extends Controller
 		}
 		return new Response($status, $response);
 	}
+
+	public function getOrderAdminJsonAction(Request $request): Response
+	{
+		$page = $request->getVariable('page');
+
+		if (!(is_numeric($page) && $page > 0))
+		{
+			$page = 1;
+		}
+
+		$orders = OrderService::getAllProductsForAdmin($page);
+		$nextPage = OrderService::getAllProductsForAdmin($page + 1);
+
+		return new Response(Status::OK, [
+			'orders' => $orders,
+			'nextPage' => $nextPage,
+		]);
+	}
 }

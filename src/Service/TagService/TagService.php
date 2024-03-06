@@ -6,6 +6,7 @@ namespace Up\Service\TagService;
 use Up\Dto\Tag\TagChangingDto;
 use Up\Dto\TagDto;
 use Up\Exceptions\Admin\Tag\TagNotChanged;
+use Up\Exceptions\Tag\TagNotAdding;
 use Up\Repository\Tag\TagRepositoryImpl;
 use Up\Util\Database\Tables\TagTable;
 
@@ -45,5 +46,25 @@ class TagService
 	public static function getColumn(): array
 	{
 		return TagTable::getColumnsName();
+	}
+
+	public static function getAllProductsForAdmin(int $page = 1): array
+	{
+		$tags = TagRepositoryImpl::getAllForAdmin($page);
+		$tagsDto = [];
+		foreach ($tags as $tag)
+		{
+			$tagsDto[] = new TagDto($tag);
+		}
+
+		return $tagsDto;
+	}
+
+	/**
+	 * @throws TagNotAdding
+	 */
+	public static function addTag(string $title): int | string
+	{
+		return TagRepositoryImpl::add($title);
 	}
 }

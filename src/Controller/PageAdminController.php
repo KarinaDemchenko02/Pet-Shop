@@ -38,7 +38,7 @@ class PageAdminController extends Controller
 		if ($entity === 'users')
 		{
 			$contentName = 'users';
-			$users = UserService::getAll();
+			$users = UserService::getAllProductsForAdmin($page);
 			$columns = UserService::getColumn();
 			foreach ($users as $user)
 			{
@@ -56,7 +56,7 @@ class PageAdminController extends Controller
 		elseif ($entity === 'tags')
 		{
 			$contentName = 'tags';
-			$tags = TagService::getAllTags();
+			$tags = TagService::getAllProductsForAdmin($page);
 			$columns = TagService::getColumn();
 			foreach ($tags as $tag)
 			{
@@ -69,7 +69,7 @@ class PageAdminController extends Controller
 		elseif ($entity === 'orders')
 		{
 			$contentName = 'orders';
-			$orders = OrderService::getAllOrder();
+			$orders = OrderService::getAllProductsForAdmin($page);
 			$columns = OrderService::gelColumn();
 			foreach ($orders as $order)
 			{

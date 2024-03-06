@@ -189,4 +189,22 @@ class ProductAdminController extends Controller
 		}
 		return new Response($status, $response);
 	}
+
+	public function getProductsAdminJsonAction(Request $request): Response
+	{
+		$page = $request->getVariable('page');
+
+		if (!(is_numeric($page) && $page > 0))
+		{
+			$page = 1;
+		}
+
+		$products = ProductService::getAllProductsForAdmin($page);
+		$nextPage = ProductService::getAllProductsForAdmin($page + 1);
+
+		return new Response(Status::OK, [
+			'products' => $products,
+			'nextPage' => $nextPage,
+		]);
+	}
 }

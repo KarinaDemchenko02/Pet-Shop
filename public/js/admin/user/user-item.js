@@ -8,11 +8,10 @@ export class UserItem
 	phoneNumber;
 	orders;
 	isActive;
-	editButtonHandler;
 	removeButtonHandler;
 	restoreButtonHandler;
 
-	constructor({ id, name, surname, email, roleTitle, phoneNumber, orders, isActive, editButtonHandler, removeButtonHandler, restoreButtonHandler })
+	constructor({ id, name, surname, email, roleTitle, phoneNumber, orders, isActive, removeButtonHandler, restoreButtonHandler })
 	{
 		this.id = Number(id);
 		this.name = String(name);
@@ -22,11 +21,6 @@ export class UserItem
 		this.phoneNumber = String(phoneNumber);
 		this.orders = orders;
 		this.isActive = Boolean(isActive);
-
-		if (typeof editButtonHandler === 'function')
-		{
-			this.editButtonHandler = editButtonHandler;
-		}
 
 		if (typeof removeButtonHandler === 'function')
 		{
@@ -76,20 +70,6 @@ export class UserItem
 		activeColumn.classList.add('table__th', 'table__th_active');
 		activeColumn.innerText = this.isActive;
 
-		const spinnerEdit = document.createElement('div');
-		spinnerEdit.classList.add('spinner-border', 'text-light', 'spinner-action');
-		const spinnerLoadingEdit = document.createElement('span');
-		spinnerLoadingEdit.innerText = 'Loading...';
-		spinnerLoadingEdit.classList.add('visually-hidden');
-		spinnerEdit.append(spinnerLoadingEdit);
-
-		const editButton = document.createElement('button')
-		editButton.classList.add('table__button', 'table__button_edit')
-		editButton.innerText = 'Редактировать';
-		editButton.id = String(this.id) + 'edit';
-		editButton.addEventListener('click', this.handleEditButtonClick.bind(this));
-		editButton.append(spinnerEdit);
-
 		const spinnerRemove = document.createElement('div');
 		spinnerRemove.classList.add('spinner-border', 'text-light', 'spinner-action');
 		const spinnerLoadingRemove = document.createElement('span');
@@ -120,7 +100,7 @@ export class UserItem
 
 		const actionsColumn = document.createElement('td');
 		actionsColumn.classList.add('table__th', 'table__th_button');
-		actionsColumn.append(editButton, removeButton, restoreButton);
+		actionsColumn.append(removeButton, restoreButton);
 
 		trProduct.append(idColumn, nameColumn, surnameColumn, emailColumn, phoneColumn, roleColumn, ordersColumn, activeColumn, actionsColumn);
 		return trProduct;
@@ -131,14 +111,6 @@ export class UserItem
 		if (this.removeButtonHandler)
 		{
 			this.removeButtonHandler(this);
-		}
-	}
-
-	handleEditButtonClick()
-	{
-		if (this.editButtonHandler)
-		{
-			this.editButtonHandler(this);
 		}
 	}
 

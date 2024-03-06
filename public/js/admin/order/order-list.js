@@ -1,4 +1,5 @@
 import { OrderItem } from "./order-item.js";
+import {Error} from "../../main/error/error.js";
 
 export class OrderList
 {
@@ -7,6 +8,7 @@ export class OrderList
 	itemsContainer;
 	items = [];
 	columns= [];
+	currentPagination = new URLSearchParams(window.location.search).get('page');
 	constructor({ attachToNodeId = '', items, columns })
 	{
 		if (attachToNodeId === '')
@@ -53,9 +55,6 @@ export class OrderList
 		const deliveryAddress = document.getElementById('deliveryAddress');
 		const name = document.getElementById('name');
 		const surname = document.getElementById('surname');
-		/*const products = document.getElementById('product-dropdown');*/
-
-		/*const productsDropDown = item.createProductsColumn();*/
 
 		id.innerText = item['id'];
 		deliveryAddress.value = item['deliveryAddress'];
@@ -108,12 +107,10 @@ export class OrderList
 			.then((response) => {
 				return response.json();
 			})
-			.then((response) => {
-				if (response.result === true)
-				{
+			.then(async (response) => {
+				if (response.result === true) {
 					this.items.forEach(item => {
-						if (item.id === changeParams.id)
-						{
+						if (item.id === changeParams.id) {
 							item.deliveryAddress = changeParams.deliveryAddress;
 							item.name = changeParams.name;
 							item.surname = changeParams.surname;
@@ -123,10 +120,8 @@ export class OrderList
 
 					buttonEdit.disabled = false;
 
-					this.render();
-				}
-				else
-				{
+					await this.render();
+				} else {
 					console.error(response.errors);
 					buttonEdit.disabled = false;
 				}
@@ -168,15 +163,12 @@ export class OrderList
 				.then((response) => {
 					return response.json();
 				})
-				.then((response) => {
-					if (response.result === true)
-					{
+				.then(async (response) => {
+					if (response.result === true) {
 						this.items.splice(itemIndex, 1);
 						buttonRemove.disabled = false;
-						this.render();
-					}
-					else
-					{
+						await this.render();
+					} else {
 						console.error('Error while deleting item.');
 						buttonRemove.disabled = false;
 					}
@@ -188,8 +180,68 @@ export class OrderList
 		}
 	}
 
-	render()
-	{
+	handleChangePaginationButtonClick() {
+		const page = event.target.innerText;
+
+		let currentUrl = window.location.href;
+
+		this.currentPagination = page;
+
+		let newUrl = new URL(currentUrl);
+		newUrl.searchParams.set('page', page);
+
+		window.history.replaceState({}, '', newUrl);
+
+		fetch(
+			`/orderAdmin-json/?page=${page}`,
+			{
+				method: 'GET',
+			}
+		)
+			.then((response) => {
+				if (!response.ok) {
+					throw new Error('Network response was not ok');
+				}
+				return response.json();
+			})
+			.then(async (response) => {
+				if (response.nextPage.length !== 0) {
+					this.currentPagination = Number(page) + 1;
+				}
+
+				response.orders.forEach(order => {
+
+					let arr = [];
+
+					for (const key in order.products) {
+						const info = order.products[key].info;
+						arr.push(info)
+					}
+
+					order.products = arr;
+				})
+
+				console.log(response.orders);
+
+				this.items = response.orders.map((itemData) => {
+					return this.createItem(itemData)
+				})
+
+				await this.render();
+			})
+			.catch((error) => {
+				console.error('Error while changing item:', error);
+			});
+	}
+
+	async render() {
+		if (this.items.length === 0) {
+			this.rootNode.innerHTML = '';
+			const modal = new Error('Данная страница не найдена!', null, '/admin/?entity=orders').render();
+			this.rootNode.append(modal);
+
+			return false;
+		}
 		this.itemsContainer.innerHTML = '';
 
 		const table = document.createElement('table');
@@ -226,6 +278,8 @@ export class OrderList
 		this.items.forEach((item) => {
 			table.append(item.render());
 		})
+
+		await this.renderPagination();
 	}
 
 	renderForm()
@@ -250,25 +304,6 @@ export class OrderList
 		const spanId = document.createElement('span');
 		spanId.id = 'orderId';
 		spanId.style.display = 'none';
-
-		/*const productsLabel = document.createElement('label');
-		productsLabel.classList.add('form__label');
-		productsLabel.htmlFor = 'products';
-		productsLabel.innerText = 'Продукты';*/
-
-
-
-		/*const dropDown = document.createElement('div');
-		const dropDownButton = document.createElement('button');
-		dropDownButton.classList.add('dropbtn');
-		dropDownButton.innerText = 'Показать';
-		dropDownButton.addEventListener('click', this.handleDropdownClick.bind(dropDownButton))*/
-
-		/*const dropDownContent
-		dropDownContent.id = 'product-dropdown';
-		dropDownContent.classList.add('dropdown-content');*/
-
-
 
 		const deliveryAddressLabel = document.createElement('label');
 		deliveryAddressLabel.classList.add('form__label');
@@ -320,9 +355,74 @@ export class OrderList
 		return formBox;
 	}
 
-	handleDropdownClick(button)
-	{
-		button.classList.toggle("show");
+	async renderPagination() {
+		const paginationContainer = document.createElement('div');
+		paginationContainer.id = 'buttonPagination'
+		paginationContainer.classList.add('pagination');
+
+		let current = 0;
+
+		if (!this.currentPagination) {
+			const result = await this.checkPageNumberOne();
+
+			if (result) {
+				current = 1;
+			}
+
+			this.currentPagination = 1;
+		}
+
+
+		if (this.currentPagination === '1') {
+			const result = await this.checkPageNumberOne();
+
+			if (result) {
+				current = 1;
+			}
+		}
+
+		let currentPage = parseInt(new URLSearchParams(window.location.search).get('page') || '1');
+		const startIndex = Math.max(1, currentPage - 1);
+		const endIndex = Math.min(parseInt(this.currentPagination), currentPage + 1);
+
+		for (let i = startIndex; i <= endIndex + current; i++) {
+			const buttonPagination = document.createElement('button');
+			buttonPagination.classList.add('pagination__button');
+			buttonPagination.innerText = String(i);
+			buttonPagination.addEventListener('click', this.handleChangePaginationButtonClick.bind(this));
+
+			if (currentPage === null) {
+				currentPage = '1';
+			}
+			if (buttonPagination.innerText === String(currentPage)) {
+				buttonPagination.classList.add('is-active');
+			}
+
+			paginationContainer.append(buttonPagination)
+
+			this.itemsContainer.append(paginationContainer);
+		}
 	}
 
+	checkPageNumberOne()
+	{
+		return fetch(
+			`/orderAdmin-json/?page=1`,
+			{
+				method: 'GET',
+			}
+		)
+			.then((response) => {
+				if (!response.ok) {
+					throw new Error('Network response was not ok');
+				}
+				return response.json();
+			})
+			.then((response) => {
+				return response.nextPage.length !== 0;
+			})
+			.catch((error) => {
+				console.error('Error while checking for items on next page:', error);
+			});
+	}
 }
