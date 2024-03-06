@@ -148,7 +148,12 @@ class ProductRepositoryImpl implements ProductRepository
 			}
 			$orm->commit();
 
-			return $orm->affectedRows();
+			if ($orm->affectedRows())
+			{
+				throw new ProductNotAdd();
+			}
+
+			return $lastProduct;
 		}
 		catch (\Throwable)
 		{
