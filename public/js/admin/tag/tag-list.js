@@ -94,6 +94,9 @@ export class TagList
 
 		const formContainer = document.querySelector('.form');
 		const errorContainer = document.querySelector('.form__alert-container');
+		const buttonEditSend = document.getElementById('changed');
+
+		buttonEditSend.disabled = true;
 
 		if (errorContainer) {
 			errorContainer.remove();
@@ -134,6 +137,7 @@ export class TagList
 				} else {
 					console.error(response.errors);
 					buttonEdit.disabled = false;
+					buttonEditSend.disabled = false;
 					new Error(`Не удалось изменить тег`, formContainer).printError();
 				}
 			})
@@ -141,6 +145,7 @@ export class TagList
 				console.error('Error while changing item.');
 				new Error(`Что-то пошло не так`, formContainer).printError();
 				buttonEdit.disabled = false;
+				buttonEditSend.disabled = false;
 			})
 	}
 	handleRemoveButtonClick(item)
@@ -404,6 +409,7 @@ export class TagList
 		const titleInput = document.createElement('input');
 		titleInput.classList.add('form__input');
 		titleInput.id = 'tagTitle';
+		titleInput.required = true;
 		titleInput.type = 'text';
 		titleInput.name = 'tagTitle';
 
