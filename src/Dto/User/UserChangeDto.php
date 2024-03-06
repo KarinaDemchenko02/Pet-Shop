@@ -12,6 +12,7 @@ class UserChangeDto implements Dto
 		public readonly string $surname,
 		public readonly string $email,
 		public readonly string $phoneNumber,
+		public readonly string $password,
 	)
 	{
 	}

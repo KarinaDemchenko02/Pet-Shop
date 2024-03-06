@@ -114,7 +114,6 @@ class UserRepositoryImpl implements UserRepository
 				'surname' => $user->surname,
 				'email' => $user->email,
 				'tel' => $user->phoneNumber,
-				'password' => $user->password,
 			], ['AND', ['=id' => $user->id]]
 		);
 		if ($result === 0)
