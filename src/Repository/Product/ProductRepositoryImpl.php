@@ -181,7 +181,7 @@ class ProductRepositoryImpl implements ProductRepository
 	public static function restore($id): void
 	{
 		$orm = Orm::getInstance();
-		ProductTable::update(['is_active' => 1], ['AND', ['id' => $id]]);
+		ProductTable::update(['is_active' => 1], ['AND', ['=id' => $id]]);
 		if ($orm->affectedRows() === 0)
 		{
 			throw new ProductNotRestored();
