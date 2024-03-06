@@ -48,9 +48,17 @@ class TagRepositoryImpl implements TagRepository
 
 	}
 
+	/**
+	 * @throws TagNotChanged
+	 */
 	public static function delete(int $id): void
 	{
-		TagTable::delete(['AND', ['id' => $id]]);
+		$orm = Orm::getInstance();
+		TagTable::delete(['AND', ['=id' => $id]]);
+		if ($orm->affectedRows() === 0)
+		{
+			throw new TagNotChanged();
+		}
 	}
 
 	/**
@@ -59,7 +67,7 @@ class TagRepositoryImpl implements TagRepository
 	public static function change(TagChangingDto $dto): void
 	{
 		$orm = Orm::getInstance();
-		TagTable::update(['title' => $dto->title], ['AND', ['id' => $dto->id]]);
+		TagTable::update(['title' => $dto->title], ['AND', ['=id' => $dto->id]]);
 		if ($orm->affectedRows() === 0)
 		{
 			throw new TagNotChanged();

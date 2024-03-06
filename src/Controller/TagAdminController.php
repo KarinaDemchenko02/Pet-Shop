@@ -13,39 +13,33 @@ use Up\Util\Json;
 
 class TagAdminController extends Controller
 {
-	public function deleteAction(): void
+	public function deleteAction(Request $request): Response
 	{
-		/*if (!$this->isLogInAdmin())
+		$id = $request->getDataByKey('id');
+		$response = [];
+		try
 		{
-			http_response_code(403);
-			return;
-		}*/
+			TagService::deleteTag($id);
+			$result = true;
+		}
+		catch (TagNotChanged)
+		{
+			$result = false;
+		}
 
-		// $data = Json::decode(file_get_contents("php://input"));
-		// $response = [];
-		// try
-		// {
-		// 	TagService::deleteTag((int)$data['id']);
-		// 	$result = true;
-		// }
-		// catch (OrderNotDeleted)
-		// {
-		// 	$result = false;
-		// }
-		//
-		// $response['result'] = $result;
-		//
-		// if ($result)
-		// {
-		// 	$response['errors'] = [];
-		// 	http_response_code(200);
-		// }
-		// else
-		// {
-		// 	$response['errors'] = 'Order not deleted';
-		// 	http_response_code(409);
-		// }
-		// echo Json::encode($response);
+		$response['result'] = $result;
+
+		if ($result)
+		{
+			$response['errors'] = [];
+			$status = Status::OK;
+		}
+		else
+		{
+			$response['errors'] = 'Tag not changed';
+			$status = Status::BAD_REQUEST;
+		}
+		return new Response($status, $response);
 	}
 
 	public function addAction(Request $request): Response

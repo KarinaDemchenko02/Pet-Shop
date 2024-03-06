@@ -223,11 +223,6 @@ class ProductRepositoryImpl implements ProductRepository
 				$addLinkToTagSQL = "INSERT IGNORE INTO up_item_tag (id_item, tag_id) VALUES ({$id}, {$tag->id})";
 				QueryResult::getQueryResult($addLinkToTagSQL);
 			}*/
-
-			if ($orm->affectedRows() === 0)
-			{
-				throw new ProductNotChanged();
-			}
 			$orm->commit();
 		}
 		catch (\Throwable)
