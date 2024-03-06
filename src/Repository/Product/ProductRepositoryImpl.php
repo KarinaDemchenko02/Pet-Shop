@@ -230,10 +230,10 @@ class ProductRepositoryImpl implements ProductRepository
 			}
 			$orm->commit();
 		}
-		catch (\Throwable $e)
+		catch (\Throwable)
 		{
-			$orm->commit();
-			throw $e;
+			$orm->rollback();
+			throw new ProductNotChanged();
 		}
 	}
 
