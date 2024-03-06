@@ -150,10 +150,10 @@ class ProductRepositoryImpl implements ProductRepository
 
 			return $orm->affectedRows();
 		}
-		catch (\Throwable $e)
+		catch (\Throwable)
 		{
 			$orm->rollback();
-			throw $e;
+			throw new ProductNotAdd();
 		}
 	}
 

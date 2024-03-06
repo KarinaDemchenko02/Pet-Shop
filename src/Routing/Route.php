@@ -68,7 +68,6 @@ class Route
 		}
 		return $result;
 	}
-
 	public function getParams(): array
 	{
 		return $this->getParams;
@@ -91,8 +90,6 @@ class Route
 			$this->getParams[$name] = $value;
 		}
 	}
-
-
 	public function preMiddleware(array|string $middleware): static
 	{
 		if (!is_array($middleware))
@@ -106,7 +103,6 @@ class Route
 
 		return $this;
 	}
-
 	public function postMiddleware(array|string $middleware): static
 	{
 		if (!is_array($middleware))
@@ -119,7 +115,6 @@ class Route
 		}
 		return $this;
 	}
-
 	public function redirect(string $destination): static
 	{
 		/*if (!filter_var($destination, FILTER_VALIDATE_URL))*/
@@ -129,22 +124,18 @@ class Route
 
 		return $this;
 	}
-
 	public function getPreMiddlewares(): array
 	{
 		return $this->preMiddlewares;
 	}
-
 	public function getPostMiddlewares(): array
 	{
 		return $this->postMiddlewares;
 	}
-
 	/*public function where(): Route
 	{
 		// TODO implement the method
 	}*/
-
 	public function getVariables(): array
 	{
 		return $this->variables;

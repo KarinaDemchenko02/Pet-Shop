@@ -22,7 +22,6 @@ final class Pipeline
 		$this->passable = $passable;
 		return $this;
 	}
-
 	public function through(array|string|null $middlewares): Pipeline
 	{
 		if (is_null($middlewares))
@@ -43,14 +42,11 @@ final class Pipeline
 
 		return $this;
 	}
-
 	public function then(\Closure $destination): Response
 	{
 		$this->destination = $destination;
 		return $this->handle();
 	}
-
-
 	public function thenReturn(): Response
 	{
 		$this->destination = static function ($passable) {
@@ -58,7 +54,6 @@ final class Pipeline
 		};
 		return $this->handle();
 	}
-
 	public function handle(): Response
 	{
 		$middleware = array_shift($this->middlewares);

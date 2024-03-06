@@ -40,10 +40,10 @@ class TagRepositoryImpl implements TagRepository
 
 			return $orm->affectedRows();
 		}
-		catch (TagNotAdding $e)
+		catch (\Throwable)
 		{
 			$orm->rollback();
-			throw $e;
+			throw new TagNotAdding();
 		}
 
 	}
