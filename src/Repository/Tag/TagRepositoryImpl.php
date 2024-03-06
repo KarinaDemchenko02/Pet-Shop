@@ -32,17 +32,17 @@ class TagRepositoryImpl implements TagRepository
 		$orm = Orm::getInstance();
 		try
 		{
-			$orm->begin();
-
 			TagTable::add(['title' => $title]);
 
-			$orm->commit();
+			if ($orm->affectedRows() === 0)
+			{
+				throw new TagNotAdding();
+			}
 
-			return $orm->affectedRows();
+			return $orm->last();
 		}
 		catch (\Throwable)
 		{
-			$orm->rollback();
 			throw new TagNotAdding();
 		}
 
