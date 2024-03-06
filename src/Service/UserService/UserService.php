@@ -3,7 +3,6 @@
 namespace Up\Service\UserService;
 
 use Up\Auth\Auth;
-use Up\Dto\User\UserAddingDto;
 use Up\Dto\User\UserChangeDto;
 use Up\Dto\User\UserDto;
 use Up\Exceptions\Auth\InvalidPassword;

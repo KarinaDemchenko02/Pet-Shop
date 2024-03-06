@@ -7,6 +7,7 @@ use Up\Dto\User\UserAddingDto;
 use Up\Dto\User\UserDto;
 use Up\Exceptions\Auth\InvalidPassword;
 use Up\Exceptions\User\UserAdding;
+use Up\Repository\User\UserRepositoryImpl;
 use Up\Service\UserService\UserService;
 
 class Auth
@@ -58,7 +59,7 @@ class Auth
 		);
 		try
 		{
-			UserService::addUser($userAddingDto);
+			UserRepositoryImpl::add($userAddingDto);
 			return true;
 		}
 		catch (UserAdding)

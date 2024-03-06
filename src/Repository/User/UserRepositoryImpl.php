@@ -38,6 +38,27 @@ class UserRepositoryImpl implements UserRepository
 	}
 
 	/**
+	 * @throws UserAdding
+	 */
+	public static function add(UserAddingDto $user): void
+	{
+		$result = UserTable::add(
+			[
+				'name' => $user->name,
+				'surname' => $user->surname,
+				'email' => $user->email,
+				'password' => $user->password,
+				'role_id' => $user->roleId,
+				'tel' => $user->phoneNumber,
+			]
+		);
+		if ($result === 0)
+		{
+			throw new UserAdding('Failed to add a user');
+		}
+	}
+
+	/**
 	 * @throws UserNotDisabled
 	 */
 	public static function disable($id): void
