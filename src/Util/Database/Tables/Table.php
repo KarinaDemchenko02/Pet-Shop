@@ -48,7 +48,7 @@ abstract class Table implements TableInterface
 
 	}
 
-	private static function getFieldByName(string $name): ?Field
+	public static function getFieldByName(string $name): ?Field
 	{
 		$fields = static::getMap();
 		foreach ($fields as $field)
@@ -149,29 +149,7 @@ abstract class Table implements TableInterface
 				$relatedTableName = $relatedTable::getTableName();
 				if (!isset($joins[$relatedTableName]))
 				{
-					if ($fieldType === 'reflection')
-					{
-						/* @var $relatedField Reference */
-						$relatedField = $relatedTable::getFieldByName($field->condition);
-						if (is_null($relatedField))
-						{
-							throw new \RuntimeException(
-								"The name of the related field of the related table '$relatedTableName' is incorrect: {$field->condition}"
-							);
-						}
-						$joinCondition = $relatedTable::formatCondition(
-							$relatedField->condition,
-							$relatedField->referenceTable
-						);
-					}
-					else
-					{
-						$joinCondition = self::formatCondition($field->condition, $field->referenceTable);
-					}
-					$joins[$relatedTableName] = [
-						'type' => $field->joinType,
-						'condition' => $joinCondition,
-					];
+					$joins[$relatedTableName] = $field->getJoin(new static());
 					$columnJoin = $relatedTable::getColumnJoin($selectedRelatedColumns, $joins);
 					$tableAlias = array_unique(array_merge($tableAlias, $columnJoin['alias']));
 					$joins = array_merge($joins, $columnJoin['joins']);
