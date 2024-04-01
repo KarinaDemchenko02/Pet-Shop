@@ -11,11 +11,8 @@ abstract class Relation extends Field
 		readonly Table  $referenceTable,
 		readonly string $condition,
 		readonly string $joinType = 'LEFT',
-		bool            $isPrimary = false,
-		bool            $isNullable = true,
-		bool            $isDefaultExists = false
 	)
 	{
-		parent::__construct($name, $isPrimary, $isNullable, $isDefaultExists);
+		parent::__construct($name);
 	}
 }

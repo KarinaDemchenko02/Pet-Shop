@@ -92,7 +92,7 @@ abstract class Table implements TableInterface
 	private static function getColumnJoin(
 		array $selectedColumns = ['*'],
 			  $joins = []
-	)
+	): array
 	{
 		$tableAlias = [];
 		$tableName = static::getTableName();
