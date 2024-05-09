@@ -68,7 +68,7 @@ class OrderAdminController extends Controller
 		$response = [];
 		try
 		{
-			OrderService::deleteOrder((int)$data['id']);
+			OrderService::disableOrder((int)$data['id']);
 			$result = true;
 		}
 		catch (OrderNotDeleted)
@@ -102,6 +102,7 @@ class OrderAdminController extends Controller
 				$data['deliveryAddress'],
 				$data['name'],
 				$data['surname'],
+				$data['statusId']
 			);
 			OrderService::changeOrder($orderDto);
 			$result = true;
@@ -124,5 +125,23 @@ class OrderAdminController extends Controller
 			$status = Status::BAD_REQUEST;
 		}
 		return new Response($status, $response);
+	}
+
+	public function getOrderAdminJsonAction(Request $request): Response
+	{
+		$page = $request->getVariable('page');
+
+		if (!(is_numeric($page) && $page > 0))
+		{
+			$page = 1;
+		}
+
+		$orders = OrderService::getAllProductsForAdmin($page);
+		$nextPage = OrderService::getAllProductsForAdmin($page + 1);
+
+		return new Response(Status::OK, [
+			'orders' => $orders,
+			'nextPage' => $nextPage,
+		]);
 	}
 }

@@ -5,16 +5,14 @@ namespace Up\Controller;
 use Up\Auth\Auth;
 use Up\Auth\JwtService;
 use Up\Auth\TokenType;
-use Up\Dto\UserAddingDto;
+use Up\Dto\User\UserAddingDto;
 use Up\Exceptions\User\UserNotFound;
 use Up\Http\Request;
 use Up\Http\Response;
 use Up\Http\Status;
 use Up\Repository\ShoppingSession\ShoppingSessionRepositoryImpl;
-use Up\Routing\Router;
 use Up\Service\UserService\UserService;
 use Up\Util\Session;
-use Up\Util\TemplateEngine\PageMainTemplateEngine;
 
 class AuthController extends Controller
 {
@@ -33,7 +31,7 @@ class AuthController extends Controller
 		}
 		catch (\Error)
 		{
-			return new Response(Status::UNAUTHORIZED, ['errors' => $this->authService->getErrors()]);
+			return new Response(Status::UNAUTHORIZED, ['errors' => $this->errors/*$this->authService->getErrors()*/]);
 		}
 	}
 
@@ -46,7 +44,7 @@ class AuthController extends Controller
 		catch (UserNotFound)
 		{
 			$this->errors[] = 'Неправильно введён Email';
-			return new Response(Status::UNAUTHORIZED, ['result' => false, 'errors' => $this->authService->getErrors()]);
+			return new Response(Status::UNAUTHORIZED, ['result' => false, 'errors' => $this->errors]);
 		}
 
 		if ($this->authService->verifyUser($user, $request->getDataByKey('password')))
@@ -65,6 +63,7 @@ class AuthController extends Controller
 				$user->roleTitle,
 			);
 
+			JwtService::saveTokenInDb($refreshToken);
 			JwtService::saveTokenInCookie($accessToken, TokenType::ACCESS);
 			JwtService::saveTokenInCookie($refreshToken, TokenType::REFRESH);
 
@@ -72,7 +71,7 @@ class AuthController extends Controller
 		}
 		else
 		{
-			return new Response(Status::UNAUTHORIZED, ['result' => false,'errors' => $this->authService->getErrors()]);
+			return new Response(Status::UNAUTHORIZED, ['result' => false,'errors' => $this->errors]);
 		}
 		return new Response(Status::OK, ['result' => true]);
 	}
@@ -123,6 +122,7 @@ class AuthController extends Controller
 
 	private function logOutAction(Request $request): Response
 	{
+		JwtService::deleteTokenFromDb($request->getCookie('JWT-REFRESH'));
 		JwtService::deleteCookie(TokenType::ACCESS);
 		JwtService::deleteCookie(TokenType::REFRESH);
 		return new Response(Status::OK, ['result' => true]);

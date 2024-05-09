@@ -1,4 +1,5 @@
 import { TagItem } from "./tag-item.js";
+import {Error} from "../../main/error/error.js";
 
 export class TagList
 {
@@ -7,6 +8,7 @@ export class TagList
 	itemsContainer;
 	items = [];
 	columns= [];
+	currentPagination = new URLSearchParams(window.location.search).get('page');
 	constructor({ attachToNodeId = '', items, columns })
 	{
 		if (attachToNodeId === '')
@@ -52,8 +54,23 @@ export class TagList
 		const id = document.getElementById('tagId');
 		const title = document.getElementById('tagTitle');
 
+		const errorContainer = document.querySelector('.form__alert-container');
+
+		if (errorContainer) {
+			errorContainer.remove();
+		}
+
 		id.innerText = item['id'];
 		title.value = item['title'];
+
+		const buttonAdd = document.getElementById('add');
+		const buttonEdit = document.getElementById('changed');
+
+		if (buttonAdd) {
+			buttonAdd.style.display = 'none';
+		}
+
+		buttonEdit.style.display = 'block';
 
 		formEdit.style.display = 'block';
 	}
@@ -75,6 +92,15 @@ export class TagList
 		const id = document.getElementById('tagId').innerText;
 		const title = document.getElementById('tagTitle').value;
 
+		const formContainer = document.querySelector('.form');
+		const errorContainer = document.querySelector('.form__alert-container');
+		const buttonEditSend = document.getElementById('changed');
+
+		buttonEditSend.disabled = true;
+
+		if (errorContainer) {
+			errorContainer.remove();
+		}
 
 		const changeParams = {
 			id: Number(id),
@@ -97,29 +123,29 @@ export class TagList
 			.then((response) => {
 				return response.json();
 			})
-			.then((response) => {
-				if (response.result === true)
-				{
+			.then(async (response) => {
+				if (response.result === true) {
 					this.items.forEach(item => {
-						if (item.id === changeParams.id)
-						{
+						if (item.id === changeParams.id) {
 							item.title = changeParams.title;
 						}
 					})
 
 					buttonEdit.disabled = false;
 
-					this.render();
-				}
-				else
-				{
+					await this.render();
+				} else {
 					console.error(response.errors);
 					buttonEdit.disabled = false;
+					buttonEditSend.disabled = false;
+					new Error(`Не удалось изменить тег`, formContainer).printError();
 				}
 			})
 			.catch((error) => {
 				console.error('Error while changing item.');
+				new Error(`Что-то пошло не так`, formContainer).printError();
 				buttonEdit.disabled = false;
+				buttonEditSend.disabled = false;
 			})
 	}
 	handleRemoveButtonClick(item)
@@ -174,8 +200,146 @@ export class TagList
 		}
 	}
 
-	render()
+	handleAcceptAddButtonClick() {
+		const shouldRemove = confirm(`Are you sure you want to delete this product: ?`)
+		if (!shouldRemove)
+		{
+			return;
+		}
+
+		const title = document.getElementById('tagTitle').value;
+
+		const addParams = {
+			title: title,
+		}
+
+		const buttonAdd = document.getElementById('add');
+		buttonAdd.disabled = true;
+
+		const formContainer = document.querySelector('.form');
+		const errorContainer = document.querySelector('.form__alert-container');
+
+		if (errorContainer) {
+			errorContainer.remove();
+		}
+
+		fetch(
+			'/admin/tag/add/',
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json;charset=utf-8'
+				},
+				body: JSON.stringify(addParams),
+			}
+		)
+			.then((response) => {
+				return response.json();
+			})
+			.then((response) => {
+				if (response.id)
+				{
+					const table = document.querySelector('.table');
+					let isExecuted = false;
+
+					this.items.forEach(item => {
+						if (!isExecuted) {
+							item.id = response.id;
+							item.title = addParams.title;
+							table.append(item.render());
+
+							isExecuted = true;
+						}
+					});
+
+					const formEdit = document.querySelector('.form__box');
+					formEdit.style.display = 'none';
+
+					buttonAdd.disabled = false;
+				}
+				else
+				{
+					console.error(response.errors);
+					new Error(`Не удалось добавить тег`, formContainer).printError();
+					buttonAdd.disabled = false;
+				}
+			})
+			.catch((error) => {
+				console.error('Error while changing item.');
+				new Error(`Что-то пошло не так`, formContainer).printError();
+				buttonAdd.disabled = false;
+			})
+	}
+
+	handleChangePaginationButtonClick()
 	{
+		const page = event.target.innerText;
+
+		let currentUrl = window.location.href;
+
+		this.currentPagination = page;
+
+		let newUrl = new URL(currentUrl);
+		newUrl.searchParams.set('page', page);
+
+		window.history.replaceState({}, '', newUrl);
+
+		fetch(
+			`/tagsAdmin-json/?page=${page}`,
+			{
+				method: 'GET',
+			}
+		)
+			.then((response) => {
+				if (!response.ok) {
+					throw new Error('Network response was not ok');
+				}
+				return response.json();
+			})
+			.then(async (response) => {
+				if (response.nextPage.length !== 0) {
+					this.currentPagination = Number(page) + 1;
+				}
+
+				this.items = response.tags.map((itemData) => {
+					return this.createItem(itemData)
+				})
+
+				await this.render();
+			})
+			.catch((error) => {
+				console.error('Error while changing item:', error);
+			});
+	}
+
+	handleAddButtonClick() {
+		const inputTitle = document.getElementById('tagTitle');
+		const buttonAdd = document.getElementById('add');
+		const buttonEdit = document.getElementById('changed');
+
+		const errorContainer = document.querySelector('.form__alert-container');
+
+		if (errorContainer) {
+			errorContainer.remove();
+		}
+
+		inputTitle.value = '';
+
+		const formEdit = document.querySelector('.form__box');
+		formEdit.style.display = 'block';
+
+		buttonAdd.style.display = 'block';
+		buttonEdit.style.display = 'none';
+	}
+
+	async render() {
+		if (this.items.length === 0) {
+			this.rootNode.innerHTML = '';
+			const modal = new Error('Данная страница не найдена!', null, '/admin/?entity=tags').render();
+			this.rootNode.append(modal);
+
+			return false;
+		}
 		this.itemsContainer.innerHTML = '';
 
 		const table = document.createElement('table');
@@ -199,11 +363,19 @@ export class TagList
 		containerColumn.append(columnAction);
 		table.append(containerColumn);
 
-		this.itemsContainer.append(table, this.renderForm());
+		const addButton = document.createElement('button');
+		addButton.classList.add('form__button', 'form__button_add');
+		addButton.id = 'addOpen';
+		addButton.innerText = 'Добавить';
+		addButton.addEventListener('click', this.handleAddButtonClick.bind(this));
+
+		this.itemsContainer.append(addButton, table, this.renderForm());
 
 		this.items.forEach((item) => {
 			table.append(item.render());
 		})
+
+		await this.renderPagination()
 	}
 
 	renderForm()
@@ -237,6 +409,7 @@ export class TagList
 		const titleInput = document.createElement('input');
 		titleInput.classList.add('form__input');
 		titleInput.id = 'tagTitle';
+		titleInput.required = true;
 		titleInput.type = 'text';
 		titleInput.name = 'tagTitle';
 
@@ -246,12 +419,91 @@ export class TagList
 		acceptButton.type = 'submit';
 		acceptButton.name = 'changeProduct';
 		acceptButton.innerText = 'Редактировать';
-		acceptButton.addEventListener('click', this.handleAcceptEditButtonClick.bind(this))
+		acceptButton.addEventListener('click', this.handleAcceptEditButtonClick.bind(this));
 
-		form.append(spanId, titleLabel, titleInput, acceptButton);
+		const acceptAddButton = document.createElement('button');
+		acceptAddButton.classList.add('form__button', 'form__button_add');
+		acceptAddButton.id = 'add';
+		acceptAddButton.type = 'submit';
+		acceptAddButton.name = 'addProduct';
+		acceptAddButton.innerText = 'Добавить';
+		acceptAddButton.addEventListener('click', this.handleAcceptAddButtonClick.bind(this));
+
+		form.append(spanId, titleLabel, titleInput, acceptButton, acceptAddButton);
 		formContainer.append(closeButton, form);
 		formBox.append(formContainer);
 
 		return formBox;
+	}
+
+	async renderPagination() {
+		const paginationContainer = document.createElement('div');
+		paginationContainer.id = 'buttonPagination'
+		paginationContainer.classList.add('pagination');
+
+		let current = 0;
+
+		if (!this.currentPagination) {
+			const result = await this.checkPageNumberOne();
+
+			if (result) {
+				current = 1;
+			}
+
+			this.currentPagination = 1;
+		}
+
+
+		if (this.currentPagination === '1') {
+			const result = await this.checkPageNumberOne();
+
+			if (result) {
+				current = 1;
+			}
+		}
+
+		let currentPage = parseInt(new URLSearchParams(window.location.search).get('page') || '1');
+		const startIndex = Math.max(1, currentPage - 1);
+		const endIndex = Math.min(parseInt(this.currentPagination), currentPage + 1);
+
+		for (let i = startIndex; i <= endIndex + current; i++) {
+			const buttonPagination = document.createElement('button');
+			buttonPagination.classList.add('pagination__button');
+			buttonPagination.innerText = String(i);
+			buttonPagination.addEventListener('click', this.handleChangePaginationButtonClick.bind(this));
+
+			if (currentPage === null) {
+				currentPage = '1';
+			}
+			if (buttonPagination.innerText === String(currentPage)) {
+				buttonPagination.classList.add('is-active');
+			}
+
+			paginationContainer.append(buttonPagination)
+
+			this.itemsContainer.append(paginationContainer);
+		}
+	}
+
+	checkPageNumberOne()
+	{
+		return fetch(
+			`/tagsAdmin-json/?page=1`,
+			{
+				method: 'GET',
+			}
+		)
+			.then((response) => {
+				if (!response.ok) {
+					throw new Error('Network response was not ok');
+				}
+				return response.json();
+			})
+			.then((response) => {
+				return response.nextPage.length !== 0;
+			})
+			.catch((error) => {
+				console.error('Error while checking for items on next page:', error);
+			});
 	}
 }

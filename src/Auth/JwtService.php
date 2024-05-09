@@ -8,10 +8,9 @@ use Firebase\JWT\Key;
 use Up\Dto\TokenDto;
 use Up\Exceptions\Auth\EmptyToken;
 use Up\Exceptions\Auth\InvalidToken;
+use Up\Exceptions\Auth\TokenNotDeleted;
 use Up\Exceptions\Auth\TokenNotUpdated;
-use Up\Repository\Token\TokenRepository;
 use Up\Repository\Token\TokenRepositoryImpl;
-use Up\Repository\User\UserRepositoryImpl;
 use Up\Util\Configuration;
 
 class JwtService
@@ -46,6 +45,18 @@ class JwtService
 		return JWT::encode($token, self::getConfig('secret'), self::getConfig('alg'));
 	}
 
+	public static function saveTokenInDb(string $jwt): void
+	{
+		$payload = self::getPayload($jwt);
+
+		$tokenDto = new TokenDto(
+			$payload['uid'],
+			$payload['jti'],
+			$payload['exp'],
+		);
+		TokenRepositoryImpl::addToken($tokenDto);
+	}
+
 	/**
 	 * @throws EmptyToken
 	 * @throws ExpiredException
@@ -73,6 +84,21 @@ class JwtService
 		}
 	}
 
+	public static function deleteTokenFromDb(string $jwt): bool
+	{
+		$payload = self::getPayload($jwt);
+
+		try
+		{
+			@TokenRepositoryImpl::deleteByJti($payload['jti']);
+			return true;
+		}
+		catch (TokenNotDeleted|\TypeError)
+		{
+			return false;
+		}
+	}
+
 	private static function getConfig(string $name): mixed
 	{
 		static $config = null;
@@ -91,8 +117,15 @@ class JwtService
 
 	public static function getPayload(string $jwt): array
 	{
-		$decoded = JWT::decode($jwt, new Key(self::getConfig('secret'), self::getConfig('alg')));
-		return json_decode(json_encode($decoded, JSON_THROW_ON_ERROR), true, 512, JSON_THROW_ON_ERROR);
+		try
+		{
+			$decoded = JWT::decode($jwt, new Key(self::getConfig('secret'), self::getConfig('alg')));
+			return json_decode(json_encode($decoded, JSON_THROW_ON_ERROR), true, 512, JSON_THROW_ON_ERROR);
+		}
+		catch (\Exception)
+		{
+			return [];
+		}
 	}
 
 	public static function saveTokenInCookie(string $jwt, TokenType $tokenType): bool
@@ -125,17 +158,11 @@ class JwtService
 	}
 
 	/**
-	 * @throws InvalidToken|\JsonException
+	 * @throws InvalidToken|EmptyToken
 	 */
 	public static function refreshTokens(string $refreshToken): array
 	{
-		try
-		{
-			$isValid = self::validateToken($refreshToken);
-		}
-		catch (EmptyToken)
-		{
-		}
+
 		if (!self::validateToken($refreshToken))
 		{
 			throw new InvalidToken();

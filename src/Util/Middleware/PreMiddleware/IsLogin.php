@@ -10,8 +10,6 @@ use Up\Exceptions\Auth\InvalidToken;
 use Up\Exceptions\Auth\TokensNotRefreshed;
 use Up\Http\Request;
 use Up\Http\Response;
-use Up\Http\Status;
-use Up\Util\Session;
 
 class IsLogin implements PreMiddleware
 {
@@ -22,6 +20,16 @@ class IsLogin implements PreMiddleware
 	public function handle(Request $request, callable $next): Response
 	{
 		$accessToken = $request->getCookie('JWT-ACCESS');
+		$refreshToken = $request->getCookie('JWT-REFRESH');
+
+		if ($accessToken === '' && $refreshToken === '')
+		{
+			$request->setData('email', null);
+			$request->setData('role', null);
+			$request->setData('userId', null);
+			return $next($request);
+		}
+
 		try
 		{
 			try
@@ -33,14 +41,14 @@ class IsLogin implements PreMiddleware
 				$accessToken = self::refreshTokens($request->getCookie('JWT-REFRESH'));
 			}
 		}
-		catch (InvalidToken|TokensNotRefreshed|EmptyToken)
+		catch (InvalidToken|TokensNotRefreshed)
 		{
 			self::disableUser($request);
 			return $next($request);
 		}
 
 
-		$payload = self::parsePayload($accessToken);
+		$payload = JwtService::getPayload($accessToken);
 		$request->setData('email', $payload['sub']);
 		$request->setData('role', $payload['role']);
 		$request->setData('userId', $payload['uid']);
@@ -48,31 +56,9 @@ class IsLogin implements PreMiddleware
 		return $next($request);
 	}
 
-	private static function parsePayload(string $jwt): array
-	{
-		try
-		{
-			return JwtService::getPayload($jwt);
-		}
-		catch (\JsonException)
-		{
-			return [];
-		}
-	}
-
-/*	private static function isNotExpired(string $jwt): bool
-	{
-		$payload = self::parsePayload($jwt);
-		if (!isset($payload['exp']))
-		{
-			return false;
-		}
-
-		return $payload['exp'] - 5 > time(); // (time() - 5) указывает на приближающийся срок истечения токена
-	}*/
-
 	private static function disableUser(Request $request): void
 	{
+		JwtService::deleteTokenFromDb($request->getCookie('JWT-REFRESH'));
 		JwtService::deleteCookie(TokenType::ACCESS);
 		JwtService::deleteCookie(TokenType::REFRESH);
 		$request->setData('email', null);
@@ -89,7 +75,7 @@ class IsLogin implements PreMiddleware
 		{
 			$tokens = JwtService::refreshTokens($refreshToken);
 		}
-		catch (\JsonException|InvalidToken $e)
+		catch (\JsonException|InvalidToken|EmptyToken)
 		{
 			JwtService::deleteCookie(TokenType::ACCESS);
 			JwtService::deleteCookie( TokenType::REFRESH);

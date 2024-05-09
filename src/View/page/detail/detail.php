@@ -34,26 +34,15 @@
 			</div>
 			<div id="specifications" class="details__info-items details__specifications">
 				<ul class="details__list-specifications">
-					<li class="details__item-specifications">
-						<span class="details__specifications-name">Возраст</span>
-						<span class="details__ellipsis"></span>
-						<span class="details__characteristic">Взрослое Животное</span>
-					</li>
-					<li class="details__item-specifications">
-						<span class="details__specifications-name">Производитель</span>
-						<span class="details__ellipsis"></span>
-						<span class="details__characteristic">Premier</span>
-					</li>
-					<li class="details__item-specifications">
-						<span class="details__specifications-name">Страна производства</span>
-						<span class="details__ellipsis"></span>
-						<span class="details__characteristic">Бельгия</span>
-					</li>
-					<li class="details__item-specifications">
-						<span class="details__specifications-name">Категория товара</span>
-						<span class="details__ellipsis"></span>
-						<span class="details__characteristic">Сухой корм</span>
-					</li>
+					<?php
+					foreach ($this->getVariable('characteristics') as $characteristic): ?>
+						<li class="details__item-specifications">
+							<span class="details__specifications-name"><?= $characteristic->title ?></span>
+							<span class="details__ellipsis"></span>
+							<span class="details__characteristic"><?= $characteristic->value ?></span>
+						</li>
+					<?php
+					endforeach; ?>
 				</ul>
 			</div>
 		</div>

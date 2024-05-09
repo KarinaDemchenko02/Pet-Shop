@@ -44,8 +44,7 @@ class PageDetailController extends Controller
 	public function buyProductAction(Request $request): Response
 	{
 		$id = $request->getVariable('id');
-		$data = $request->getDataByKey('jwt')['data'];
-		$userId = $data['id'];
+		$userId = $request->getDataByKey('userId');
 
 		$product = ProductRepositoryImpl::getById($id);
 		try

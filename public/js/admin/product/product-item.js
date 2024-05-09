@@ -5,6 +5,7 @@ export class ProductItem
 	description;
 	price;
 	tags;
+	priority;
 	imagePath;
 	addedAt;
 	editedAt;
@@ -14,7 +15,7 @@ export class ProductItem
 	restoreButtonHandler;
 	addImageButtonHandler;
 
-	constructor({ id, title, description, tags, price, imagePath,addedAt, editedAt, isActive, editButtonHandler, removeButtonHandler, restoreButtonHandler, addImageButtonHandler })
+	constructor({ id, title, description, tags, price, imagePath,addedAt, editedAt, isActive, priority, editButtonHandler, removeButtonHandler, restoreButtonHandler, addImageButtonHandler })
 	{
 		this.id = Number(id);
 		this.title = String(title);
@@ -24,6 +25,7 @@ export class ProductItem
 		this.addedAt = this.renderDate(addedAt);
 		this.editedAt = this.renderDate(editedAt);
 		this.isActive = Boolean(isActive);
+		this.priority = Number(priority);
 		this.tags = tags;
 
 		if (typeof editButtonHandler === 'function')
@@ -80,6 +82,10 @@ export class ProductItem
 		const isActiveColumn = document.createElement('td');
 		isActiveColumn.classList.add('table__th');
 		isActiveColumn.innerText = this.isActive;
+
+		const priorityColumn = document.createElement('td');
+		priorityColumn.classList.add('table__th');
+		priorityColumn.innerText = this.priority;
 
 		const tagsColumn = this.createTagColumn();
 		tagsColumn.classList.add('table__th', 'table__th_tags');
@@ -170,7 +176,7 @@ export class ProductItem
 			actionsColumn.append(editButton, removeButton);
 		}
 
-		trProduct.append(idColumn, titleColumn, descColumn, priceColumn, addedAtColumn, editedAtColumn, isActiveColumn, tagsColumn, imagesFormContainer, actionsColumn);
+		trProduct.append(idColumn, titleColumn, descColumn, priceColumn, addedAtColumn, editedAtColumn, isActiveColumn, priorityColumn, tagsColumn, imagesFormContainer, actionsColumn);
 		return trProduct;
 	}
 

@@ -5,10 +5,14 @@ namespace Up\Controller;
 use Up\Http\Request;
 use Up\Http\Response;
 use Up\Http\Status;
+use Up\Entity\ProductQuantity;
 use Up\Service\OrderService\OrderService;
 use Up\Service\ProductService\ProductService;
 use Up\Service\TagService\TagService;
 use Up\Service\UserService\UserService;
+use Up\Util\Database\Tables\ProductTable;
+use Up\Util\Database\Tables\TagTable;
+use Up\Util\Database\Tables\UserTable;
 use Up\Util\TemplateEngine\PageAdminTemplateEngine;
 
 class PageAdminController extends Controller
@@ -34,23 +38,25 @@ class PageAdminController extends Controller
 		if ($entity === 'users')
 		{
 			$contentName = 'users';
-			$users = UserService::getAll();
+			$users = UserService::getAllProductsForAdmin($page);
 			$columns = UserService::getColumn();
 			foreach ($users as $user)
 			{
 				$content[] = [
 					'id' => $user->id,
+					'name' => $user->name,
+					'surname' => $user->surname,
 					'email' => $user->email,
-					'password' => $user->password,
 					'roleTitle' => $user->roleTitle,
 					'phoneNumber' => $user->phoneNumber,
+					'isActive' => $user->isActive
 				];
 			}
 		}
 		elseif ($entity === 'tags')
 		{
 			$contentName = 'tags';
-			$tags = TagService::getAllTags();
+			$tags = TagService::getAllProductsForAdmin($page);
 			$columns = TagService::getColumn();
 			foreach ($tags as $tag)
 			{
@@ -63,17 +69,18 @@ class PageAdminController extends Controller
 		elseif ($entity === 'orders')
 		{
 			$contentName = 'orders';
-			$orders = OrderService::getAllOrder();
+			$orders = OrderService::getAllProductsForAdmin($page);
 			$columns = OrderService::gelColumn();
 			foreach ($orders as $order)
 			{
 				$products = [];
 				foreach ($order->products as $product)
 				{
+					/** @var ProductQuantity $product */
 					$products[] = [
-						'itemId' => $product->id,
-						'quantities' => $product->quantity,
-						'price' => $product->price,
+						'itemId' => $product->info->id,
+						'quantities' => $product->getQuantity(),
+						'price' => $product->info->price,
 					];
 				}
 				$content[] = [
@@ -93,6 +100,7 @@ class PageAdminController extends Controller
 		{
 			$products = ProductService::getAllProductsForAdmin($page);
 			$columns = ProductService::getColumn();
+
 			$allTags = TagService::getAllTags();
 
 			$tagsArray = [];
@@ -122,7 +130,8 @@ class PageAdminController extends Controller
 						'price' => $product->price,
 						'id' => $product->id,
 						'imagePath' => $product->imagePath,
-						'isActive' => (int) $product->isActive,
+						'isActive' => $product->isActive ? 'Да' : 'Нет',
+						'priority' => $product->priority,
 						'addedAt' => $product->addedAt,
 						'editedAt' => $product->editedAt,
 						'tags' => $tags,

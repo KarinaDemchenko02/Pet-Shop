@@ -25,3 +25,12 @@ class IsNotLogIn implements PreMiddleware
 		return $next($request);
 	}
 }
+
+class SomePreMiddleware implements PreMiddleware
+{
+	public function handle(Request $request, callable $next): Response
+	{
+		// Какой-то код
+		return $next($request);
+	}
+}

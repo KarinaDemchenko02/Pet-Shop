@@ -3,9 +3,7 @@
 namespace Up\Controller;
 
 
-use Up\Dto\UserDto;
-use Up\Http\Request;
-use Up\Http\Response;
+use Up\Dto\User\UserDto;
 use Up\Util\Session;
 use Up\Util\TemplateEngine\TemplateEngine;
 

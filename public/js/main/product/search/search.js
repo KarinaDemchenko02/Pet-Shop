@@ -52,13 +52,11 @@ export class Search
 
 		const title = inputSearch.value;
 
-		let currentUrl = window.location.href;
-
 		let page = '1';
 
 		this.currentPagination = '1';
 
-		let newUrl = new URL(currentUrl);
+		let newUrl = new URL(window.location.href);
 
 		newUrl.searchParams.set('title', title);
 		newUrl.searchParams.set('page', page);
@@ -71,8 +69,11 @@ export class Search
 			spinner.classList.add('disabled');
 		}
 
+		const urlParams = new URLSearchParams(window.location.search);
+		const paramValue = urlParams.get('tag');
+
 		fetch(
-			`/search-json/?title=${title}&page=${page}`,
+			`/search-json/?title=${title}&page=${page}&tag=${paramValue}`,
 			{
 				method: 'GET',
 			}
@@ -84,13 +85,24 @@ export class Search
 				return response.json();
 			})
 			.then(async (response) => {
-				if (response.nextPage.length !== 0) {
-					this.currentPagination = Number(page) + 1;
-				}
+				let products;
 
-				let products = response.products.map((itemData) => {
-					return this.createItem(itemData);
-				});
+				if (paramValue !== null) {
+					if (response.productsByTagTitleNext.length !== 0) {
+						this.currentPagination = Number(page) + 1;
+					}
+					products = response.productsByTagTitle.map((itemData) => {
+						return this.createItem(itemData);
+					});
+				} else {
+					if (response.nextPage.length !== 0) {
+						this.currentPagination = Number(page) + 1;
+					}
+
+					products = response.products.map((itemData) => {
+						return this.createItem(itemData);
+					});
+				}
 
 				const productsList = new ProductList({
 					attachToNodeId: 'product__list-container',
@@ -129,8 +141,12 @@ export class Search
 
 			window.history.replaceState({}, '', newUrl);
 
+			const urlParams = new URLSearchParams(window.location.search);
+			const paramValue = urlParams.get('tag');
+
 			fetch(
 				`/search-json/?title=${title}&page=${page}`,
+				`/search-json/?title=${title}&page=${page}&tag=${paramValue}`,
 				{
 					method: 'GET',
 				}
@@ -139,13 +155,25 @@ export class Search
 					return response.json();
 				})
 				.then(async (response) => {
-					if (response.nextPage.length !== 0) {
-						this.currentPagination = Number(page) + 1;
-					}
+					let products;
 
-					let products = response.products.map((itemData) => {
-						return this.createItem(itemData);
-					});
+					if (paramValue !== null) {
+						if (response.productsByTagTitleNext.length !== 0) {
+							this.currentPagination = Number(page) + 1;
+						}
+
+						products = response.productsByTagTitle.map((itemData) => {
+							return this.createItem(itemData);
+						});
+					} else {
+						if (response.nextPage.length !== 0) {
+							this.currentPagination = Number(page) + 1;
+						}
+
+						products = response.products.map((itemData) => {
+							return this.createItem(itemData);
+						});
+					}
 
 					const productsList = new ProductList({
 						attachToNodeId: 'product__list-container',
@@ -154,6 +182,7 @@ export class Search
 					});
 
 					await productsList.render();
+
 
 					this.renderPagination();
 
@@ -213,6 +242,10 @@ export class Search
 	renderPagination()
 	{
 		const containerPagination = document.getElementById('buttonPagination');
+
+		if (!containerPagination) {
+			return false;
+		}
 
 		containerPagination.innerHTML = '';
 

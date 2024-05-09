@@ -12,8 +12,9 @@ use Up\Exceptions\Admin\ProductNotDisabled;
 use Up\Exceptions\Admin\ProductNotRestored;
 use Up\Exceptions\Images\ImageNotAdd;
 use Up\Exceptions\Product\ProductNotFound;
+use Up\Repository\Image\ImageRepositoryImpl;
 use Up\Repository\Product\ProductRepositoryImpl;
-
+use Up\Util\Database\Tables\ProductTable;
 
 class ProductService
 {
@@ -42,7 +43,20 @@ class ProductService
 
 	public static function getProductsByTag(int $tagId, int $page = 1): array
 	{
-		$products = ProductRepositoryImpl::getByTag($tagId, $page);
+		$products = ProductRepositoryImpl::getByTags([$tagId], $page);
+
+		$productsDto = [];
+		foreach ($products as $product)
+		{
+			$productsDto[] = new ProductDto($product);
+		}
+
+		return $productsDto;
+	}
+
+	public static function getProductsBySpecialOffer(int $specialOfferId, int $page):array
+	{
+		$products = ProductRepositoryImpl::getProductsBySpecialOffer($specialOfferId, $page);
 
 		$productsDto = [];
 		foreach ($products as $product)
@@ -127,15 +141,27 @@ class ProductService
 	/**
 	 * @throws ImageNotAdd
 	 */
-	public static function addImage(string $pathImage, int $id): void
+	public static function changeImage(string $pathImage, int $id): void
 	{
-		ProductRepositoryImpl::addImage($pathImage, $id);
+		ImageRepositoryImpl::change($pathImage, $id);
 	}
 
 	public static function getColumn(): array
 	{
-		$columns = ProductRepositoryImpl::getColumn();
-		$columns[] = 'tag';
+		$columns = ProductTable::getColumnsName();
+		$columns[] = 'Теги';
 		return $columns;
+	}
+
+	public static function getByTagsTitle(array $tags, string $title, int $page = 1): array
+	{
+		$products = ProductRepositoryImpl::getByTagsTitle($tags, $title, $page);
+		$productsDto = [];
+		foreach ($products as $product)
+		{
+			$productsDto[] = new ProductDto($product);
+		}
+
+		return $productsDto;
 	}
 }

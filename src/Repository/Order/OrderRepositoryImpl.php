@@ -5,27 +5,21 @@ namespace Up\Repository\Order;
 use Up\Dto\Order\OrderAdding;
 use Up\Dto\Order\OrderChangingDto;
 use Up\Dto\Order\OrderUserDto;
-use Up\Dto\Product\ProductAddingDto;
 use Up\Entity;
+use Up\Entity\Order;
 use Up\Exceptions\Admin\Order\OrderNotChanged;
-use Up\Exceptions\Admin\Order\OrderNotDeleted;
 use Up\Exceptions\Order\OrderNotCompleted;
+use Up\Repository\Product\ProductRepositoryImpl;
 use Up\Repository\User\UserRepositoryImpl;
-use Up\Util\Database\Query;
+use Up\Util\Database\Orm;
+use Up\Util\Database\Tables\OrderProductTable;
+use Up\Util\Database\Tables\OrderTable;
 
 class OrderRepositoryImpl implements OrderRepository
 {
-	private const SELECT_SQL = "select up_order.id, item_id, user_id, delivery_address, created_at, edited_at , title as status, name, surname, quantities
-				from up_order inner join up_order_item uoi on up_order.id = uoi.order_id
-				left join up_status us on up_order.status_id = us.id ";
-
 	public static function getAll(): array
 	{
-		$query = Query::getInstance();
-
-		$result = $query->getQueryResult(self::SELECT_SQL);
-
-		return self::createOrderList($result);
+		return self::createOrderList(self::getOrderList());
 	}
 
 	private static function createOrderList(\mysqli_result $result): array
@@ -33,34 +27,16 @@ class OrderRepositoryImpl implements OrderRepository
 		$orders = [];
 		while ($row = mysqli_fetch_assoc($result))
 		{
-			if (!isset($orders[$row['id']]))
+			if (!isset($orders[$row['order_id']]))
 			{
-				$query = Query::getInstance();
-				$sql = "SELECT item_id, quantities, price
-				FROM up_order_item oi
-				WHERE oi.order_id = {$row['id']}";
-				$productResult = $query->getQueryResult($sql);
-				$productDto = [];
-				while ($productRow = mysqli_fetch_assoc($productResult))
-				{
-					$productDto[] = new ProductAddingDto(
-						$productRow['item_id'],
-						$productRow['quantities'],
-						$productRow['price'],
-					);
-				}
-
-				$user = $row['user_id'] !== null ? UserRepositoryImpl::getById($row['user_id']) : null;
-				$orders[$row['id']] = new Entity\Order(
-					$row['id'],
-					$productDto,
-					$user,
-					$row['delivery_address'],
-					$row['created_at'],
-					$row['edited_at'],
-					$row['status'],
-					$row['name'],
-					$row['surname']
+				$orders[$row['order_id']] = self::createOrderEntity($row);
+			}
+			if (!is_null($row['id']))
+			{
+				$orders[$row['order_id']]->addProduct(
+					new Entity\ProductQuantity(
+						ProductRepositoryImpl::createProductEntity($row), $row['quantities'], $row['price']
+					)
 				);
 			}
 		}
@@ -70,14 +46,10 @@ class OrderRepositoryImpl implements OrderRepository
 
 	public static function getById(int $id): Entity\Order
 	{
-		$query = Query::getInstance();
-		$sql = self::SELECT_SQL . "where up_order.id = {$id}";
-		$result = $query->getQueryResult($sql);
-
-		return self::createOrderList($result)[$id];
+		return self::createOrderList(self::getOrderList(['AND', '=order_id' => $id]))[$id];
 	}
 
-	public static function getByUser(int $id): array
+	public static function getAllForAdmin(int $page = 1): array
 	{
 		$query = Query::getInstance();
 		$sql = "SELECT ui.id, ui.name, img.path, ui.price, uoi.quantities, us.title FROM `up_order` uo
@@ -86,22 +58,43 @@ class OrderRepositoryImpl implements OrderRepository
 				JOIN up_item ui ON ui.id = uoi.item_id
                 JOIN up_image img ON img.item_id = ui.id
 				WHERE uo.user_id = {$id}";
+		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
+		$offset = $limit * ($page - 1);
 
-		$result = $query->getQueryResult($sql);
+		$result = OrderTable::getList(['id'],
+			limit:                      $limit,
+			offset:                     $offset);
+		$ids = self::getIds($result);
+		if (empty($ids))
+		{
+			return [];
+		}
+
+		return self::createOrderList(self::getOrderList(['AND', ['in=id' => $ids]]));
+	}
+
+	public static function getByUser(int $userId): array
+	{
+		$result = OrderTable::getList(
+			[
+				'user_id',
+				'order_product' => [
+					'quantities',
+					'price',
+					'product' => ['id', 'name', 'image' => ['path']],
+				],
+				'status' => ['title'],
+			], ['AND', ['=user_id' => $userId]]
+		);
 
 		$ordersUser = [];
 
-		while ($row = mysqli_fetch_assoc($result)) {
+		while ($row = mysqli_fetch_assoc($result))
+		{
 			$ordersUser[] = new OrderUserDto(
-				$row['id'],
-				$row['name'],
-				$row['path'],
-				$row['price'],
-				$row['quantities'],
-				$row['title']
+				$row['id'], $row['name'], $row['path'], $row['price'], $row['quantities'], $row['title'],
 			);
 		}
-
 		return $ordersUser;
 	}
 
@@ -110,56 +103,38 @@ class OrderRepositoryImpl implements OrderRepository
 	 */
 	public static function add(OrderAdding $order): void
 	{
-		$query = Query::getInstance();
+		$orm = Orm::getInstance();
 		try
 		{
-			$userId = $order->userId ?? 'null';
-			$query->begin();
-
-			$addNewShoppingSessionSQL = "INSERT INTO up_order (up_order.user_id, up_order.delivery_address, up_order.status_id, up_order.name, up_order.surname) 
-				VALUES ($userId, '{$order->deliveryAddress}', {$order->statusId}, '{$order->name}', '{$order->surname}')";
-
-			$query->getQueryResult($addNewShoppingSessionSQL);
-			$last = $query->last();
+			$userId = $order->userId ?? 'NULL';
+			$orm->begin();
+			OrderTable::add(
+				[
+					'user_id' => $userId,
+					'delivery_address' => $order->deliveryAddress,
+					'status_id' => $order->statusId,
+					'name' => $order->name,
+					'surname' => $order->surname,
+				]
+			);
+			$last = $orm->last();
 			foreach ($order->products as $product)
 			{
-				$addLinkToItemSQL = "INSERT INTO up_order_item (order_id, item_id, quantities, price)
-									VALUES ({$last}, {$product->info->id},
-											{$product->getQuantity()}, {$product->info->price})";
-				$query->getQueryResult($addLinkToItemSQL);
+				OrderProductTable::add(
+					[
+						'order_id' => $last,
+						'product_id' => $product->info->id,
+						'quantities' => $product->getQuantity(),
+						'price' => $product->info->price,
+					]
+				);
 			}
-			$query->commit();
+			$orm->commit();
 		}
 		catch (\Throwable)
 		{
-			$query->rollback();
+			$orm->rollback();
 			throw new OrderNotCompleted();
-		}
-	}
-
-	/**
-	 * @throws OrderNotDeleted
-	 */
-	public static function delete($id)
-	{
-		$query = Query::getInstance();
-		try
-		{
-			$query->begin();
-			$deleteLinkOrderSQL = "DELETE FROM up_order_item WHERE order_id=$id";
-			$query->getQueryResult($deleteLinkOrderSQL);
-			$deleteOrderSQL = "DELETE FROM up_order WHERE id=$id";
-			$query->getQueryResult($deleteOrderSQL);
-			if (Query::affectedRows() === 0)
-			{
-				throw new OrderNotDeleted();
-			}
-			$query->commit();
-		}
-		catch (\Throwable)
-		{
-			$query->rollback();
-			throw new OrderNotDeleted();
 		}
 	}
 
@@ -168,72 +143,65 @@ class OrderRepositoryImpl implements OrderRepository
 	 */
 	public static function change(OrderChangingDto $order): void
 	{
-		$query = Query::getInstance();
+		$orm = Orm::getInstance();
 		$time = new \DateTime();
 		$now = $time->format('Y-m-d H:i:s');
-		// $itemIds = implode(", ", self::getItemsIds($order->getProducts()));
-		try
+		OrderTable::update(
+			[
+				'edited_at' => $now,
+				'delivery_address' => $order->deliveryAddress,
+				'name' => $order->name,
+				'surname' => $order->surname,
+				'status_id' => $order->statusId,
+			], ['AND', ['=id' => $order->id]]
+		);
+		if ($orm->affectedRows() === 0)
 		{
-			$query->begin();
-			$changeOrderSQL = "
-				UPDATE up_order
-				SET
-					edited_at='{$now}',
-					delivery_address='{$order->deliveryAddress}',
-					name='{$order->name}',
-					surname='{$order->surname}'
-				WHERE id={$order->id}";
-			$query->getQueryResult($changeOrderSQL);
-
-			// $deleteItemLinkSQL = "DELETE FROM up_order_item WHERE item_id NOT IN ($itemIds)";
-			// $query->getQueryResult($deleteItemLinkSQL);
-			// foreach ($order->getProducts() as $item)
-			// {
-			// 	$addLinkToItemSQL = "INSERT IGNORE INTO up_order_item (order_id, item_id, quantities, price)
-			// 						VALUES ({$order->id}, {$item->info->id}, {$item->getQuantity()}, {$item->info->price})";
-			// 	$query->getQueryResult($addLinkToItemSQL);
-			// }
-			if (Query::affectedRows() === 0)
-			{
-				throw new OrderNotChanged();
-			}
-			$query->commit();
-		}
-		catch (\Throwable|OrderNotChanged)
-		{
-			$query->rollback();
 			throw new OrderNotChanged();
 		}
 	}
 
-	public static function getColumn(): array
+	public static function createOrderEntity(array $row): Order
 	{
-		$query = Query::getInstance();
-		$sql = "SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
-                WHERE TABLE_NAME = 'up_order';";
-
-		$result = $query->getQueryResult($sql);
-		$columns = [];
-		while ($column = mysqli_fetch_column($result))
-		{
-			if ($column === 'status_id')
-			{
-				$column = 'status';
-			}
-			$columns[] = $column;
-		}
-
-		return $columns;
+		return new Order(
+			$row['order_id'],
+			[],
+			UserRepositoryImpl::createUserEntity($row),
+			$row['delivery_address'] ?? null,
+			$row['created_at'] ?? null,
+			$row['edited_at'] ?? null,
+			$row['status_title'],
+			$row['name'] ?? null,
+			$row['surname'] ?? null,
+		);
 	}
 
-	private static function getItemsIds(array $items)
+	private static function getOrderList($where = []): \mysqli_result|bool
 	{
-		$itemIds = [];
-		foreach ($items as $item)
+		return OrderTable::getList(
+						[
+							'order_id' => 'id',
+							'delivery_address',
+							'created_at',
+							'edited_at',
+							'name',
+							'surname',
+							'user' => ['user_id' => 'id'],
+							'status' => ['status_title' => 'title'],
+							'order_product' => ['product' => ['id'], 'quantities', 'price'],
+						],
+			conditions: $where
+		);
+	}
+
+	private static function getIds(\mysqli_result $result): array
+	{
+		$ids = [];
+		while ($row = $result->fetch_assoc())
 		{
-			$itemIds[] = $item->info->id;
+			$ids[] = $row['id'];
 		}
 
-		return $itemIds;
+		return $ids;
 	}
 }

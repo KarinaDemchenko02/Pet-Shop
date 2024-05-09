@@ -12,5 +12,5 @@ interface TokenRepository
 
 	public static function updateByJti(string $jti, TokenDto $newToken): void;
 
-	public static function getAllByUserId(int $uid): TokenDto;
+	public static function getAllByUserId(int $uid): array;
 }

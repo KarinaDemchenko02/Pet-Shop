@@ -15,14 +15,11 @@ interface ProductRepository extends Repository
 	public static function getByTitle(string $title): array;
 
 	public static function getByTags(array $tags): array;
-
-	public static function getByTag(int $tagId): array;
+	
 
 	public static function add(ProductAddingDto $productAddingDto): int;
 
 	public static function disable($id): void;
 
 	public static function change(ProductChangeDto $productChangeDto): void;
-
-	public static function getColumn(): array;
 }

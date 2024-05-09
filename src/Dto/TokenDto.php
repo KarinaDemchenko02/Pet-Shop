@@ -8,6 +8,7 @@ class TokenDto implements Dto
 		readonly int $uid,
 		readonly string $jti,
 		readonly int $exp,
+		readonly ?string $fingerPrint = null,
 	)
 	{
 	}

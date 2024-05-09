@@ -3,8 +3,11 @@
 use Up\Routing\Router;
 
 Router::group(['preMiddleware' => 'isLogin'], [
+	Router::post('/product/:id/', new \Up\Controller\PageDetailController(), 'buyProductAction'),
 	Router::get('/', new \Up\Controller\PageMainController(), 'showProductsAction'),
 	Router::get('/product/:id/', new \Up\Controller\PageDetailController(), 'showProductAction'),
+	Router::get('/special-offer/', new \Up\Controller\PageSpecialOfferController(), 'showSpecialOfferAction'),
+	Router::get('/special-offer/:id/', new \Up\Controller\PageProductBySpecialOfferController(), 'showProductBySpecialOfferAction'),
 	]);
 
 Router::post('/addToBasket/:id/', new \Up\Controller\BasketController(), 'addProductAction');
@@ -35,17 +38,24 @@ Router::group(['preMiddleware' => ['isLogin', 'isAdmin'], 'postMiddleware' => 'i
 	Router::post('/admin/product/image/', new \Up\Controller\ProductAdminController(), 'imageAction'),
 	Router::post('/admin/product/add/', new \Up\Controller\ProductAdminController(), 'addAction'),
 
+	Router::get('/productsAdmin-json/', new \Up\Controller\ProductAdminController(), 'getProductsAdminJsonAction'),
+
+	Router::patch('/admin/user/disable/', new \Up\Controller\UserAdminController(), 'disableAction'),
+	Router::patch('/admin/user/restore/', new \Up\Controller\UserAdminController(), 'restoreAction'),
+	Router::get('/userAdmin-json/', new \Up\Controller\UserAdminController(), 'getUserAdminJsonAction'),
+
 	Router::delete('/admin/order/', new \Up\Controller\OrderAdminController(), 'deleteAction'),
 	Router::post('/admin/order/add/', new \Up\Controller\OrderAdminController(), 'addAction'),
 	Router::patch('/admin/order/change/', new \Up\Controller\OrderAdminController(), 'changeAction'),
+	Router::get('/orderAdmin-json/', new \Up\Controller\OrderAdminController(), 'getOrderAdminJsonAction'),
 
 	Router::delete('/admin/tag/', new \Up\Controller\TagAdminController(), 'deleteAction'),
 	Router::post('/admin/tag/add/', new \Up\Controller\TagAdminController(), 'addAction'),
 	Router::patch('/admin/tag/change/', new \Up\Controller\TagAdminController(), 'changeAction'),
+	Router::get('/tagsAdmin-json/', new \Up\Controller\TagAdminController(), 'getTagAdminJsonAction'),
 	]);
 
 
-Router::post('/product/:id/', new \Up\Controller\PageDetailController(), 'buyProductAction');
 
 Router::get('/success/', new \Up\Controller\PageDetailController(), 'showModalSuccess');
 

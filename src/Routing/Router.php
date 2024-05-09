@@ -128,8 +128,7 @@ class Router
 		}
 		else
 		{
-			$data = ['errors' => 'Page not found'];
-			return new Response(Status::NOT_FOUND, $data);
+			return new Response(Status::NOT_FOUND, ['errors' => 'Page not found']);
 		}
 		$postMiddlewares = $this->getSortedMiddlewares($route->getPostMiddlewares(), 'post');
 		$response = (new Pipeline())

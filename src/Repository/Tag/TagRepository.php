@@ -9,5 +9,5 @@ interface TagRepository extends Repository
 {
 	public static function getById(int $id): Tag;
 
-	public static function add(string $title): bool;
+	public static function add(string $title): string | int;
 }

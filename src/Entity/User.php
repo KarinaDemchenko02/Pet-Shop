@@ -4,22 +4,24 @@ namespace Up\Entity;
 
 class User implements Entity
 {
-	public readonly int $id;
-	public readonly string $name;
-	public readonly string $surname;
-	public readonly string $phoneNumber;
-	public readonly string $email;
-	public readonly string $password;
-	public readonly string $role;
+	public readonly ?int $id;
+	public readonly ?string $name;
+	public readonly ?string $surname;
+	public readonly ?string $phoneNumber;
+	public readonly ?string $email;
+	public readonly ?string $password;
+	public readonly ?string $role;
+	public readonly ?bool $isActive;
 
 	public function __construct(
-		int    $id,
-		string $name,
-		string $surname,
-		string $phoneNumber,
-		string $email,
-		string $password,
-		string $role
+		? int    $id,
+		?string $name,
+		?string $surname,
+		?string $phoneNumber,
+		?string $email,
+		?string $password,
+		?string $role,
+		?bool $isActive
 	)
 	{
 		$this->id = $id;
@@ -29,6 +31,7 @@ class User implements Entity
 		$this->email = $email;
 		$this->password = $password;
 		$this->role = $role;
+		$this->isActive = $isActive;
 	}
 
 }

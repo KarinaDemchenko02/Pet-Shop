@@ -30,6 +30,7 @@ class PageDetailTemplateEngine implements TemplateEngine
 			'formBuyProduct' => $formBuyProduct,
 			'basket' => $basket,
 			'isLogin' => $isLogIn,
+			'characteristics' =>$productDto->characteristics,
 		]);
 		$footer = new Template('components/main/footer');
 		$isLogIn = $variables['isLogIn'];

@@ -1,23 +1,35 @@
 export class UserItem
 {
 	id;
+	name;
+	surname;
 	email;
-	role;
-	phone;
+	roleTitle;
+	phoneNumber;
 	orders;
-	editButtonHandler;
+	isActive;
+	removeButtonHandler;
+	restoreButtonHandler;
 
-	constructor({ id, email, role, phone, orders, editButtonHandler })
+	constructor({ id, name, surname, email, roleTitle, phoneNumber, orders, isActive, removeButtonHandler, restoreButtonHandler })
 	{
 		this.id = Number(id);
+		this.name = String(name);
+		this.surname = String(surname);
 		this.email = String(email);
-		this.role = String(role);
-		this.phone = String(phone);
+		this.roleTitle = String(roleTitle);
+		this.phoneNumber = String(phoneNumber);
 		this.orders = orders;
+		this.isActive = Boolean(isActive);
 
-		if (typeof editButtonHandler === 'function')
+		if (typeof removeButtonHandler === 'function')
 		{
-			this.editButtonHandler = editButtonHandler;
+			this.removeButtonHandler = removeButtonHandler;
+		}
+
+		if (typeof restoreButtonHandler === 'function')
+		{
+			this.restoreButtonHandler = restoreButtonHandler;
 		}
 	}
 
@@ -31,48 +43,82 @@ export class UserItem
 		idColumn.classList.add('table__th', 'table__th_id');
 		idColumn.innerText = this.id;
 
+		const nameColumn = document.createElement('td');
+		nameColumn.classList.add('table__th', 'table__th_name');
+		nameColumn.innerText = this.name;
+
+		const surnameColumn = document.createElement('td');
+		surnameColumn.classList.add('table__th', 'table__th_name');
+		surnameColumn.innerText = this.surname;
+
 		const emailColumn = document.createElement('td');
 		emailColumn.classList.add('table__th', 'table__th_title');
 		emailColumn.innerText = this.email;
 
 		const roleColumn = document.createElement('td');
-		roleColumn.classList.add('table__th', 'table__th_desc');
-		roleColumn.innerText = this.role;
+		roleColumn.classList.add('table__th', 'table__th_role');
+		roleColumn.innerText = this.roleTitle;
 
 		const phoneColumn = document.createElement('td');
 		phoneColumn.classList.add('table__th', 'table__th_price');
-		phoneColumn.innerText = this.phone;
+		phoneColumn.innerText = this.phoneNumber;
 
 		const ordersColumn = this.createOrderColumn();
 		ordersColumn.classList.add('table__th', 'table__th_tags');
 
-		const spinnerEdit = document.createElement('div');
-		spinnerEdit.classList.add('spinner-border', 'text-light', 'spinner-action');
-		const spinnerLoadingEdit = document.createElement('span');
-		spinnerLoadingEdit.innerText = 'Loading...';
-		spinnerLoadingEdit.classList.add('visually-hidden');
-		spinnerEdit.append(spinnerLoadingEdit);
+		const activeColumn = document.createElement('td');
+		activeColumn.classList.add('table__th', 'table__th_active');
+		activeColumn.innerText = this.isActive;
 
-		const editButton = document.createElement('button')
-		editButton.classList.add('table__button', 'table__button_edit')
-		editButton.innerText = 'Редактировать';
-		editButton.id = String(this.id) + 'edit';
-		editButton.addEventListener('click', this.handleEditButtonClick.bind(this));
-		editButton.append(spinnerEdit);
+		const spinnerRemove = document.createElement('div');
+		spinnerRemove.classList.add('spinner-border', 'text-light', 'spinner-action');
+		const spinnerLoadingRemove = document.createElement('span');
+		spinnerLoadingRemove.innerText = 'Loading...';
+		spinnerLoadingRemove.classList.add('visually-hidden');
+		spinnerRemove.append(spinnerLoadingRemove);
+
+		const removeButton = document.createElement('button');
+		removeButton.classList.add('table__button', 'table__button_delete');
+		removeButton.id = String(this.id) + 'remove';
+		removeButton.innerText = 'Удалить';
+		removeButton.addEventListener('click', this.handleRemoveButtonClick.bind(this));
+		removeButton.append(spinnerRemove);
+
+		const spinnerRestore = document.createElement('div');
+		spinnerRestore.classList.add('spinner-border', 'text-light', 'spinner-action');
+		const spinnerLoadingRestore = document.createElement('span');
+		spinnerLoadingRestore.innerText = 'Loading...';
+		spinnerLoadingRestore.classList.add('visually-hidden');
+		spinnerRestore.append(spinnerLoadingRestore);
+
+		const restoreButton = document.createElement('button');
+		restoreButton.classList.add('table__button', 'table__button_restore');
+		restoreButton.id = String(this.id) + 'restore';
+		restoreButton.innerText = 'Восстановить';
+		restoreButton.append(spinnerRestore);
+		restoreButton.addEventListener('click', this.handleRestoreButtonClick.bind(this));
 
 		const actionsColumn = document.createElement('td');
 		actionsColumn.classList.add('table__th', 'table__th_button');
-		actionsColumn.append(editButton);
+		actionsColumn.append(removeButton, restoreButton);
 
-		trProduct.append(idColumn, emailColumn, roleColumn, phoneColumn, ordersColumn, actionsColumn);
+		trProduct.append(idColumn, nameColumn, surnameColumn, emailColumn, phoneColumn, roleColumn, ordersColumn, activeColumn, actionsColumn);
 		return trProduct;
 	}
 
-	handleEditButtonClick()
+	handleRemoveButtonClick()
 	{
-		if (this.editButtonHandler)
+		if (this.removeButtonHandler)
 		{
-			this.editButtonHandler(this);
+			this.removeButtonHandler(this);
+		}
+	}
+
+	handleRestoreButtonClick()
+	{
+		if (this.restoreButtonHandler)
+		{
+			this.restoreButtonHandler(this);
 		}
 	}
 
@@ -124,22 +170,6 @@ export class UserItem
 		labelsContainer.append(idOrderLabel, statusOrderLabel);
 
 		orderRowContainer.append(labelsContainer);
-		this.tags.forEach((order) => {
-			const orderRow = document.createElement('ul');
-			orderRow.id = 'productRow';
-			orderRow.classList.add('productRow');
-
-			const orderIdColumn = document.createElement('li')
-			orderIdColumn.classList.add();
-			orderIdColumn.innerText = order['orderId'];
-
-			const orderStatusColumn = document.createElement('li')
-			orderStatusColumn.classList.add();
-			orderStatusColumn.innerText = order['orderStatus'];
-
-			orderRow.append(orderIdColumn, orderStatusColumn);
-			orderRowContainer.append(orderRow);
-		});
 		orderColumn.append(dropdownButton, orderRowContainer);
 		return orderColumn;
 	}

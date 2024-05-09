@@ -1,5 +1,8 @@
 <?php
 
+$url = $_SERVER['REQUEST_URI'];
+$url = explode('?', $url)[0];
+
 $page = $this->getVariable('products');
 
 if (empty($page))
@@ -48,24 +51,27 @@ if (empty($nextPage))
 
 <div class="pagination">
 	<?php
-	if ($activePage !== 1) { ?>
-		<a class="pagination__button-switch pagination__button_next" href='/?<?= http_build_query(
+	if ($activePage !== 1)
+	{ ?>
+		<a class="pagination__button-switch pagination__button_next" href='<?= $url . '?' . http_build_query(
 			array_merge($_GET, ['page' => $activePage - 1])
 		) ?>'>Назад</a>
 		<?php
 	} ?>
 	<?php
-	for ($p = $start; $p <= $end; $p++) { ?>
-		<a class="pagination__button" href='/?<?= http_build_query(array_merge($_GET, ['page' => $p])) ?>'>
+	for ($p = $start; $p <= $end; $p++)
+	{ ?>
+		<a class="pagination__button" href='<?= $url . '?' . http_build_query(array_merge($_GET, ['page' => $p])) ?>'>
 			<?= $p ?>
 		</a>
 		<?php
 	} ?>
 	<?php
-//	if (!empty($nextPage)) { ?>
-<!--		<a class="pagination__button-switch pagination__button_next" href='/?--><?php //= http_build_query(
-//			array_merge($_GET, ['page' => $activePage + 1])
-//		) ?><!--'>Вперед</a>-->
-<!--		--><?php
-//	} ?>
+	if (!empty($nextPage))
+	{ ?>
+		<a class="pagination__button-switch pagination__button_next" href='<?= $url . '?' . http_build_query(
+			array_merge($_GET, ['page' => $activePage + 1])
+		) ?>'>Вперед</a>
+		<?php
+	} ?>
 </div>

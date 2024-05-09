@@ -85,6 +85,7 @@ class ProductAdminController extends Controller
 			$request->getDataByKey('description'),
 			$request->getDataByKey('price'),
 			$request->getDataByKey('tags'),
+			$request->getDataByKey('priority'),
 		);
 
 		$response = [];
@@ -161,7 +162,7 @@ class ProductAdminController extends Controller
 			if (($image = $request->getDataByKey('image')) !== null)
 			{
 				$imagePath = Upload::upload($image);
-				ProductService::addImage($imagePath, $request->getDataByKey('idProduct'));
+				ProductService::changeImage($imagePath, $request->getDataByKey('idProduct'));
 				$result = true;
 			}
 			else
@@ -187,5 +188,23 @@ class ProductAdminController extends Controller
 			$status = Status::NOT_ACCEPTABLE;
 		}
 		return new Response($status, $response);
+	}
+
+	public function getProductsAdminJsonAction(Request $request): Response
+	{
+		$page = $request->getVariable('page');
+
+		if (!(is_numeric($page) && $page > 0))
+		{
+			$page = 1;
+		}
+
+		$products = ProductService::getAllProductsForAdmin($page);
+		$nextPage = ProductService::getAllProductsForAdmin($page + 1);
+
+		return new Response(Status::OK, [
+			'products' => $products,
+			'nextPage' => $nextPage,
+		]);
 	}
 }

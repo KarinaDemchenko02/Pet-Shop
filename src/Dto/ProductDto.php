@@ -13,6 +13,7 @@ class ProductDto implements Dto
 	public readonly string $description;
 	public readonly string $price;
 	public readonly string $imagePath;
+	public readonly array $characteristics;
 	public function __construct(Product $product)
 	{
 		$this->id = $product->id;
@@ -20,10 +21,6 @@ class ProductDto implements Dto
 		$this->description = $product->description;
 		$this->price = $product->price;
 		$this->imagePath = $product->imagePath;
+		$this->characteristics = $product->getCharacteristics();
 	}
-
-	/*public static function from(Entity $entity): void
-	{
-		// TODO: from() function
-	}*/
 }

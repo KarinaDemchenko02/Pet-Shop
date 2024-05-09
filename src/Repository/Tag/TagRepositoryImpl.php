@@ -4,88 +4,61 @@ namespace Up\Repository\Tag;
 
 use Up\Dto\Tag\TagChangingDto;
 use Up\Entity\Tag;
-use Up\Exceptions\Admin\Order\OrderNotChanged;
-use Up\Exceptions\Admin\Order\OrderNotDeleted;
 use Up\Exceptions\Admin\Tag\TagNotChanged;
+use Up\Exceptions\Tag\TagNotAdding;
+use Up\Util\Database\Orm;
 use Up\Util\Database\Query;
+use Up\Util\Database\Tables\TagTable;
 
 class TagRepositoryImpl implements TagRepository
 {
 
 	public static function getAll(): array
 	{
-		$query = Query::getInstance();
-		$sql = "select * from up_tags;";
-
-		$result = $query->getQueryResult($sql);
-
-		$tags = [];
-
-		while ($row = mysqli_fetch_assoc($result))
-		{
-			$tags[$row['id']] = new Tag($row['id'], $row['name']);
-		}
-
-		return $tags;
+		return self::createTagList(self::getTagList());
 	}
 
 	public static function getById(int $id): Tag
 	{
-		$query = Query::getInstance();
-		$sql = "select * from up_tags where id = {$id};";
-
-		$result = $query->getQueryResult($sql);
-
-		$row = mysqli_fetch_assoc($result);
-
-		return new Tag($row['id'], $row['name']);
+		return self::createTagList(self::getTagList(['AND', ['=tag_id' => $id]]))[$id];
 	}
 
-	public static function add(string $title): bool
+	/**
+	 * @throws TagNotAdding
+	 */
+
+	public static function add(string $title): string | int
 	{
-		$query = Query::getInstance();
-		$sql = "INSERT INTO up_tags (name) VALUES ('{$title}');";
-
-		$result = $query->getQueryResult($sql);
-
-		return true;
-	}
-
-	public static function getColumn(): array
-	{
-		$query = Query::getInstance();
-		$sql = "SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
-				WHERE TABLE_NAME = 'up_tags'";
-		$result = $query->getQueryResult($sql);
-		$columns = [];
-		while ($column = mysqli_fetch_column($result))
-		{
-			$columns[] = $column;
-		}
-		return $columns;
-	}
-
-	public static function delete(int $id)
-	{
-		/*$query = Query::getInstance();
+		$orm = Orm::getInstance();
 		try
 		{
-			$query->begin();
-			$deleteLinkOrderSQL = "DELETE FROM up_order_item WHERE order_id=$id";
-			$query->getQueryResult($deleteLinkOrderSQL);
-			$deleteOrderSQL = "DELETE FROM up_order WHERE id=$id";
-			$query->getQueryResult($deleteOrderSQL);
-			if (Query::affectedRows() === 0)
+			TagTable::add(['title' => $title]);
+
+			if ($orm->affectedRows() === 0)
 			{
-				throw new OrderNotDeleted();
+				throw new TagNotAdding();
 			}
-			$query->commit();
+
+			return $orm->last();
 		}
 		catch (\Throwable)
 		{
-			$query->rollback();
-			throw new OrderNotDeleted();
-		}*/
+			throw new TagNotAdding();
+		}
+
+	}
+
+	/**
+	 * @throws TagNotChanged
+	 */
+	public static function delete(int $id): void
+	{
+		$orm = Orm::getInstance();
+		TagTable::delete(['AND', ['=id' => $id]]);
+		if ($orm->affectedRows() === 0)
+		{
+			throw new TagNotChanged();
+		}
 	}
 
 	/**
@@ -93,34 +66,60 @@ class TagRepositoryImpl implements TagRepository
 	 */
 	public static function change(TagChangingDto $dto): void
 	{
-		$query = Query::getInstance();
-		try
+		$orm = Orm::getInstance();
+		TagTable::update(['title' => $dto->title], ['AND', ['=id' => $dto->id]]);
+		if ($orm->affectedRows() === 0)
 		{
-			$query->begin();
-			$changeOrderSQL = "
-				UPDATE up_tags
-				SET name='{$dto->title}'
-				WHERE id={$dto->id}";
-			$query->getQueryResult($changeOrderSQL);
-
-			// $deleteItemLinkSQL = "DELETE FROM up_order_item WHERE item_id NOT IN ($itemIds)";
-			// $query->getQueryResult($deleteItemLinkSQL);
-			// foreach ($order->getProducts() as $item)
-			// {
-			// 	$addLinkToItemSQL = "INSERT IGNORE INTO up_order_item (order_id, item_id, quantities, price)
-			// 						VALUES ({$order->id}, {$item->info->id}, {$item->getQuantity()}, {$item->info->price})";
-			// 	$query->getQueryResult($addLinkToItemSQL);
-			// }
-			if (Query::affectedRows() === 0)
-			{
-				throw new TagNotChanged();
-			}
-			$query->commit();
-		}
-		catch (\Throwable|TagNotChanged)
-		{
-			$query->rollback();
 			throw new TagNotChanged();
 		}
+	}
+
+	public static function createTagEntity(array $row): Tag
+	{
+		return new Tag($row['tag_id'], $row['tag_title']);
+	}
+
+	private static function createTagList(\mysqli_result $result): array
+	{
+		$tags = [];
+		while ($row = mysqli_fetch_assoc($result))
+		{
+			$tags[$row['tag_id']] = self::createTagEntity($row);
+		}
+
+		return $tags;
+	}
+
+	public static function getAllForAdmin(int $page = 1): array
+	{
+		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
+		$offset = $limit * ($page - 1);
+
+		$result = TagTable::getList(['id'],
+			limit:                      $limit,
+			offset:                     $offset);
+		$ids = self::getIds($result);
+		if (empty($ids))
+		{
+			return [];
+		}
+
+		return self::createTagList(self::getTagList(['AND', ['in=id' => $ids]]));
+	}
+
+	private static function getTagList($where = []): \mysqli_result|bool
+	{
+		return TagTable::getList(['tag_id' => 'id', 'tag_title' => 'title'], conditions: $where);
+	}
+
+	private static function getIds(\mysqli_result $result): array
+	{
+		$ids = [];
+		while ($row = $result->fetch_assoc())
+		{
+			$ids[] = $row['id'];
+		}
+
+		return $ids;
 	}
 }

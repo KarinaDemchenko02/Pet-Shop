@@ -3,34 +3,43 @@
 namespace Up\Repository\Image;
 
 use Up\Entity\Image;
-use Up\Util\Database\Query;
+use Up\Exceptions\Images\ImageNotAdd;
+use Up\Util\Database\Orm;
+use Up\Util\Database\Tables\ImageTable;
 
 class ImageRepositoryImpl implements ImageRepository
 {
-	private const SELECT_SQL = "select id, path, item_id from up_image ";
-
 	public static function getById(int $id)
 	{
-		$query = Query::getInstance();
-		$sql = self::SELECT_SQL . " where id={$id}";
-		$result = $query->getQueryResult($sql);
-
-		return self::createImageList($result)[$id];
+		return self::createImageList(self::getImageList())[$id];
 	}
 
-	public static function getAll()
+	public static function getAll(): array
 	{
-		$query = Query::getInstance();
-		$result = $query->getQueryResult(self::SELECT_SQL);
-
-		return self::createImageList($result);
+		return self::createImageList(self::getImageList());
 	}
 
-	public static function delete($id)
+	public static function add($path, $productId): void
 	{
-		$query = Query::getInstance();
-		$deleteImageSQL = "DELETE FROM up_image WHERE id={$id}";
-		$query->getQueryResult($deleteImageSQL);
+		ImageTable::add(['path' => $path, 'product_id' => $productId]);
+	}
+
+	/**
+	 * @throws ImageNotAdd
+	 */
+	public static function change(string $imagePath, int $id): void
+	{
+		$orm = Orm::getInstance();
+		ImageTable::update(['path' => $imagePath], ['AND', ['=product_id' => $id]]);
+		if ($orm->affectedRows() === 0)
+		{
+			throw new ImageNotAdd();
+		}
+	}
+
+	public static function delete($id): void
+	{
+		ImageTable::delete(['AND', '=id' => $id]);
 	}
 
 	private static function createImageList(\mysqli_result $result): array
@@ -38,9 +47,19 @@ class ImageRepositoryImpl implements ImageRepository
 		$images = [];
 		while ($row = mysqli_fetch_assoc($result))
 		{
-			$images[$row['id']] = new Image($row['id'], $row['path'], $row['item_id'], 'base');
+			$images[$row['id']] = self::createImageEntity($row);
 		}
 
 		return $images;
+	}
+
+	public static function createImageEntity($row): Image
+	{
+		return new Image($row['image_id'], $row['path'], $row['product_id'], 'base');
+	}
+
+	private static function getImageList($where = []): \mysqli_result|bool
+	{
+		return ImageTable::getList(['image_id' => 'id', 'path', 'product_id'], conditions: $where);
 	}
 }

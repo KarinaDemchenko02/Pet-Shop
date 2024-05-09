@@ -203,8 +203,10 @@ export class ProductList
 
 	async render() {
 		if (this.items.length === 0) {
+			this.rootNode.innerHTML = '';
 			const modal = new Error('Данная страница не найдена!').render();
 			this.rootNode.append(modal);
+
 			return false;
 		}
 

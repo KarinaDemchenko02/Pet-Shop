@@ -3,11 +3,11 @@
 namespace Up\Auth;
 
 
-use Up\Dto\UserAddingDto;
-use Up\Dto\UserDto;
+use Up\Dto\User\UserAddingDto;
+use Up\Dto\User\UserDto;
 use Up\Exceptions\Auth\InvalidPassword;
 use Up\Exceptions\User\UserAdding;
-use Up\Exceptions\User\UserNotFound;
+use Up\Repository\User\UserRepositoryImpl;
 use Up\Service\UserService\UserService;
 
 class Auth
@@ -55,11 +55,11 @@ class Auth
 			$user->email,
 			$password,
 			$user->phoneNumber,
-			$user->roleTitle
+			2,
 		);
 		try
 		{
-			UserService::addUser($userAddingDto);
+			UserRepositoryImpl::add($userAddingDto);
 			return true;
 		}
 		catch (UserAdding)

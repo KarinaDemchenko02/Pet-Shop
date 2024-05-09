@@ -2,9 +2,11 @@ export class Error
 {
 	messages;
 	container;
-	constructor(messages, container = null) {
+	href;
+	constructor(messages, container = null, href = '/') {
 		this.messages = messages;
 		this.container = container;
+		this.href = href;
 	}
 
 	printError()
@@ -34,7 +36,7 @@ export class Error
 		const linkMainPage = document.createElement('a');
 		linkMainPage.classList.add('product__error-link');
 		linkMainPage.innerText = 'Перейти на главную';
-		linkMainPage.href = '/';
+		linkMainPage.href = this.href;
 
 		container.append(errorHeading, linkMainPage);
 

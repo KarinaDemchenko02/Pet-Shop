@@ -76,6 +76,7 @@ export class Auth
 					logIn.disabled = false;
 
 					new Error('Данные введены некорректно', formContainer).printError();
+					new Error(response.errors, formContainer).printError();
 				}
 			})
 			.catch((error) => {
@@ -179,10 +180,12 @@ export class Auth
 					register.disabled = false;
 
 					new Error('Данные введены некорректно', formContainer).printError();
+					new Error('Некорректно введенные данные', formContainer).printError();
 				}
 			})
 			.catch((error) => {
 				console.error('Error while changing item.', error);
+				new Error('Что-то пошло не так', formContainer).printError();
 				register.disabled = false;
 
 				new Error('Что-то пошло не так', formContainer).printError();
@@ -232,6 +235,12 @@ export class Auth
 		phone.value = '';
 		email.value = '';
 		password.value = '';
+
+		const errorContainer = document.querySelector('.form__alert-container');
+
+		if (errorContainer) {
+			errorContainer.remove();
+		}
 
 		if (buttonCreateAccount.textContent === 'Создать аккаунт') {
 			inputsRegister.forEach(input => {

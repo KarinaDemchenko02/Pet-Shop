@@ -8,8 +8,7 @@ class PageAccountTemplateEngine implements TemplateEngine
 	{
 		$user = $variables['user'];
 		$orders = $variables['orders'];
-		$isLogIn = $variables['isLogIn'];
-		$header = $this->getHeaderTemplate($isLogIn);
+		$header = new Template('components/account/header');
 		$footer = new Template('components/main/footer');
 		$userInfo = new Template('components/account/pageUserInfo', [
 			'user' => $user,
@@ -22,31 +21,5 @@ class PageAccountTemplateEngine implements TemplateEngine
 			'content' => $userInfo,
 			'footer' => $footer,
 		]);
-	}
-
-	public function getAuthPageTemplate($variables): Template
-	{
-		$isLogIn = $variables['isLogIn'];
-		$header = $this->getHeaderTemplate($isLogIn);
-		$footer = new Template('components/main/footer');
-		$content = new Template('components/main/formAuthorization', ['destination' => $variables['destination']]);
-		return (new Template('page/account/account', [
-			'header' => $header,
-			'content' => $content,
-			'footer' => $footer
-		]));
-	}
-
-	public function getHeaderTemplate(bool $isLogIn): Template
-	{
-		if ($isLogIn)
-		{
-			$authSection = new Template('components/main/logOut');
-		}
-		else
-		{
-			$authSection = new Template('components/main/logIn');
-		}
-		return new Template('components/main/header', ['authSection' => $authSection]);
 	}
 }

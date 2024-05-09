@@ -12,6 +12,7 @@ class ProductChangeDto implements Dto
 		public readonly string $description,
 		public readonly string $price,
 		public readonly array $tags,
+		public readonly int $priority,
 	){}
 
 	public static function from(Entity $entity): void
