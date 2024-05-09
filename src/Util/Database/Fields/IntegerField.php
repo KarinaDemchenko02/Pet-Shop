@@ -2,7 +2,7 @@
 
 namespace Up\Util\Database\Fields;
 
-class IntegerField extends Field
+class IntegerField extends DataField
 {
 	public function getType(): string
 	{

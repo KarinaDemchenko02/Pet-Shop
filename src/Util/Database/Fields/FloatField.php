@@ -2,7 +2,7 @@
 
 namespace Up\Util\Database\Fields;
 
-class FloatField extends Field
+class FloatField extends DataField
 {
 	public function getType(): string
 	{

@@ -11,11 +11,28 @@ abstract class Relation extends Field
 		readonly Table  $referenceTable,
 		readonly string $condition,
 		readonly string $joinType = 'LEFT',
-		bool            $isPrimary = false,
-		bool            $isNullable = true,
-		bool            $isDefaultExists = false
 	)
 	{
-		parent::__construct($name, $isPrimary, $isNullable, $isDefaultExists);
+		parent::__construct($name);
+	}
+
+	protected function formatCondition(string $condition, Table $thisTable,  Table $referenceTable): string
+	{
+		$condition = str_replace(['this', 'ref'],
+								 [$thisTable::getTableName(), $referenceTable::getTableName()],
+								 $condition);
+
+		return $condition;
+
+	}
+
+	abstract protected function getJoinCondition(Table $thisTable): string;
+
+	public function getJoin(Table $thisTable): array
+	{
+		return [
+			'type' => $this->joinType,
+			'condition' => $this->getJoinCondition($thisTable),
+		];
 	}
 }

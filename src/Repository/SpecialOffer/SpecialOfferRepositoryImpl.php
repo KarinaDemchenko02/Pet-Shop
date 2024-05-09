@@ -23,12 +23,7 @@ class SpecialOfferRepositoryImpl implements SpecialOfferRepository
 
 	public static function add(string $title, string $description): bool
 	{
-		$query = Query::getInstance();
-		$sql = "INSERT INTO up_special_offer (title, description) VALUES ('{$title}', '{$description}');";
-
-		$result = $query->getQueryResult($sql);
-
-		return true;
+		return SpecialOfferTable::add(['title' => $title, 'description', $description]);;
 	}
 
 	public static function getPreviewProducts(): array

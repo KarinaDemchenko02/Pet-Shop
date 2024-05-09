@@ -10,4 +10,9 @@ class Reference extends Relation
 	{
 		return 'reference';
 	}
+
+	protected function getJoinCondition(Table $thisTable): string
+	{
+		return $this->formatCondition($this->condition, $thisTable, $this->referenceTable);
+	}
 }
