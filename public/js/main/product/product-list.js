@@ -280,7 +280,7 @@ export class ProductList
 			}
 		}
 
-		let currentPage = parseInt(new URLSearchParams(window.location.search).get('page') || '1');
+		let currentPage = parseInt(new URLSearchParams(window.location.search).get('page') || 1);
 		const startIndex = Math.max(1, currentPage - 1);
 		const endIndex = Math.min(parseInt(this.currentPagination), currentPage + 1);
 

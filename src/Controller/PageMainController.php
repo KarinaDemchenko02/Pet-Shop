@@ -78,11 +78,28 @@ class PageMainController extends Controller
 		}
 
 		$products = ProductService::getProductsByTags(array($tagParam), $page);
+
+		$productsAll = ProductService::getAllProducts($page);
+
 		$productsTitle = ProductService::getProductByTitle((string) $titleParam, $page);
 		$nextPage = ProductService::getProductsByTags(array($tagParam), $page + 1);
 		$allProducts = ProductService::getAllProducts($page);
 		$productsByTagTitle = ProductService::getByTagsTitle((array) $tagParam, $titleParam, $page);
 		$productsByTagTitleNext = ProductService::getByTagsTitle((array) $tagParam, $titleParam, $page + 1);
+
+		$content = [];
+		foreach ($products as $product)
+		{
+			$content[] = [
+				'title' => $product->title,
+				'description' => $product->description,
+				'price' => $product->price,
+				'id' => $product->id,
+				'imagePath' => $product->imagePath,
+			];
+		}
+
+		return new Response(Status::OK, ['products' => $content, 'nextPage' => $nextPage, 'allProducts' => $productsAll]);
 
 		return new Response(Status::OK, [
 			'products' => $products,

@@ -75,6 +75,7 @@ export class Auth
 					console.error(response.errors);
 					logIn.disabled = false;
 
+					new Error('Данные введены некорректно', formContainer).printError();
 					new Error(response.errors, formContainer).printError();
 				}
 			})
@@ -177,6 +178,8 @@ export class Auth
 				{
 					console.error(response.errors);
 					register.disabled = false;
+
+					new Error('Данные введены некорректно', formContainer).printError();
 					new Error('Некорректно введенные данные', formContainer).printError();
 				}
 			})
@@ -184,6 +187,8 @@ export class Auth
 				console.error('Error while changing item.', error);
 				new Error('Что-то пошло не так', formContainer).printError();
 				register.disabled = false;
+
+				new Error('Что-то пошло не так', formContainer).printError();
 			})
 	}
 
@@ -218,6 +223,12 @@ export class Auth
 		let phone = document.getElementById('phone');
 		let email = document.getElementById('email');
 		let password = document.getElementById('password');
+
+		const errorContainer = document.querySelector('.form__alert-container');
+
+		if (errorContainer) {
+			errorContainer.remove();
+		}
 
 		name.value = '';
 		surname.value = '';

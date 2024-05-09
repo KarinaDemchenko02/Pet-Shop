@@ -145,6 +145,7 @@ export class Search
 			const paramValue = urlParams.get('tag');
 
 			fetch(
+				`/search-json/?title=${title}&page=${page}`,
 				`/search-json/?title=${title}&page=${page}&tag=${paramValue}`,
 				{
 					method: 'GET',

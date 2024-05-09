@@ -15,6 +15,9 @@ class OrderController extends Controller
 {
 	public function buyProductAction(Request $request): Response
 	{
+		$request->getDataByKey('surname');
+		$request->getDataByKey('address');
+
 		try
 		{
 			$orderDto = new OrderAddingDto(

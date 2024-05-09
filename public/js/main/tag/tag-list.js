@@ -12,7 +12,7 @@ export class TagList
 	basketItem = [];
 	currentPagination = new URLSearchParams(window.location.search).get('page');
 
-	constructor({ attachToNodeId = '', items, basketItem })
+	constructor({ attachToNodeId = '', items, basketItem})
 	{
 		if (attachToNodeId === '')
 		{
@@ -32,6 +32,10 @@ export class TagList
 
 		this.basketItem = basketItem.map((itemData) => {
 			return this.createBasket(itemData);
+		})
+
+		this.allProducts = items.map((itemData) => {
+			return this.createProduct(itemData)
 		})
 	}
 
@@ -140,7 +144,7 @@ export class TagList
 
 			currentTags.push(tag.toString());
 
-			currentTags = currentTags.filter((item, index) => currentTags.indexOf(item) === index);
+			//currentTags = currentTags.filter((item, index) => currentTags.indexOf(item) === index);
 
 			if (currentTags[1]) {
 				if (currentTags[0].includes(currentTags[1])) {
@@ -153,6 +157,11 @@ export class TagList
 				}
 			}
 
+			if (currentTags[0].length === 0) {
+				newUrl.searchParams.set('tag', '');
+			} else {
+				newUrl.searchParams.set('tag', currentTags.join(','));
+			}
 			checkboxes.forEach(checkbox => {
 				if (checkbox.checked) {
 					newUrl.searchParams.set('tag', currentTags.join(','));
@@ -277,6 +286,26 @@ export class TagList
 						this.renderPagination();
 					}
 
+					if (currentTags[0].length === 0) {
+						console.log(response.allProducts);
+					}
+
+					let products = response.products.map((itemData) => {
+						return this.createProduct(itemData);
+					});
+
+					const productsList = new ProductList({
+						attachToNodeId: 'product__list-container',
+						items: products,
+						basketItem: this.basketItem
+					});
+
+					await productsList.render();
+
+					this.renderPagination();
+
+					const spinner = document.querySelector('.spinner-product');
+					spinner.classList.remove('disabled');
 					if (spinner) {
 						spinner.classList.remove('disabled');
 					}

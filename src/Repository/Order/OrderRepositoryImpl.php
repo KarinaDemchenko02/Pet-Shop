@@ -51,6 +51,13 @@ class OrderRepositoryImpl implements OrderRepository
 
 	public static function getAllForAdmin(int $page = 1): array
 	{
+		$query = Query::getInstance();
+		$sql = "SELECT ui.id, ui.name, img.path, ui.price, uoi.quantities, us.title FROM `up_order` uo
+				JOIN up_status us ON us.id = uo.status_id 
+				JOIN up_order_item uoi ON uoi.order_id = uo.id
+				JOIN up_item ui ON ui.id = uoi.item_id
+                JOIN up_image img ON img.item_id = ui.id
+				WHERE uo.user_id = {$id}";
 		$limit = \Up\Util\Configuration::getInstance()->option('NUMBER_OF_PRODUCTS_PER_PAGE');
 		$offset = $limit * ($page - 1);
 
